@@ -1,0 +1,178 @@
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-display: "Baloo 2", "Atkinson Hyperlegible", sans-serif;
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-red: var(--red);
+  --color-yellow: var(--yellow);
+  --color-blue: var(--blue);
+  --color-orange: var(--orange);
+  --color-success: var(--success);
+}
+
+:root {
+  --radius: 1.25rem;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.15 0 0);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.15 0 0);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.15 0 0);
+  --primary: oklch(0.15 0 0);
+  --primary-foreground: oklch(1 0 0);
+  --secondary: oklch(0.96 0 0);
+  --secondary-foreground: oklch(0.15 0 0);
+  --muted: oklch(0.96 0 0);
+  --muted-foreground: oklch(0.4 0 0);
+  --accent: oklch(0.96 0 0);
+  --accent-foreground: oklch(0.15 0 0);
+  --destructive: oklch(0.6 0.24 27);
+  --destructive-foreground: oklch(1 0 0);
+  --border: oklch(0.15 0 0);
+  --input: oklch(0.15 0 0);
+  --ring: oklch(0.7 0.17 230);
+  --red: oklch(0.6 0.24 27);
+  --yellow: oklch(0.9 0.18 98);
+  --blue: oklch(0.7 0.16 230);
+  --orange: oklch(0.68 0.2 45);
+  --success: oklch(0.62 0.17 150);
+  --shadow-pop: 0 6px 0 0 var(--foreground);
+}
+
+@layer base {
+  * { border-color: var(--color-border); }
+  html { font-size: 20px; }
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+    font-family: var(--font-sans);
+  }
+  h1, h2, h3 { font-family: var(--font-display); }
+}
+
+@utility pop {
+  border: 4px solid var(--foreground);
+  box-shadow: var(--shadow-pop);
+  transition: transform 0.12s, box-shadow 0.12s;
+  &:active { transform: translateY(5px); box-shadow: 0 1px 0 0 var(--foreground); }
+}
+
+@utility balloon-shine {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    top: 14%; left: 22%;
+    width: 22%; height: 14%;
+    border-radius: 9999px;
+    background: oklch(1 0 0 / 0.7);
+    transform: rotate(-30deg);
+  }
+}
+
+@keyframes float-y { 0%,100% { transform: translateY(0) } 50% { transform: translateY(-8px) } }
+@keyframes celebrate { 0% { transform: scale(0.6); opacity: 0 } 60% { transform: scale(1.15); opacity: 1 } 100% { transform: scale(1) } }
+@keyframes shake { 0%,100% { transform: translateX(0) } 25% { transform: translateX(-8px) } 75% { transform: translateX(8px) } }
+@utility animate-float { animation: float-y 3s ease-in-out infinite; }
+@utility animate-celebrate { animation: celebrate 0.6s ease-out both; }
+@utility animate-shake { animation: shake 0.35s ease-in-out 2; }
+
+:root {
+  --home-bg: #FAF7EF; --home-blob-l: #DCE6F2; --home-blob-r: #FBE3D1;
+  --home-header: #23578D; --home-navy: #273550; --home-active: #1360D1;
+  --home-nav: #FDFBF9; --home-dot: #B8BAC0; --home-tag: #F8E1DB;
+  --home-sound: #FF8009; --home-sound-dark: #E8650A; --home-spark: #FFC02E; --home-sound-tag: #FEE5C7;
+  --b-red: #FF2F25; --b-red-d: #D91510; --b-blue: #1EA8F0; --b-blue-d: #0B86C8;
+  --b-yellow: #FFC400; --b-yellow-d: #D9A200; --b-orange: #FF7A1A; --b-orange-d: #D95E05;
+  --b-green: #1FB866; --b-green-d: #158F4D;
+}
+@utility home-bubble {
+  background: var(--b);
+  border: 3px solid var(--bd);
+  box-shadow: 0 0 0 10px color-mix(in oklab, var(--b) 18%, transparent), 0 12px 24px color-mix(in oklab, var(--b) 40%, transparent);
+  transition: transform 0.12s;
+  &:active { transform: scale(0.95); }
+}
+
+/* Keep touch targets readable without allowing intrinsic text widths to clip. */
+.app-shell {
+  --nav-height: 110px;
+  padding-bottom: calc(var(--nav-height) + 180px + env(safe-area-inset-bottom, 0px));
+}
+.app-main { width: 100%; min-width: 0; z-index: auto; }
+.app-header img { width: clamp(88px, 22vw, 180px); }
+.app-nav ul {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  padding: 12px 8px calc(10px + env(safe-area-inset-bottom, 0px));
+}
+.app-nav li { min-width: 0; }
+.app-nav a { min-height: 88px; font-size: 18px; }
+.app-nav svg { width: 36px; height: 36px; flex-shrink: 0; }
+.sound-control { bottom: calc(var(--nav-height) + 18px + env(safe-area-inset-bottom, 0px)); }
+.person-heading h1 { max-width: 100%; text-align: center; overflow-wrap: anywhere; }
+.teacher-actions button {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  min-width: 0;
+  width: 100%;
+}
+.teacher-actions button > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.profile-stars { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.profile-stars svg { width: 100%; max-width: 80px; height: auto; aspect-ratio: 1; justify-self: center; }
+.profile-settings button { min-width: 0; }
+.activity-screen > div { padding-bottom: calc(24px + env(safe-area-inset-bottom, 0px)); }
+.activity-screen p { white-space: nowrap; letter-spacing: 0; font-size: 60px; }
+.activity-screen [data-speak] { padding-top: 24px; padding-bottom: 16px; }
+
+@media (max-width: 639px) {
+  .app-main { padding: 24px 16px; }
+  .person-heading img { width: 160px; height: 160px; }
+  .person-heading h1 { font-size: 36px; line-height: 1.15; }
+  .teacher-actions { gap: 16px; }
+  .teacher-actions button { padding: 16px; gap: 16px; border-radius: 32px; }
+  .teacher-actions button > span:first-child { width: 64px; height: 64px; }
+  .teacher-actions button > span:last-child { font-size: 28px; line-height: 1.2; }
+  .profile-settings { gap: 12px; }
+  .profile-settings button { padding: 20px 12px; font-size: 22px; }
+  .activity-screen > div { padding-left: 12px; padding-right: 12px; }
+  .activity-screen [data-speak] { gap: 24px; }
+  .activity-screen button.h-56 { width: 190px; height: 190px; font-size: 128px; }
+  .activity-screen p { font-size: 40px; }
+  .activity-screen .grid { gap: 10px; min-width: 0; }
+  .activity-screen .grid button { height: 100px; min-width: 0; font-size: 40px; border-radius: 24px; }
+  .activity-screen h2 { font-size: 44px; }
+}
+@media (max-height: 700px) and (orientation: landscape) {
+  .activity-screen [data-speak] { gap: 16px; }
+  .activity-screen button.h-56 { width: 140px; height: 140px; font-size: 96px; }
+}
