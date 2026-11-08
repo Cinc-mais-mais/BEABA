@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { Home, GraduationCap, User, Volume2 } from "lucide-react";
 import type { ReactNode } from "react";
-import logo from "@/assets/logo.jpeg.asset.json";
+import logo from "@/assets/iconpng.png";
 import { speak } from "@/lib/app";
 
 const tabs = [
@@ -27,9 +27,9 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
       <header className="app-header relative z-10">
         <div className="relative flex h-[11dvh] min-h-16 items-center bg-[var(--home-header)] px-5">
           <img
-            src={logo.url}
-            alt="ABC"
-            className="w-[22vw] max-h-[11dvh] object-contain [mix-blend-mode:screen] [filter:saturate(1.9)_contrast(1.25)_brightness(1.05)]"
+            src={logo}
+            alt="BEABÁ"
+            className="w-[22vw] max-h-[11dvh] object-contain"
           />
           <span aria-hidden className="absolute left-[44%] top-1/2 h-[22vw] max-h-[11dvh] w-px -translate-y-1/2 bg-white/70" />
         </div>
