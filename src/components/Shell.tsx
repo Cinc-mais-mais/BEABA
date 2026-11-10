@@ -1,8 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Home, GraduationCap, User, Volume2 } from "lucide-react";
+import { Home, GraduationCap, User, Volume2, VolumeX } from "lucide-react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import logo from "@/assets/iconpng.png";
-import { speak } from "@/lib/app";
+import { isSoundEnabled, setSoundEnabled, speak } from "@/lib/app";
 
 const tabs = [
   { to: "/", label: "Início", icon: Home, color: "bg-red" },
@@ -11,6 +12,23 @@ const tabs = [
 ] as const;
 
 export function Shell({ children, home = false }: { children: ReactNode; home?: boolean }) {
+  const [soundEnabled, setSoundEnabledState] = useState(true);
+
+  useEffect(() => {
+    setSoundEnabledState(isSoundEnabled());
+  }, []);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    setSoundEnabledState(next);
+    if (next) {
+      speak("O som está ativado agora.");
+    } else if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
+
   const readScreen = () => {
     const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-speak]"));
     const text = nodes.map((n) => n.dataset["speak"]).join(". ");
@@ -51,14 +69,18 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
         <span aria-hidden className="absolute -top-3 right-1 h-4 w-1.5 rotate-[30deg] rounded-full bg-[var(--home-spark)]" />
         <span aria-hidden className="absolute -top-4 right-5 h-4 w-1.5 rotate-[8deg] rounded-full bg-[var(--home-spark)]" />
         <button
-          onClick={readScreen}
-          aria-label="Ouvir esta tela"
-          className="flex h-[72px] w-[72px] items-center justify-center rounded-full bg-[var(--home-sound)] shadow-[inset_0_0_0_4px_var(--home-sound-dark),0_8px_18px_color-mix(in_oklab,var(--home-sound)_45%,transparent)] active:scale-95"
+          onClick={toggleSound}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
+          title={soundEnabled ? "Desativar som" : "Ativar som"}
+          className={`flex h-[72px] w-[72px] items-center justify-center rounded-full shadow-[inset_0_0_0_4px_var(--home-sound-dark),0_8px_18px_color-mix(in_oklab,var(--home-sound)_45%,transparent)] active:scale-95 ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
         >
-          <Volume2 className="h-10 w-10 text-[var(--home-nav)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+          {soundEnabled
+            ? <Volume2 className="h-10 w-10 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+            : <VolumeX className="h-10 w-10 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
         </button>
         <span className="mt-2 rounded-2xl bg-[var(--home-sound-tag)] px-3 py-1 text-center font-display text-[18px] font-bold leading-tight text-[var(--home-navy)]">
-          Toque para<br />ouvir o som
+          {soundEnabled ? <>Som ativado<br />Toque para desligar</> : <>Som desativado<br />Toque para ativar</>}
         </span>
       </div>
 
