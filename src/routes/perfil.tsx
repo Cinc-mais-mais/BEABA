@@ -56,13 +56,14 @@ function Perfil() {
         <h1 className="text-4xl font-extrabold text-[var(--home-navy)]">Maria</h1>
       </section>
 
-      <div className="profile-stars mt-6 flex justify-center gap-3" aria-label={`${done.length} de ${LESSONS.length} estrelas`}>
-        {LESSONS.map((l) => (
-          <Star key={l.id} className={`h-16 w-16 ${done.includes(l.id) ? "fill-[var(--b-yellow)] text-[var(--b-yellow-d)] animate-celebrate" : "fill-[var(--home-tag)] text-[var(--home-dot)]"}`} strokeWidth={2} />
-        ))}
+      <div className="mt-8 flex items-center justify-center gap-3" aria-label={`${done.length} de ${LESSONS.length} tarefas concluídas`}>
+        <Star className="h-14 w-14 shrink-0 fill-[var(--b-yellow)] text-[var(--b-yellow-d)]" strokeWidth={2.5} />
+        <span className="font-display text-3xl font-extrabold tabular-nums text-[var(--home-navy)]">
+          {done.length}/{LESSONS.length}
+        </span>
       </div>
 
-      <div className="mt-6 h-10 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
+      <div className="mt-5 h-10 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso das tarefas" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
         <div className="h-full rounded-full bg-[var(--b-blue)] transition-all" style={{ width: `${pct}%` }} />
       </div>
 
