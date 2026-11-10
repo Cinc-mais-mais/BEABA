@@ -21,13 +21,15 @@ export const Route = createFileRoute("/perfil")({
 
 function Perfil() {
   const { done } = useProgress();
-  const [big, setBig] = useState(() => {
+  const [big, setBig] = useState(false);
+
+  useEffect(() => {
     try {
-      return typeof window !== "undefined" && window.localStorage.getItem("beaba-large-text") === "true";
+      setBig(window.localStorage.getItem("beaba-large-text") === "true");
     } catch {
-      return false;
+      setBig(false);
     }
-  });
+  }, []);
 
   useEffect(() => {
     try {
