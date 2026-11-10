@@ -8,7 +8,7 @@ import professora from "@/assets/professora.jpg";
 export const Route = createFileRoute("/professor")({
   head: () => ({
     meta: [
-      { title: "ABC — Área do Professor" },
+      { title: "Beabá" },
       { name: "description", content: "Fale com sua professora por áudio, vídeo ou envie uma dúvida." },
       { property: "og:title", content: "ABC — Área do Professor" },
       { property: "og:description", content: "Contato simples e visual com a professora." },
