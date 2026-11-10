@@ -22,23 +22,31 @@ export const Route = createFileRoute("/perfil")({
 function Perfil() {
   const { done } = useProgress();
   const [big, setBig] = useState(false);
+  const [preferenceLoaded, setPreferenceLoaded] = useState(false);
 
+  // Read the saved preference before allowing this screen to write anything.
+  // This prevents the default false state from overwriting a saved true value
+  // whenever the user returns to the Profile screen.
   useEffect(() => {
     try {
       setBig(window.localStorage.getItem("beaba-large-text") === "true");
     } catch {
       setBig(false);
+    } finally {
+      setPreferenceLoaded(true);
     }
   }, []);
 
   useEffect(() => {
+    if (!preferenceLoaded) return;
+
     try {
       window.localStorage.setItem("beaba-large-text", String(big));
     } catch {
       // The current session still gets the selected text size if storage is unavailable.
     }
     document.documentElement.style.fontSize = big ? "24px" : "";
-  }, [big]);
+  }, [big, preferenceLoaded]);
   const pct = Math.round((done.length / LESSONS.length) * 100);
 
   return (
@@ -63,7 +71,7 @@ function Perfil() {
           onClick={() => { setBig(!big); speak(big ? "Letra normal" : "Letra grande"); }}
           aria-pressed={big}
           aria-label="Letra grande"
-          className={`flex flex-col items-center gap-2 rounded-[2rem] p-5 font-display text-xl font-bold shadow-[0_10px_22px_rgb(0_0_0/0.10)] active:scale-[0.97] ${big ? "bg-[var(--b-orange)] text-[#FFFFFF]" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}
+          className={`flex flex-col items-center gap-2 rounded-[2rem] p-5 font-display text-xl font-bold shadow-[0_10px_22px_rgb(0_0_0/0.10)] active:scale-[0.97] ${big ? "bg-[var(--b-green)] text-[#FFFFFF]" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}
         >
           <Type className="h-12 w-12" strokeWidth={2.5} /> A+
         </button>
