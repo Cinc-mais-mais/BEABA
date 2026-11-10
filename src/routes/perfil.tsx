@@ -8,7 +8,7 @@ import aluna from "@/assets/aluna.jpg";
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
-      { title: "ABC — Meu Perfil" },
+      { title: "Beabá" },
       { name: "description", content: "Veja suas estrelas e seu progresso na leitura." },
       { property: "og:title", content: "ABC — Meu Perfil" },
       { property: "og:description", content: "Conquistas e progresso do aluno." },
