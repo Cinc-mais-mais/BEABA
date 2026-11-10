@@ -67,7 +67,7 @@ function Perfil() {
         <div className="h-full rounded-full bg-[var(--b-blue)] transition-all" style={{ width: `${pct}%` }} />
       </div>
 
-      <div className="profile-settings mt-10 grid min-w-0 grid-cols-2 gap-4">
+      <div className="profile-settings mt-10 grid min-w-0 grid-cols-1 gap-4">
         <button
           onClick={() => { setBig(!big); speak(big ? "Letra normal" : "Letra grande"); }}
           aria-pressed={big}
