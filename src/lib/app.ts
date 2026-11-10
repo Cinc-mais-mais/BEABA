@@ -1,7 +1,27 @@
 import { useEffect, useState } from "react";
 
+const SOUND_KEY = "beaba-sound-enabled";
+
+export function isSoundEnabled() {
+  if (typeof window === "undefined") return true;
+  try {
+    return window.localStorage.getItem(SOUND_KEY) !== "false";
+  } catch {
+    return true;
+  }
+}
+
+export function setSoundEnabled(enabled: boolean) {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(SOUND_KEY, String(enabled));
+  } catch {
+    // Sound remains controllable for the current session if storage is unavailable.
+  }
+}
+
 export function speak(text: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window)) return;
+  if (typeof window === "undefined" || !("speechSynthesis" in window) || !isSoundEnabled()) return;
   window.speechSynthesis.cancel();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = "pt-BR";
@@ -11,7 +31,7 @@ export function speak(text: string) {
 
 /** Short cheerful tones via Web Audio (no files needed). */
 export function chime(kind: "ok" | "try" | "win") {
-  if (typeof window === "undefined") return;
+  if (typeof window === "undefined" || !isSoundEnabled()) return;
   const Ctx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext;
   if (!Ctx) return;
   const ctx = new Ctx();
