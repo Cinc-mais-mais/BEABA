@@ -8,7 +8,7 @@ import { LESSONS, speak, useProgress, type Lesson } from "@/lib/app";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "ABC — Trilha de atividades" },
+      { title: "Beabá" },
       { name: "description", content: "Trilha de atividades para aprender a ler, feita para idosos." },
       { property: "og:title", content: "ABC — Trilha de atividades" },
       { property: "og:description", content: "Aprenda a ler no seu ritmo, com sons e figuras." },
