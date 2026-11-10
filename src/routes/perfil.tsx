@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Star, Type, Volume2 } from "lucide-react";
+import { Star, Type } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { LESSONS, speak, useProgress } from "@/lib/app";
 import aluna from "@/assets/aluna.jpg";
@@ -76,13 +76,7 @@ function Perfil() {
         >
           <Type className="h-12 w-12" strokeWidth={2.5} /> A+
         </button>
-        <button
-          onClick={() => speak("Olá Maria! O som está funcionando.")}
-          aria-label="Testar som"
-          className="flex flex-col items-center gap-2 rounded-[2rem] bg-[var(--home-nav)] p-5 font-display text-xl font-bold text-[var(--home-navy)] shadow-[0_10px_22px_rgb(0_0_0/0.10)] active:scale-[0.97]"
-        >
-          <Volume2 className="h-12 w-12" strokeWidth={2.5} /> Som
-        </button>
+
       </div>
     </Shell>
   );
