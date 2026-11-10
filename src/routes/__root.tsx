@@ -115,6 +115,16 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
 
+  useEffect(() => {
+    try {
+      const largeTextEnabled = window.localStorage.getItem("beaba-large-text") === "true";
+      document.documentElement.style.fontSize = largeTextEnabled ? "24px" : "";
+    } catch {
+      // Keep the default text size if browser storage is unavailable.
+      document.documentElement.style.fontSize = "";
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
