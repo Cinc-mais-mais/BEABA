@@ -78,7 +78,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "ABC — Aprender a ler" },
+      { title: "Beabá" },
       { name: "description", content: "Aplicativo de alfabetização para idosos, com sons, figuras e autonomia." },
       { property: "og:title", content: "ABC — Aprender a ler" },
       { property: "og:description", content: "Aplicativo de alfabetização para idosos." },
