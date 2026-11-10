@@ -21,8 +21,20 @@ export const Route = createFileRoute("/perfil")({
 
 function Perfil() {
   const { done } = useProgress();
-  const [big, setBig] = useState(false);
+  const [big, setBig] = useState(() => {
+    try {
+      return typeof window !== "undefined" && window.localStorage.getItem("beaba-large-text") === "true";
+    } catch {
+      return false;
+    }
+  });
+
   useEffect(() => {
+    try {
+      window.localStorage.setItem("beaba-large-text", String(big));
+    } catch {
+      // The current session still gets the selected text size if storage is unavailable.
+    }
     document.documentElement.style.fontSize = big ? "24px" : "";
   }, [big]);
   const pct = Math.round((done.length / LESSONS.length) * 100);
