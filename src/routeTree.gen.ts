@@ -11,11 +11,17 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PerfilRouteImport } from './routes/perfil'
+import { Route as PalavrasRouteImport } from './routes/palavras'
 import { Route as ProfessorRouteImport } from './routes/professor'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PalavrasRoute = PalavrasRouteImport.update({
+  id: '/palavras',
+  path: '/palavras',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PerfilRoute = PerfilRouteImport.update({
@@ -31,6 +37,9 @@ const ProfessorRoute = ProfessorRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/palavras': typeof PalavrasRoute
+  '/palavras': typeof PalavrasRoute
+  '/palavras': typeof PalavrasRoute
   '/perfil': typeof PerfilRoute
   '/professor': typeof ProfessorRoute
 }
@@ -55,6 +64,7 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  PalavrasRoute: typeof PalavrasRoute
   PerfilRoute: typeof PerfilRoute
   ProfessorRoute: typeof ProfessorRoute
 }
@@ -66,6 +76,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/palavras': {
+      id: '/palavras'
+      path: '/palavras'
+      fullPath: '/palavras'
+      preLoaderRoute: typeof PalavrasRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/perfil': {
@@ -87,6 +104,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  PalavrasRoute: PalavrasRoute,
   PerfilRoute: PerfilRoute,
   ProfessorRoute: ProfessorRoute,
 }
