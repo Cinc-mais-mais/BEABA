@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { speak, useProgress, getProfileStats, type ProfileStats } from "@/lib/app";
@@ -57,7 +57,6 @@ function Perfil() {
     if (!preferenceLoaded) return;
     document.documentElement.classList.toggle("beaba-high-contrast", contrast);
     try { window.localStorage.setItem(CONTRAST_KEY, String(contrast)); } catch { /* local preference may be unavailable */ }
-    return () => document.documentElement.classList.remove("beaba-high-contrast");
   }, [contrast, preferenceLoaded]);
 
   const totalAnswers = stats.correct + stats.errors;
@@ -76,7 +75,7 @@ function Perfil() {
     speak("Avatar atualizado.");
   };
 
-  const handlePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handlePhoto = (event: ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
     setPhotoError("");
