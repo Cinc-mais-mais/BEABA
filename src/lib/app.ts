@@ -67,15 +67,15 @@ export const LESSONS: Lesson[] = [
     q("🪆", "boneca", "BO", "NE", "CA", ["NE", "LA", "TA"]),
     q("🍿", "pipoca", "PI", "PO", "CA", ["CA", "PO", "MA"]),
     q("🍲", "panela", "PA", "NE", "LA", ["NE", "TO", "BI"]),
-    q("🍅", "tomate", "TO", "MA", "TE", ["PA", "MA", "LE"]),
+    q("🍅", "tomate", "TO", "MA", "TE", ["PA", "MA", "BI"]),
     q("🧥", "casaco", "CA", "SA", "CO", ["SA", "NE", "PO"]),
   ]},
-  { id: "inicio", title: "Primeira Sílaba", icon: "CA", color: "yellow", intro: "Toque na sílaba do começo da palavra.", questions: [
+  { id: "inicio", title: "Primeira Sílaba", icon: "RO", color: "yellow", intro: "Toque na sílaba do começo da palavra.", questions: [
     q("🐱", "gato", "", "GA", "TO", ["GA", "PA", "BO"]),
     q("🏠", "casa", "", "CA", "SA", ["MA", "CA", "TE"]),
     q("🦆", "pato", "", "PA", "TO", ["LU", "PA", "SO"]),
   ]},
-  { id: "final", title: "Última Sílaba", icon: "TA", color: "orange", intro: "Toque na sílaba do final da palavra.", questions: [
+  { id: "final", title: "Última Sílaba", icon: "VU", color: "orange", intro: "Toque na sílaba do final da palavra.", questions: [
     q("🌙", "lua", "LU", "A", "", ["A", "O", "E"]),
     q("🍝", "massa", "MAS", "SA", "", ["SA", "TO", "PE"]),
     q("🐦", "pássaro", "PÁSSA", "RO", "", ["LA", "RO", "MI"]),
