@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Star } from "lucide-react";
+import { Star, Lock, CheckCircle2 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
 import { LESSONS, speak, useProgress, type Lesson } from "@/lib/app";
@@ -25,6 +25,17 @@ const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start 
 function Index() {
   const { done, complete } = useProgress();
   const [open, setOpen] = useState<Lesson | null>(null);
+  const completedCount = done.length;
+  const progressPct = LESSONS.length ? Math.round((completedCount / LESSONS.length) * 100) : 0;
+  const nextLessonIndex = LESSONS.findIndex((lesson) => !done.includes(lesson.id));
+  const nextLesson = nextLessonIndex >= 0 ? LESSONS[nextLessonIndex] : null;
+  const encouragement = completedCount === 0
+    ? "Vamos começar? Cada atividade é um passo importante!"
+    : completedCount >= LESSONS.length
+      ? "Parabéns! Você completou toda a trilha. Que conquista!"
+      : completedCount === LESSONS.length - 1
+        ? "Está quase lá! Falta só mais uma atividade!"
+        : "Muito bem! Continue assim, você está aprendendo cada vez mais!";
   const [trail, setTrail] = useState({ width: 0, height: 0, path: "" });
   const listRef = useRef<HTMLOListElement | null>(null);
   const bubbleRefs = useRef<(HTMLButtonElement | null)[]>([]);
@@ -102,21 +113,22 @@ function Index() {
         </svg>
         {LESSONS.map((l, idx) => {
           const isDone = done.includes(l.id);
+          const isLocked = !isDone && nextLessonIndex >= 0 && idx > nextLessonIndex;
           return (
             <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
-                onClick={() => { speak(l.title); setOpen(l); }}
-                aria-label={`${l.title}${isDone ? ", concluída" : ""}`}
-                className="home-bubble balloon-shine animate-float flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF]"
+                onClick={() => { if (!isLocked) { speak(l.title); setOpen(l); } }}
+                disabled={isLocked}
+                aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
+                className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : "animate-float"}`}
                 style={{ animationDelay: `${idx * 0.4}s`, ["--b" as string]: `var(--b-${isDone ? "green" : bubble[l.color]})`, ["--bd" as string]: `var(--b-${isDone ? "green" : bubble[l.color]}-d)` }}
               >
                 {l.icon}
-                {isDone && (
-                  <Star className="absolute -right-2 -top-2 h-12 w-12 fill-yellow text-yellow" strokeWidth={2} />
-                )}
+                {isDone && <Star className="absolute -right-2 -top-2 h-12 w-12 fill-yellow text-yellow" strokeWidth={2} />}
+                {isLocked && <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--home-navy)]/35"><Lock className="h-10 w-10 text-white" /></span>}
               </button>
-              <span className="mt-5 rounded-full bg-[var(--home-tag)] px-4 py-1 font-display text-xl font-bold text-[var(--home-navy)]">{l.title}</span>
+              <span className={`mt-5 rounded-full px-4 py-1 font-display text-xl font-bold ${isLocked ? "bg-[var(--home-nav)] text-[var(--home-navy)]/55" : "bg-[var(--home-tag)] text-[var(--home-navy)]"}`}>{l.title}{isDone ? " · Concluída" : isLocked ? " · Bloqueada" : " · Disponível"}</span>
             </li>
           );
         })}
