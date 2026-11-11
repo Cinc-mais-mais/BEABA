@@ -94,11 +94,12 @@ function Index() {
     <Shell home>
       <h1 className="sr-only">Trilha de atividades</h1>
       <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson && <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/75 p-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Próxima atividade</p><p className="font-display font-extrabold text-[var(--home-navy)]">{nextLesson.title}</p></div><CheckCircle2 className="h-6 w-6 shrink-0 text-[var(--b-green)]" /></div>}</section>
-      <Link to="/palavras" onClick={() => speak("Minhas palavras. Explore palavras por categorias e ouça sua pronúncia.")} className="mb-8 flex w-full items-center gap-4 rounded-[2rem] bg-[var(--home-nav)] p-5 text-[var(--home-navy)] shadow-[0_8px_20px_rgb(0_0_0/0.07)] transition active:scale-[0.99]">
-        <span className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[var(--b-blue)] text-white"><BookOpen className="h-9 w-9" /></span>
-        <span className="min-w-0 flex-1"><span className="block font-display text-2xl font-extrabold">Minhas palavras</span><span className="block font-bold">Veja palavras por categorias e ouça cada uma</span></span>
-        <span aria-hidden className="text-3xl font-extrabold">›</span>
-      </Link>
+      <div className="mb-4 flex justify-end">
+        <Link to="/palavras" onClick={() => speak("Minhas palavras. Aqui ficam as palavras que você já completou nos exercícios.")} className="flex items-center gap-2 rounded-2xl bg-[var(--home-nav)] px-4 py-3 text-[var(--home-navy)] shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition active:scale-95">
+          <BookOpen className="h-7 w-7 text-[var(--b-blue)]" />
+          <span className="font-display text-lg font-extrabold">Minhas palavras</span>
+        </Link>
+      </div>
       <div data-speak="Toque em um balão para começar uma atividade." className="sr-only" aria-hidden />
       <ol ref={listRef} className="relative flex flex-col gap-10">
         <svg
