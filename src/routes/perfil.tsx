@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2 } from "lucide-react";
+import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { speak, useProgress, getProfileStats, LESSONS, type ProfileStats } from "@/lib/app";
 
@@ -22,12 +22,16 @@ const AVATARS = ["🦉", "🐻", "🐱", "🦋", "🐸", "🐰"];
 const PHOTO_KEY = "beaba-profile-photo";
 const AVATAR_KEY = "beaba-profile-avatar";
 const CONTRAST_KEY = "beaba-high-contrast";
+const PROFILE_NAME_KEY = "beaba-profile-name";
 
 function Perfil() {
   const [big, setBig] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [avatar, setAvatar] = useState("🦉");
   const [photo, setPhoto] = useState<string | null>(null);
+  const [profileName, setProfileName] = useState("Maria");
+  const [nameDraft, setNameDraft] = useState("Maria");
+  const [editingName, setEditingName] = useState(false);
   const [stats, setStats] = useState<ProfileStats>({ correct: 0, errors: 0, lastLesson: "", lastAt: null });
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
   const [photoError, setPhotoError] = useState("");
@@ -39,6 +43,9 @@ function Perfil() {
       setContrast(window.localStorage.getItem(CONTRAST_KEY) === "true");
       setAvatar(window.localStorage.getItem(AVATAR_KEY) || "🦉");
       setPhoto(window.localStorage.getItem(PHOTO_KEY));
+      const savedName = window.localStorage.getItem(PROFILE_NAME_KEY) || "Maria";
+      setProfileName(savedName);
+      setNameDraft(savedName);
       setStats(getProfileStats());
     } catch {
       // Keep default profile settings if browser storage is unavailable.
@@ -138,7 +145,60 @@ function Perfil() {
           )}
           <span className="absolute bottom-0 right-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-[var(--b-blue)] text-white"><Camera className="h-6 w-6" /></span>
         </div>
-        <h1 className="text-4xl font-extrabold text-[var(--home-navy)]">Maria</h1>
+        {editingName ? (
+          <div className="flex w-full max-w-sm items-center gap-2">
+            <input
+              autoFocus
+              value={nameDraft}
+              onChange={(event) => setNameDraft(event.target.value)}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") {
+                  const nextName = nameDraft.trim();
+                  if (nextName) {
+                    setProfileName(nextName);
+                    try { window.localStorage.setItem(PROFILE_NAME_KEY, nextName); } catch { /* Keep name for this session. */ }
+                    setEditingName(false);
+                    speak(`Seu nome foi atualizado para ${nextName}.`);
+                  }
+                }
+                if (event.key === "Escape") { setNameDraft(profileName); setEditingName(false); }
+              }}
+              maxLength={40}
+              aria-label="Seu nome"
+              className="min-w-0 flex-1 rounded-xl border-2 border-[var(--b-blue)] bg-white px-3 py-2 text-center text-2xl font-extrabold text-[var(--home-navy)] outline-none focus:ring-2 focus:ring-[var(--b-green)]"
+            />
+            <button
+              type="button"
+              onClick={() => {
+                const nextName = nameDraft.trim();
+                if (!nextName) { speak("Digite um nome antes de salvar."); return; }
+                setProfileName(nextName);
+                try { window.localStorage.setItem(PROFILE_NAME_KEY, nextName); } catch { /* Keep name for this session. */ }
+                setEditingName(false);
+                speak(`Seu nome foi atualizado para ${nextName}.`);
+              }}
+              aria-label="Salvar nome"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--b-green)] text-white"
+            ><Check className="h-6 w-6" /></button>
+            <button
+              type="button"
+              onClick={() => { setNameDraft(profileName); setEditingName(false); }}
+              aria-label="Cancelar edição do nome"
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[var(--home-tag)] text-[var(--home-navy)]"
+            ><X className="h-6 w-6" /></button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-center gap-2">
+            <h1 className="text-4xl font-extrabold text-[var(--home-navy)]">{profileName}</h1>
+            <button
+              type="button"
+              onClick={() => { setNameDraft(profileName); setEditingName(true); }}
+              aria-label="Editar nome do perfil"
+              title="Editar nome"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-[var(--b-blue)] text-white shadow-sm transition active:scale-95"
+            ><Pencil className="h-5 w-5" /></button>
+          </div>
+        )}
         <p className="font-display text-lg font-bold text-[var(--home-navy)]">Meu espaço de aprendizagem</p>
       </section>
 
