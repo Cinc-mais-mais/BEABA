@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Search, Volume2 } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak, WORD_LIBRARY } from "@/lib/app";
+import { speak, WORD_LIBRARY, getCompletedWords } from "@/lib/app";
 
 export const Route = createFileRoute("/palavras")({
   head: () => ({ meta: [{ title: "Minhas palavras | Beabá" }, { name: "description", content: "Biblioteca de palavras organizada por categorias." }] }),
@@ -12,8 +12,11 @@ export const Route = createFileRoute("/palavras")({
 function Palavras() {
   const [category, setCategory] = useState("Todas");
   const [search, setSearch] = useState("");
-  const categories = useMemo(() => ["Todas", ...Array.from(new Set(WORD_LIBRARY.map((item) => item.category))).sort((a, b) => a.localeCompare(b, "pt-BR"))], []);
-  const filtered = WORD_LIBRARY.filter((item) => (category === "Todas" || item.category === category) && item.word.includes(search.trim().toLocaleLowerCase("pt-BR")));
+  const [completedWords, setCompletedWords] = useState<string[]>([]);
+  useEffect(() => { setCompletedWords(getCompletedWords()); }, []);
+  const completedLibrary = WORD_LIBRARY.filter((item) => completedWords.includes(item.word));
+  const categories = useMemo(() => ["Todas", ...Array.from(new Set(completedLibrary.map((item) => item.category))).sort((a, b) => a.localeCompare(b, "pt-BR"))], []);
+  const filtered = completedLibrary.filter((item) => (category === "Todas" || item.category === category) && item.word.includes(search.trim().toLocaleLowerCase("pt-BR")));
   return (
     <Shell home>
       <section className="w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
@@ -21,7 +24,8 @@ function Palavras() {
           <BookOpen className="h-9 w-9 text-[var(--home-navy)]" />
           <h1 className="font-display text-3xl font-extrabold text-[var(--home-navy)]">Minhas palavras</h1>
         </div>
-        <p className="mb-5 font-bold text-[var(--home-navy)]">Explore as palavras que você está aprendendo. Toque no alto-falante para ouvir.</p>
+        <p className="mb-3 font-bold text-[var(--home-navy)]">Aqui ficam as palavras que você já completou nos exercícios. Toque no alto-falante para ouvir.</p>
+        <div className="mb-5 rounded-2xl bg-white px-4 py-3 text-center text-[var(--home-navy)]"><p className="font-display text-2xl font-extrabold tabular-nums">{completedLibrary.length} de {WORD_LIBRARY.length} palavras</p><p className="text-sm font-bold">palavras concluídas</p><div className="mt-2 h-3 overflow-hidden rounded-full bg-[var(--home-tag)]"><div className="h-full rounded-full bg-[var(--b-green)]" style={{ width: `${WORD_LIBRARY.length ? (completedLibrary.length / WORD_LIBRARY.length) * 100 : 0}%` }} /></div></div>
         <label className="mb-4 flex items-center gap-3 rounded-2xl bg-white px-4 py-3 text-[var(--home-navy)]">
           <Search className="h-6 w-6 shrink-0" />
           <input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Procurar uma palavra" aria-label="Procurar uma palavra" className="min-w-0 flex-1 bg-transparent text-lg font-bold outline-none placeholder:text-[var(--home-navy)]/55" />
@@ -31,7 +35,7 @@ function Palavras() {
             <button key={item} type="button" onClick={() => setCategory(item)} aria-pressed={category === item} className={`rounded-full px-4 py-2 font-display text-base font-extrabold transition ${category === item ? "bg-[var(--b-blue)] text-white" : "bg-[var(--home-tag)] text-[var(--home-navy)]"}`}>{item}</button>
           ))}
         </div>
-        <p className="mb-3 text-sm font-bold text-[var(--home-navy)]">{filtered.length} {filtered.length === 1 ? "palavra encontrada" : "palavras encontradas"}</p>
+        <p className="mb-3 text-sm font-bold text-[var(--home-navy)]">{filtered.length} {filtered.length === 1 ? "palavra concluída" : "palavras concluídas"}</p>
         {filtered.length ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
             {filtered.map((item) => (
@@ -45,7 +49,7 @@ function Palavras() {
               </article>
             ))}
           </div>
-        ) : <p className="rounded-2xl bg-[var(--home-tag)] p-5 text-center font-bold text-[var(--home-navy)]">Nenhuma palavra encontrada. Tente outra busca ou categoria.</p>}
+        ) : <p className="rounded-2xl bg-[var(--home-tag)] p-5 text-center font-bold text-[var(--home-navy)]">Você ainda não concluiu palavras nesta atividade. Complete uma palavra nos exercícios para ela aparecer aqui.</p>}
       </section>
     </Shell>
   );
