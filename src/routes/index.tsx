@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Star, Lock, CheckCircle2 } from "lucide-react";
+import { Star, Lock, CheckCircle2, Volume2 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
 import { LESSONS, speak, useProgress, recordLessonStarted, type Lesson } from "@/lib/app";
@@ -116,6 +116,7 @@ function Index() {
           const isLocked = !isDone && nextLessonIndex >= 0 && idx > nextLessonIndex;
           return (
             <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
+              <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
                 onClick={() => { if (!isLocked) { speak(l.title); recordLessonStarted(l); setOpen(l); } }}
@@ -128,6 +129,16 @@ function Index() {
                 {isDone && <Star className="absolute -right-2 -top-2 h-12 w-12 fill-yellow text-yellow" strokeWidth={2} />}
                 {isLocked && <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--home-navy)]/35"><Lock className="h-10 w-10 text-white" /></span>}
               </button>
+              <button
+                type="button"
+                onClick={() => speak(`${l.title}. ${l.intro}`)}
+                aria-label={`Ouvir explicação da atividade ${l.title}`}
+                title={`Ouvir sobre ${l.title}`}
+                className="absolute -right-14 top-1/2 flex h-12 w-12 -translate-y-1/2 items-center justify-center rounded-full bg-[var(--b-blue)] text-white shadow-md transition active:scale-95"
+              >
+                <Volume2 className="h-7 w-7" strokeWidth={2.5} />
+              </button>
+              </div>
               <span className={`mt-5 rounded-full px-4 py-1 font-display text-xl font-bold ${isLocked ? "bg-[var(--home-nav)] text-[var(--home-navy)]/55" : "bg-[var(--home-tag)] text-[var(--home-navy)]"}`}>{l.title}{isDone ? " · Concluída" : isLocked ? " · Bloqueada" : " · Disponível"}</span>
             </li>
           );
