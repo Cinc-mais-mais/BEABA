@@ -200,6 +200,33 @@ function buildWordLibrary(): LibraryWord[] {
 }
 
 export const WORD_LIBRARY: LibraryWord[] = buildWordLibrary();
+const COMPLETED_WORDS_KEY = "beaba-completed-words";
+
+export function getCompletedWords(): string[] {
+  if (typeof window === "undefined") return [];
+  try {
+    const saved: unknown = JSON.parse(window.localStorage.getItem(COMPLETED_WORDS_KEY) || "[]");
+    return Array.isArray(saved)
+      ? saved.filter((word): word is string => typeof word === "string")
+      : [];
+  } catch {
+    return [];
+  }
+}
+
+export function recordCompletedWord(rawWord: string) {
+  if (typeof window === "undefined") return;
+  const word = rawWord.trim().toLocaleLowerCase("pt-BR");
+  if (!word || !WORD_LIBRARY.some((item) => item.word === word)) return;
+  const completed = new Set(getCompletedWords());
+  completed.add(word);
+  try {
+    window.localStorage.setItem(COMPLETED_WORDS_KEY, JSON.stringify(Array.from(completed)));
+  } catch {
+    // Keep the exercise usable if browser storage is unavailable.
+  }
+}
+
 
 export type Achievement = { id: string; title: string; description: string; icon: string; unlocked: boolean };
 export function getAchievements(done: string[], stats: ProfileStats): Achievement[] {
