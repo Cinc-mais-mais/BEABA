@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak, useProgress, getProfileStats, LESSONS, type ProfileStats } from "@/lib/app";
+import { speak, useProgress, getProfileStats, getAchievements, LESSONS, type ProfileStats } from "@/lib/app";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -69,6 +69,8 @@ function Perfil() {
   const totalAnswers = stats.correct + stats.errors;
   const accuracy = totalAnswers ? Math.round((stats.correct / totalAnswers) * 100) : 0;
   const taskProgress = LESSONS.length ? Math.round((done.length / LESSONS.length) * 100) : 0;
+  const achievements = getAchievements(done, stats);
+  const unlockedAchievements = achievements.filter((item) => item.unlocked).length;
 
   const chooseAvatar = (value: string) => {
     setAvatar(value);
@@ -256,6 +258,26 @@ function Perfil() {
           </div>
           <p className="mt-3 flex items-center gap-2 font-bold text-[var(--home-navy)]">Aproveitamento nas respostas: {accuracy}% <button type="button" onClick={() => speak(`Seu aproveitamento nas respostas é de ${accuracy} por cento.`)} aria-label="Ouvir aproveitamento" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
           <p className="mt-1 text-sm text-[var(--home-navy)]">{totalAnswers ? "Cada tentativa é uma oportunidade de aprender. Continue praticando!" : "Faça sua primeira atividade para começar a acompanhar seus acertos e sua evolução."}</p>
+        </div>
+      </section>
+
+      <section className="mt-6 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <div>
+            <h2 className="font-display text-2xl font-extrabold text-[var(--home-navy)]">Minhas conquistas</h2>
+            <p className="font-bold text-[var(--home-navy)]">{unlockedAchievements} de {achievements.length} medalhas conquistadas</p>
+          </div>
+          <button type="button" onClick={() => speak(`Minhas conquistas. Você desbloqueou ${unlockedAchievements} de ${achievements.length} medalhas.`)} aria-label="Ouvir sobre minhas conquistas" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button>
+        </div>
+        <div className="grid grid-cols-2 gap-3">
+          {achievements.map((item) => (
+            <article key={item.id} className={`rounded-2xl p-4 text-center ${item.unlocked ? "bg-[var(--home-tag)]" : "bg-[var(--home-tag)]/55 opacity-65"}`}>
+              <span className="text-4xl" aria-hidden>{item.unlocked ? item.icon : "🔒"}</span>
+              <h3 className="mt-2 font-display text-lg font-extrabold text-[var(--home-navy)]">{item.title}</h3>
+              <p className="mt-1 text-sm font-bold text-[var(--home-navy)]">{item.description}</p>
+              <p className="mt-2 text-xs font-extrabold uppercase text-[var(--home-navy)]">{item.unlocked ? "Conquistada" : "Ainda não conquistada"}</p>
+            </article>
+          ))}
         </div>
       </section>
 
