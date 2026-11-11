@@ -10,7 +10,7 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Beabá" },
       { name: "description", content: "Trilha de atividades para aprender a ler, feita para idosos." },
-      { property: "og:title", content: "ABC — Trilha de atividades" },
+      { property: "og:title", content: "Beabá — Trilha de atividades" },
       { property: "og:description", content: "Aprenda a ler no seu ritmo, com sons e figuras." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 const bubble = { red: "red", yellow: "yellow", blue: "blue", orange: "orange" } as const;
-const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-10"];
+const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[70px]"];
 
 function Index() {
   const { done, complete } = useProgress();
