@@ -145,7 +145,6 @@ function Perfil() {
           ) : (
             <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-[var(--home-header)] bg-[var(--home-tag)] text-7xl shadow-[0_8px_20px_rgb(0_0_0/0.12)]" role="img" aria-label="Avatar escolhido">{avatar}</div>
           )}
-          <span className="absolute bottom-0 right-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-[var(--b-blue)] text-white"><Camera className="h-6 w-6" /></span>
         </div>
         {editingName ? (
           <div className="flex w-full max-w-sm items-center gap-2">
@@ -215,10 +214,16 @@ function Perfil() {
             </button>
           ))}
         </div>
-        <label className="mt-4 flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[var(--b-blue)] px-4 py-4 font-display text-lg font-extrabold text-white shadow-sm transition active:scale-[0.98]">
-          <ImagePlus className="h-7 w-7" /> Importar minha fotografia
-          <input type="file" accept="image/*" onChange={handlePhoto} className="sr-only" />
-        </label>
+        <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[var(--b-blue)] px-4 py-4 font-display text-lg font-extrabold text-white shadow-sm transition active:scale-[0.98]">
+            <ImagePlus className="h-7 w-7" /> Importar fotografia
+            <input type="file" accept="image/*" onChange={handlePhoto} className="sr-only" />
+          </label>
+          <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border-2 border-[var(--b-blue)] bg-white px-4 py-4 font-display text-lg font-extrabold text-[var(--home-navy)] shadow-sm transition active:scale-[0.98]">
+            <Camera className="h-7 w-7" /> Tirar foto agora
+            <input type="file" accept="image/*" capture="user" onChange={handlePhoto} className="sr-only" />
+          </label>
+        </div>
         {photoError && <p role="alert" className="mt-2 text-sm font-bold text-red-700">{photoError}</p>}
         <p className="mt-2 text-center text-sm text-[var(--home-navy)]/75">A foto fica salva neste navegador, sem ser enviada para a internet.</p>
       </section>
