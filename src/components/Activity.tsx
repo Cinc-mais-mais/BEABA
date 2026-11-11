@@ -13,6 +13,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   const [i, setI] = useState(0);
   const [built, setBuilt] = useState<number[]>([]);
   const [wrong, setWrong] = useState<number | null>(null);
+  const [feedback, setFeedback] = useState("");
   const [finished, setFinished] = useState(false);
   const s = sentences[i] ?? sentences[0]!;
   const phrase = s.words.join(" ").toLowerCase();
@@ -27,6 +28,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
     if (complete || built.includes(idx)) return;
     if (w === s.words[built.length]) {
       recordActivityAnswer(`${lesson.id}:frase:${i}:${built.length}`, true);
+      setFeedback("Muito bem! Essa palavra está correta.");
       const next = [...built, idx];
       setBuilt(next);
       if (next.length === s.words.length) {
@@ -39,6 +41,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
       } else speak(w);
     } else {
       recordActivityAnswer(`${lesson.id}:frase:${i}:${built.length}`, false);
+      setFeedback("Quase! Não tem problema. Tente outra palavra.");
       setWrong(idx);
       chime("try");
       speak("Quase! Tente de novo.");
@@ -72,6 +75,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
                 <Volume2 className="h-7 w-7" />
               </span>
             </button>
+            <p className="min-h-8 text-center text-xl font-extrabold text-[var(--home-navy)]" role="status" aria-live="polite">{feedback}</p>
             <div className="flex min-h-24 w-full flex-wrap items-center justify-center gap-2 rounded-3xl border-4 border-dashed border-foreground p-3" aria-live="polite">
               {built.map((idx) => (
                 <span key={idx} className={`animate-celebrate rounded-2xl px-3 py-2 font-display text-3xl font-extrabold ${complete ? "text-success" : ""}`}>{tiles.find((t) => t.k === idx)?.w}</span>
@@ -105,6 +109,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [wrong, setWrong] = useState<string | null>(null);
+  const [feedback, setFeedback] = useState("");
   const [finished, setFinished] = useState(false);
   const q = lesson.questions[i] ?? lesson.questions[0]!;
 
@@ -116,15 +121,17 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
     if (picked) return;
     if (opt === q.answer) {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, true);
+      setFeedback("Muito bem! Você acertou!");
       setPicked(opt);
       chime("ok");
       speak(`Muito bem! ${q.word}`);
       setTimeout(() => {
-        if (i + 1 < lesson.questions.length) { setI(i + 1); setPicked(null); setWrong(null); }
+        if (i + 1 < lesson.questions.length) { setI(i + 1); setPicked(null); setWrong(null); setFeedback(""); }
         else { setFinished(true); chime("win"); speak("Parabéns! Você conseguiu sozinho! Ganhou uma estrela."); onDone(); }
       }, 1600);
     } else {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, false);
+      setFeedback("Quase! Não desista. Tente mais uma vez.");
       setWrong(opt);
       chime("try");
       speak("Quase! Tente de novo.");
@@ -174,6 +181,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
               {q.after}
             </p>
 
+            <p className="min-h-8 text-center text-xl font-extrabold text-[var(--home-navy)]" role="status" aria-live="polite">{feedback}</p>
             <div className="grid w-full grid-cols-3 gap-4">
               {q.options.map((opt, k) => {
                 const colors = ["bg-red", "bg-yellow", "bg-blue"];
