@@ -219,7 +219,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
                 <Volume2 className="h-6 w-6" />
               </span>
             </button>
-            <p className="font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
+            <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
               {q.before}<span className={`mx-1 inline-block min-w-[2.2ch] border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
             </p>
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
