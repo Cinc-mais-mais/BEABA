@@ -20,7 +20,7 @@ export const Route = createFileRoute("/")({
 });
 
 const bubble = { red: "red", yellow: "yellow", blue: "blue", orange: "orange" } as const;
-const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[70px]"];
+const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[45%]", "self-start ml-[15%]"];
 
 function Index() {
   const { done, complete } = useProgress();
