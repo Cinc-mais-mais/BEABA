@@ -118,6 +118,8 @@ function RootComponent() {
   useEffect(() => {
     try {
       const largeTextEnabled = window.localStorage.getItem("beaba-large-text") === "true";
+      const highContrastEnabled = window.localStorage.getItem("beaba-high-contrast") === "true";
+      document.documentElement.classList.toggle("beaba-high-contrast", highContrastEnabled);
       document.documentElement.style.fontSize = largeTextEnabled ? "24px" : "";
     } catch {
       // Keep the default text size if browser storage is unavailable.
