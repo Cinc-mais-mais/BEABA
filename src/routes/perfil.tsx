@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Star, Type } from "lucide-react";
+import { Type } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { LESSONS, speak, useProgress } from "@/lib/app";
+import { speak } from "@/lib/app";
 import aluna from "@/assets/aluna.jpg";
 
 export const Route = createFileRoute("/perfil")({
@@ -20,7 +20,6 @@ export const Route = createFileRoute("/perfil")({
 });
 
 function Perfil() {
-  const { done } = useProgress();
   const [big, setBig] = useState(false);
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
 
@@ -47,25 +46,13 @@ function Perfil() {
     }
     document.documentElement.style.fontSize = big ? "24px" : "";
   }, [big, preferenceLoaded]);
-  const pct = Math.round((done.length / LESSONS.length) * 100);
 
   return (
     <Shell home>
-      <section className="person-heading flex min-w-0 flex-col items-center gap-3" data-speak={`Maria. Você tem ${done.length} estrelas de ${LESSONS.length}.`}>
+      <section className="person-heading flex min-w-0 flex-col items-center gap-3" data-speak="Maria. Bem-vinda ao seu perfil.">
         <img src={aluna} alt="Foto de Maria" width={816} height={816} className="h-44 w-44 rounded-full border-4 border-[var(--home-header)] object-cover shadow-[0_8px_20px_rgb(0_0_0/0.12)]" />
         <h1 className="text-4xl font-extrabold text-[var(--home-navy)]">Maria</h1>
       </section>
-
-      <div className="mt-8 flex items-center justify-center gap-3" aria-label={`${done.length} de ${LESSONS.length} tarefas concluídas`}>
-        <Star className="h-14 w-14 shrink-0 fill-[var(--b-yellow)] text-[var(--b-yellow-d)]" strokeWidth={2.5} />
-        <span className="font-display text-3xl font-extrabold tabular-nums text-[var(--home-navy)]">
-          {done.length}/{LESSONS.length}
-        </span>
-      </div>
-
-      <div className="mt-5 h-10 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso das tarefas" aria-valuenow={pct} aria-valuemin={0} aria-valuemax={100}>
-        <div className="h-full rounded-full bg-[var(--b-blue)] transition-all" style={{ width: `${pct}%` }} />
-      </div>
 
       <div className="profile-settings mt-10 grid min-w-0 grid-cols-1 gap-4">
         <button
