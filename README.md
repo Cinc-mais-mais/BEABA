@@ -1,5 +1,5 @@
 <p align="center">
-  <img width="1920" height="1066" alt="beaba-banner" src="https://github.com/user-attachments/assets/b4a61eae-7d1c-4757-84ec-a8d179a0c923" />
+  <img width="3840" height="2132" alt="beaba-banner(1)" src="https://github.com/user-attachments/assets/0e90e457-acec-42c0-bcb8-13debc65867d" />
 </p>
 
 
