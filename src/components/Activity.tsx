@@ -26,7 +26,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   const choose = (idx: number, w: string) => {
     if (complete || built.includes(idx)) return;
     if (w === s.words[built.length]) {
-      recordActivityAnswer(true);
+      recordActivityAnswer(`${lesson.id}:frase:${i}:${built.length}`, true);
       const next = [...built, idx];
       setBuilt(next);
       if (next.length === s.words.length) {
@@ -38,7 +38,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
         }, 2200);
       } else speak(w);
     } else {
-      recordActivityAnswer(false);
+      recordActivityAnswer(`${lesson.id}:frase:${i}:${built.length}`, false);
       setWrong(idx);
       chime("try");
       speak("Quase! Tente de novo.");
@@ -115,7 +115,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   const choose = (opt: string) => {
     if (picked) return;
     if (opt === q.answer) {
-      recordActivityAnswer(true);
+      recordActivityAnswer(`${lesson.id}:questao:${i}`, true);
       setPicked(opt);
       chime("ok");
       speak(`Muito bem! ${q.word}`);
@@ -124,7 +124,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
         else { setFinished(true); chime("win"); speak("Parabéns! Você conseguiu sozinho! Ganhou uma estrela."); onDone(); }
       }, 1600);
     } else {
-      recordActivityAnswer(false);
+      recordActivityAnswer(`${lesson.id}:questao:${i}`, false);
       setWrong(opt);
       chime("try");
       speak("Quase! Tente de novo.");
