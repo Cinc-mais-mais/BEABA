@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
 import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak, useProgress, getProfileStats, type ProfileStats } from "@/lib/app";
+import { speak, useProgress, getProfileStats, LESSONS, type ProfileStats } from "@/lib/app";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -61,7 +61,7 @@ function Perfil() {
 
   const totalAnswers = stats.correct + stats.errors;
   const accuracy = totalAnswers ? Math.round((stats.correct / totalAnswers) * 100) : 0;
-  const taskProgress = Math.round((done.length / 5) * 100);
+  const taskProgress = LESSONS.length ? Math.round((done.length / LESSONS.length) * 100) : 0;
 
   const chooseAvatar = (value: string) => {
     setAvatar(value);
@@ -166,7 +166,7 @@ function Perfil() {
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
             <CheckCircle2 className="mb-2 h-8 w-8 text-[var(--b-green)]" />
-            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{done.length}/5</p>
+            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{done.length}/{LESSONS.length}</p>
             <p className="font-bold text-[var(--home-navy)]">Atividades concluídas</p>
           </div>
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
