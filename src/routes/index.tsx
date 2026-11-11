@@ -37,7 +37,7 @@ function Index() {
         {LESSONS.map((l, idx) => {
           const isDone = done.includes(l.id);
           return (
-            <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx % 4]}`}>
+            <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
               <button
                 onClick={() => { speak(l.title); setOpen(l); }}
                 aria-label={`${l.title}${isDone ? ", concluída" : ""}`}
