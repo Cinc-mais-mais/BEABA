@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, Star, Volume2, Undo2 } from "lucide-react";
-import { chime, speak, recordActivityAnswer, recordPhraseCompleted, type Lesson, type Sentence } from "@/lib/app";
+import { chime, speak, recordActivityAnswer, recordPhraseCompleted, recordCompletedWord, type Lesson, type Sentence } from "@/lib/app";
 
 const bg = { red: "bg-red", yellow: "bg-yellow", blue: "bg-blue", orange: "bg-orange" };
 type Props = { lesson: Lesson; onClose: () => void; onDone: () => void };
@@ -33,6 +33,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
       setBuilt(next);
       if (next.length === s.words.length) {
         recordPhraseCompleted(`${lesson.id}:frase:${i}`);
+        s.words.forEach((word) => recordCompletedWord(word));
         chime("ok");
         speak(`Muito bem! ${phrase}`);
         setTimeout(() => {
@@ -122,6 +123,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
     if (picked) return;
     if (opt === q.answer) {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, true);
+      recordCompletedWord(q.word);
       setFeedback("Muito bem! Você acertou!");
       setPicked(opt);
       chime("ok");
