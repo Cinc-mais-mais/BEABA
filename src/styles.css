@@ -176,3 +176,44 @@
   .activity-screen [data-speak] { gap: 16px; }
   .activity-screen button.h-56 { width: 140px; height: 140px; font-size: 96px; }
 }
+
+
+/* Accessibility: reinforced contrast mode, retained across routes. */
+:root.beaba-high-contrast {
+  --home-bg: #FFFFFF;
+  --home-blob-l: #DCE6F2;
+  --home-blob-r: #FBE3D1;
+  --home-header: #123B68;
+  --home-navy: #101B2D;
+  --home-active: #003FAD;
+  --home-nav: #FFFFFF;
+  --home-dot: #737373;
+  --home-tag: #F3D4CC;
+  --background: #FFFFFF;
+  --foreground: #000000;
+  --card: #FFFFFF;
+  --card-foreground: #000000;
+  --muted: #E5E5E5;
+  --muted-foreground: #262626;
+  --border: #111111;
+}
+:root.beaba-high-contrast body {
+  background-color: #FFFFFF;
+  color: #000000;
+}
+:root.beaba-high-contrast button,
+:root.beaba-high-contrast a,
+:root.beaba-high-contrast input,
+:root.beaba-high-contrast label {
+  outline-offset: 3px;
+}
+:root.beaba-high-contrast button:focus-visible,
+:root.beaba-high-contrast a:focus-visible,
+:root.beaba-high-contrast input:focus-visible,
+:root.beaba-high-contrast label:focus-visible {
+  outline: 4px solid #000000;
+}
+:root.beaba-high-contrast .app-nav,
+:root.beaba-high-contrast .app-main section {
+  border: 2px solid #222222;
+}
