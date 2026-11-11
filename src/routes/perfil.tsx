@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useMemo, useState, type ChangeEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { speak, useProgress, getProfileStats, getAchievements, LESSONS, type ProfileStats } from "@/lib/app";
@@ -35,6 +35,10 @@ function Perfil() {
   const [stats, setStats] = useState<ProfileStats>({ correct: 0, errors: 0, lastLesson: "", lastAt: null });
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
   const [photoError, setPhotoError] = useState("");
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraBusy, setCameraBusy] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const cameraStreamRef = useRef<MediaStream | null>(null);
   const { done } = useProgress();
 
   useEffect(() => {
@@ -65,6 +69,91 @@ function Perfil() {
     document.documentElement.classList.toggle("beaba-high-contrast", contrast);
     try { window.localStorage.setItem(CONTRAST_KEY, String(contrast)); } catch { /* local preference may be unavailable */ }
   }, [contrast, preferenceLoaded]);
+
+  const stopCamera = () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+    cameraStreamRef.current = null;
+    if (videoRef.current) videoRef.current.srcObject = null;
+    setCameraOpen(false);
+    setCameraBusy(false);
+  };
+
+  const savePhotoData = (data: string) => {
+    try {
+      window.localStorage.setItem(PHOTO_KEY, data);
+      window.localStorage.removeItem(AVATAR_KEY);
+      setPhoto(data);
+      setPhotoError("");
+      speak("Foto de perfil atualizada.");
+      return true;
+    } catch {
+      setPhotoError("Não foi possível salvar esta foto. Tente uma imagem menor.");
+      return false;
+    }
+  };
+
+  const startCamera = async () => {
+    setPhotoError("");
+    if (!navigator.mediaDevices?.getUserMedia) {
+      setPhotoError("Este navegador não permite abrir a câmera diretamente. Verifique se está usando uma conexão segura e um navegador atualizado.");
+      return;
+    }
+    setCameraBusy(true);
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({
+        audio: false,
+        video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 1280 } },
+      });
+      cameraStreamRef.current = stream;
+      setCameraOpen(true);
+    } catch (error) {
+      const name = error instanceof DOMException ? error.name : "";
+      setPhotoError(
+        name === "NotAllowedError"
+          ? "A permissão da câmera foi negada. Permita o acesso à câmera nas configurações do navegador."
+          : name === "NotFoundError"
+            ? "Não encontramos uma câmera disponível neste dispositivo."
+            : "Não foi possível abrir a câmera. Verifique se ela está conectada e tente novamente."
+      );
+    } finally {
+      setCameraBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!cameraOpen || !videoRef.current || !cameraStreamRef.current) return;
+    videoRef.current.srcObject = cameraStreamRef.current;
+    void videoRef.current.play().catch(() => {
+      setPhotoError("Não foi possível iniciar a visualização da câmera.");
+    });
+  }, [cameraOpen]);
+
+  useEffect(() => () => {
+    cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
+  }, []);
+
+  const capturePhoto = () => {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth || !video.videoHeight) {
+      setPhotoError("A câmera ainda está iniciando. Aguarde um instante e tente novamente.");
+      return;
+    }
+    const canvas = document.createElement("canvas");
+    const max = 480;
+    const scale = Math.min(1, max / Math.max(video.videoWidth, video.videoHeight));
+    canvas.width = Math.max(1, Math.round(video.videoWidth * scale));
+    canvas.height = Math.max(1, Math.round(video.videoHeight * scale));
+    const context = canvas.getContext("2d");
+    if (!context) {
+      setPhotoError("Não foi possível preparar a fotografia.");
+      return;
+    }
+    context.translate(canvas.width, 0);
+    context.scale(-1, 1);
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+    const saved = savePhotoData(canvas.toDataURL("image/jpeg", 0.78));
+    if (saved) stopCamera();
+  };
 
   const totalAnswers = stats.correct + stats.errors;
   const accuracy = totalAnswers ? Math.round((stats.correct / totalAnswers) * 100) : 0;
@@ -219,10 +308,9 @@ function Perfil() {
             <ImagePlus className="h-7 w-7" /> Importar fotografia
             <input type="file" accept="image/*" onChange={handlePhoto} className="sr-only" />
           </label>
-          <label className="flex cursor-pointer items-center justify-center gap-3 rounded-2xl border-2 border-[var(--b-blue)] bg-white px-4 py-4 font-display text-lg font-extrabold text-[var(--home-navy)] shadow-sm transition active:scale-[0.98]">
-            <Camera className="h-7 w-7" /> Tirar foto agora
-            <input type="file" accept="image/*" capture="user" onChange={handlePhoto} className="sr-only" />
-          </label>
+          <button type="button" onClick={startCamera} disabled={cameraBusy} className="flex items-center justify-center gap-3 rounded-2xl border-2 border-[var(--b-blue)] bg-white px-4 py-4 font-display text-lg font-extrabold text-[var(--home-navy)] shadow-sm transition active:scale-[0.98] disabled:opacity-60">
+            <Camera className="h-7 w-7" /> {cameraBusy ? "Abrindo câmera..." : "Tirar foto agora"}
+          </button>
         </div>
         {photoError && <p role="alert" className="mt-2 text-sm font-bold text-red-700">{photoError}</p>}
         <p className="mt-2 text-center text-sm text-[var(--home-navy)]/75">A foto fica salva neste navegador, sem ser enviada para a internet.</p>
@@ -297,6 +385,22 @@ function Perfil() {
           <Contrast className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Contraste reforçado</span><span className="text-sm">{contrast ? "Ativado" : "Desativado"}</span>
         </button>
       </section>
+      {cameraOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 p-4" role="dialog" aria-modal="true" aria-label="Tirar foto de perfil">
+          <div className="w-full max-w-lg rounded-3xl bg-white p-4 shadow-2xl">
+            <div className="mb-3 flex items-center justify-between gap-3">
+              <h2 className="font-display text-xl font-extrabold text-[var(--home-navy)]">Enquadrar fotografia</h2>
+              <button type="button" onClick={stopCamera} aria-label="Fechar câmera" className="flex h-11 w-11 items-center justify-center rounded-full bg-slate-100 text-slate-900"><X className="h-6 w-6" /></button>
+            </div>
+            <video ref={videoRef} autoPlay muted playsInline className="aspect-[4/3] w-full rounded-2xl bg-slate-900 object-cover" />
+            <p className="my-3 text-center text-sm font-semibold text-slate-700">Posicione seu rosto no centro e toque em Capturar foto.</p>
+            <div className="grid grid-cols-2 gap-3">
+              <button type="button" onClick={stopCamera} className="min-h-14 rounded-xl border-2 border-slate-300 px-4 py-3 font-bold text-slate-800">Cancelar</button>
+              <button type="button" onClick={capturePhoto} className="flex min-h-14 items-center justify-center gap-2 rounded-xl bg-[var(--b-blue)] px-4 py-3 font-bold text-white"><Camera className="h-5 w-5" /> Capturar foto</button>
+            </div>
+          </div>
+        </div>
+      )}
     </Shell>
   );
 }
