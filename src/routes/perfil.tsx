@@ -1,17 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Type } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak } from "@/lib/app";
-import aluna from "@/assets/aluna.jpg";
+import { speak, useProgress, getProfileStats, type ProfileStats } from "@/lib/app";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
     meta: [
       { title: "Beabá" },
-      { name: "description", content: "Veja suas estrelas e seu progresso na leitura." },
-      { property: "og:title", content: "ABC — Meu Perfil" },
-      { property: "og:description", content: "Conquistas e progresso do aluno." },
+      { name: "description", content: "Seu perfil, acessibilidade e evolução na leitura." },
+      { property: "og:title", content: "Beabá — Meu Perfil" },
+      { property: "og:description", content: "Acompanhe sua evolução na leitura." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -19,18 +18,30 @@ export const Route = createFileRoute("/perfil")({
   component: Perfil,
 });
 
+const AVATARS = ["🦉", "🐻", "🐱", "🦋", "🐸", "🐰"];
+const PHOTO_KEY = "beaba-profile-photo";
+const AVATAR_KEY = "beaba-profile-avatar";
+const CONTRAST_KEY = "beaba-high-contrast";
+
 function Perfil() {
   const [big, setBig] = useState(false);
+  const [contrast, setContrast] = useState(false);
+  const [avatar, setAvatar] = useState("🦉");
+  const [photo, setPhoto] = useState<string | null>(null);
+  const [stats, setStats] = useState<ProfileStats>({ correct: 0, errors: 0, lastLesson: "", lastAt: null });
   const [preferenceLoaded, setPreferenceLoaded] = useState(false);
+  const [photoError, setPhotoError] = useState("");
+  const { done } = useProgress();
 
-  // Read the saved preference before allowing this screen to write anything.
-  // This prevents the default false state from overwriting a saved true value
-  // whenever the user returns to the Profile screen.
   useEffect(() => {
     try {
       setBig(window.localStorage.getItem("beaba-large-text") === "true");
+      setContrast(window.localStorage.getItem(CONTRAST_KEY) === "true");
+      setAvatar(window.localStorage.getItem(AVATAR_KEY) || "🦉");
+      setPhoto(window.localStorage.getItem(PHOTO_KEY));
+      setStats(getProfileStats());
     } catch {
-      setBig(false);
+      // Keep default profile settings if browser storage is unavailable.
     } finally {
       setPreferenceLoaded(true);
     }
@@ -38,33 +49,168 @@ function Perfil() {
 
   useEffect(() => {
     if (!preferenceLoaded) return;
-
-    try {
-      window.localStorage.setItem("beaba-large-text", String(big));
-    } catch {
-      // The current session still gets the selected text size if storage is unavailable.
-    }
+    try { window.localStorage.setItem("beaba-large-text", String(big)); } catch { /* local preference may be unavailable */ }
     document.documentElement.style.fontSize = big ? "24px" : "";
   }, [big, preferenceLoaded]);
 
+  useEffect(() => {
+    if (!preferenceLoaded) return;
+    document.documentElement.classList.toggle("beaba-high-contrast", contrast);
+    try { window.localStorage.setItem(CONTRAST_KEY, String(contrast)); } catch { /* local preference may be unavailable */ }
+    return () => document.documentElement.classList.remove("beaba-high-contrast");
+  }, [contrast, preferenceLoaded]);
+
+  const totalAnswers = stats.correct + stats.errors;
+  const accuracy = totalAnswers ? Math.round((stats.correct / totalAnswers) * 100) : 0;
+  const taskProgress = Math.round((done.length / 5) * 100);
+
+  const chooseAvatar = (value: string) => {
+    setAvatar(value);
+    setPhoto(null);
+    try {
+      window.localStorage.setItem(AVATAR_KEY, value);
+      window.localStorage.removeItem(PHOTO_KEY);
+    } catch {
+      setPhotoError("Não foi possível salvar a escolha neste navegador.");
+    }
+    speak("Avatar atualizado.");
+  };
+
+  const handlePhoto = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    setPhotoError("");
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Escolha um arquivo de imagem.");
+      return;
+    }
+    if (file.size > 8 * 1024 * 1024) {
+      setPhotoError("A imagem deve ter no máximo 8 MB.");
+      return;
+    }
+    const reader = new FileReader();
+    reader.onerror = () => setPhotoError("Não foi possível abrir essa imagem.");
+    reader.onload = () => {
+      const image = new Image();
+      image.onerror = () => setPhotoError("Não foi possível processar essa imagem.");
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const max = 480;
+        const scale = Math.min(1, max / Math.max(image.width, image.height));
+        canvas.width = Math.max(1, Math.round(image.width * scale));
+        canvas.height = Math.max(1, Math.round(image.height * scale));
+        const context = canvas.getContext("2d");
+        if (!context) {
+          setPhotoError("Seu navegador não conseguiu preparar a imagem.");
+          return;
+        }
+        context.drawImage(image, 0, 0, canvas.width, canvas.height);
+        const data = canvas.toDataURL("image/jpeg", 0.78);
+        try {
+          window.localStorage.setItem(PHOTO_KEY, data);
+          window.localStorage.removeItem(AVATAR_KEY);
+          setPhoto(data);
+          speak("Foto de perfil atualizada.");
+        } catch {
+          setPhotoError("A imagem ficou grande demais para o armazenamento do navegador. Tente outra foto.");
+        }
+      };
+      image.src = String(reader.result);
+    };
+    reader.readAsDataURL(file);
+    event.target.value = "";
+  };
+
+  const lastDate = useMemo(() => {
+    if (!stats.lastAt) return "Ainda não há atividades recentes";
+    const date = new Date(stats.lastAt);
+    if (Number.isNaN(date.getTime())) return "Ainda não há atividades recentes";
+    return date.toLocaleString("pt-BR", { dateStyle: "short", timeStyle: "short" });
+  }, [stats.lastAt]);
+
   return (
     <Shell home>
-      <section className="person-heading flex min-w-0 flex-col items-center gap-3" data-speak="Maria. Bem-vinda ao seu perfil.">
-        <img src={aluna} alt="Foto de Maria" width={816} height={816} className="h-44 w-44 rounded-full border-4 border-[var(--home-header)] object-cover shadow-[0_8px_20px_rgb(0_0_0/0.12)]" />
+      <section className="person-heading flex min-w-0 flex-col items-center gap-3" data-speak="Meu perfil. Aqui você pode personalizar sua foto, acompanhar seu progresso e ajustar a acessibilidade.">
+        <div className="relative">
+          {photo ? (
+            <img src={photo} alt="Sua foto de perfil" className="h-36 w-36 rounded-full border-4 border-[var(--home-header)] object-cover shadow-[0_8px_20px_rgb(0_0_0/0.12)]" />
+          ) : (
+            <div className="flex h-36 w-36 items-center justify-center rounded-full border-4 border-[var(--home-header)] bg-[var(--home-tag)] text-7xl shadow-[0_8px_20px_rgb(0_0_0/0.12)]" role="img" aria-label="Avatar escolhido">{avatar}</div>
+          )}
+          <span className="absolute bottom-0 right-0 flex h-11 w-11 items-center justify-center rounded-full border-2 border-white bg-[var(--b-blue)] text-white"><Camera className="h-6 w-6" /></span>
+        </div>
         <h1 className="text-4xl font-extrabold text-[var(--home-navy)]">Maria</h1>
+        <p className="font-display text-lg font-bold text-[var(--home-navy)]">Meu espaço de aprendizagem</p>
       </section>
 
-      <div className="profile-settings mt-10 grid min-w-0 grid-cols-1 gap-4">
-        <button
-          onClick={() => { setBig(!big); speak(big ? "Letra normal" : "Letra grande"); }}
-          aria-pressed={big}
-          aria-label="Letra grande"
-          className={`flex flex-col items-center gap-2 rounded-[2rem] p-5 font-display text-xl font-bold shadow-[0_10px_22px_rgb(0_0_0/0.10)] active:scale-[0.97] ${big ? "bg-[var(--b-green)] text-[#FFFFFF]" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}
-        >
-          <Type className="h-12 w-12" strokeWidth={2.5} /> A+
-        </button>
+      <section className="mt-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
+        <h2 className="mb-4 flex items-center gap-2 font-display text-2xl font-extrabold text-[var(--home-navy)]"><UserRound className="h-7 w-7" /> Minha aparência</h2>
+        <p className="mb-3 font-bold text-[var(--home-navy)]">Escolha um bonequinho</p>
+        <div className="grid grid-cols-6 gap-2">
+          {AVATARS.map((item) => (
+            <button key={item} type="button" onClick={() => chooseAvatar(item)} aria-label={`Escolher avatar ${item}`} aria-pressed={!photo && avatar === item}
+              className={`flex aspect-square items-center justify-center rounded-2xl border-2 text-3xl transition active:scale-95 ${!photo && avatar === item ? "border-[var(--b-green)] bg-[var(--b-green)]/15 ring-2 ring-[var(--b-green)]" : "border-transparent bg-[var(--home-tag)]"}`}>
+              {item}
+            </button>
+          ))}
+        </div>
+        <label className="mt-4 flex cursor-pointer items-center justify-center gap-3 rounded-2xl bg-[var(--b-blue)] px-4 py-4 font-display text-lg font-extrabold text-white shadow-sm transition active:scale-[0.98]">
+          <ImagePlus className="h-7 w-7" /> Importar minha fotografia
+          <input type="file" accept="image/*" onChange={handlePhoto} className="sr-only" />
+        </label>
+        {photoError && <p role="alert" className="mt-2 text-sm font-bold text-red-700">{photoError}</p>}
+        <p className="mt-2 text-center text-sm text-[var(--home-navy)]/75">A foto fica salva neste navegador, sem ser enviada para a internet.</p>
+      </section>
 
-      </div>
+      <section className="mt-6 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
+        <h2 className="mb-4 font-display text-2xl font-extrabold text-[var(--home-navy)]">Meu progresso</h2>
+        <div className="grid grid-cols-2 gap-3">
+          <div className="rounded-2xl bg-[var(--home-tag)] p-4">
+            <CheckCircle2 className="mb-2 h-8 w-8 text-[var(--b-green)]" />
+            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{done.length}/5</p>
+            <p className="font-bold text-[var(--home-navy)]">Atividades concluídas</p>
+          </div>
+          <div className="rounded-2xl bg-[var(--home-tag)] p-4">
+            <CheckCircle2 className="mb-2 h-8 w-8 text-[var(--b-green)]" />
+            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.correct}</p>
+            <p className="font-bold text-[var(--home-navy)]">Acertos</p>
+          </div>
+          <div className="rounded-2xl bg-[var(--home-tag)] p-4">
+            <XCircle className="mb-2 h-8 w-8 text-[var(--b-red)]" />
+            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.errors}</p>
+            <p className="font-bold text-[var(--home-navy)]">Tentativas incorretas</p>
+          </div>
+          <div className="rounded-2xl bg-[var(--home-tag)] p-4">
+            <Clock3 className="mb-2 h-8 w-8 text-[var(--b-blue)]" />
+            <p className="font-display text-lg font-extrabold text-[var(--home-navy)]">{stats.lastLesson || "Nenhuma ainda"}</p>
+            <p className="mt-1 text-sm font-bold text-[var(--home-navy)]">{lastDate}</p>
+            <p className="font-bold text-[var(--home-navy)]">Última atividade</p>
+          </div>
+        </div>
+        <div className="mt-5 rounded-2xl bg-[var(--home-tag)] p-4">
+          <div className="mb-2 flex items-center justify-between gap-2">
+            <p className="flex items-center gap-2 font-display text-lg font-extrabold text-[var(--home-navy)]"><TrendingUp className="h-6 w-6" /> Evolução</p>
+            <span className="font-display text-xl font-extrabold text-[var(--home-navy)]">{taskProgress}%</span>
+          </div>
+          <div className="h-4 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="Atividades concluídas" aria-valuenow={taskProgress} aria-valuemin={0} aria-valuemax={100}>
+            <div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${taskProgress}%` }} />
+          </div>
+          <p className="mt-3 font-bold text-[var(--home-navy)]">Aproveitamento nas respostas: {accuracy}%</p>
+          <p className="mt-1 text-sm text-[var(--home-navy)]">{totalAnswers ? "Cada tentativa é uma oportunidade de aprender. Continue praticando!" : "Faça sua primeira atividade para começar a acompanhar seus acertos e sua evolução."}</p>
+        </div>
+      </section>
+
+      <section className="profile-settings mt-6 grid min-w-0 grid-cols-1 gap-3">
+        <h2 className="px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade</h2>
+        <button type="button" onClick={() => { setBig((value) => !value); speak(big ? "Letra normal" : "Letra grande"); }} aria-pressed={big} aria-label="Aumentar tamanho do texto"
+          className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${big ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
+          <Type className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Aumentar texto</span><span className="text-sm">{big ? "Ativado" : "Desativado"}</span>
+        </button>
+        <button type="button" onClick={() => { setContrast((value) => !value); speak(contrast ? "Contraste normal" : "Contraste reforçado ativado"); }} aria-pressed={contrast} aria-label="Ativar contraste reforçado"
+          className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${contrast ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
+          <Contrast className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Contraste reforçado</span><span className="text-sm">{contrast ? "Ativado" : "Desativado"}</span>
+        </button>
+      </section>
     </Shell>
   );
 }
