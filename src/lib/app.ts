@@ -174,19 +174,32 @@ const WORD_EMOJI: Record<string, string> = {
 };
 
 /** Built from the current lesson content so the library grows with new activities. */
-export const WORD_LIBRARY: LibraryWord[] = (() => {
+function buildWordLibrary(): LibraryWord[] {
   const words = new Map<string, LibraryWord>();
   const add = (raw: string, emoji = "") => {
     const word = raw.trim().toLocaleLowerCase("pt-BR");
     if (!word || word.length < 2 || words.has(word) || ["eu", "o", "a", "os", "as", "e"].includes(word)) return;
-    words.set(word, { word, emoji: emoji || WORD_EMOJI[word] || "🔤", category: WORD_CATEGORIES[word] || "Outras palavras" });
+    words.set(word, {
+      word,
+      emoji: emoji || WORD_EMOJI[word] || "🔤",
+      category: WORD_CATEGORIES[word] || "Outras palavras",
+    });
   };
-  LESSONS.forEach((lesson) => {
-    lesson.questions.forEach((question) => add(question.word, question.emoji));
-    lesson.sentences?.forEach((sentence) => [...sentence.words, ...sentence.extras].forEach((word) => add(word)));
-  });
-  return [...words.values()].sort((a, b) => a.category.localeCompare(b.category, "pt-BR") || a.word.localeCompare(b.word, "pt-BR"));
-})();
+
+  for (const lesson of LESSONS) {
+    for (const question of lesson.questions) add(question.word, question.emoji);
+    for (const sentence of lesson.sentences || []) {
+      for (const word of [...sentence.words, ...sentence.extras]) add(word);
+    }
+  }
+
+  return Array.from(words.values()).sort((a, b) =>
+    a.category.localeCompare(b.category, "pt-BR") ||
+    a.word.localeCompare(b.word, "pt-BR")
+  );
+}
+
+export const WORD_LIBRARY: LibraryWord[] = buildWordLibrary();
 
 export type Achievement = { id: string; title: string; description: string; icon: string; unlocked: boolean };
 export function getAchievements(done: string[], stats: ProfileStats): Achievement[] {
