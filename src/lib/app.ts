@@ -104,7 +104,7 @@ export function useProgress() {
 
 
 const PROFILE_STATS_KEY = "beaba-profile-stats";
-export type ProfileStats = { correct: number; errors: number; lastLesson: string; lastAt: string | null; answers?: Record<string, boolean> };
+export type ProfileStats = { correct: number; errors: number; lastLesson: string; lastAt: string | null; answers?: Record<string, boolean>; activeDates?: string[]; reviewedQuestions?: string[]; completedPhrases?: string[] };
 const EMPTY_PROFILE_STATS: ProfileStats = { correct: 0, errors: 0, lastLesson: "", lastAt: null };
 
 export function getProfileStats(): ProfileStats {
@@ -117,6 +117,9 @@ export function getProfileStats(): ProfileStats {
       lastLesson: typeof saved.lastLesson === "string" ? saved.lastLesson : "",
       lastAt: typeof saved.lastAt === "string" ? saved.lastAt : null,
       answers: saved.answers && typeof saved.answers === "object" ? saved.answers : {},
+      activeDates: Array.isArray(saved.activeDates) ? saved.activeDates.filter((day): day is string => typeof day === "string") : [],
+      reviewedQuestions: Array.isArray(saved.reviewedQuestions) ? saved.reviewedQuestions.filter((id): id is string => typeof id === "string") : [],
+      completedPhrases: Array.isArray(saved.completedPhrases) ? saved.completedPhrases.filter((id): id is string => typeof id === "string") : [],
     };
   } catch {
     return EMPTY_PROFILE_STATS;
@@ -135,9 +138,22 @@ export function recordLessonStarted(lesson: Lesson) {
 export function recordActivityAnswer(answerId: string, correct: boolean) {
   if (typeof window === "undefined") return;
   const stats = getProfileStats();
-  const answers = { ...(stats.answers || {}), [answerId]: correct };
+  const previous = stats.answers || {};
+  const answers = { ...previous, [answerId]: correct };
   const values = Object.values(answers);
-  saveProfileStats({ ...stats, answers, correct: values.filter(Boolean).length, errors: values.filter((value) => !value).length });
+  const today = new Date().toLocaleDateString("en-CA");
+  const activeDates = [...new Set([...(stats.activeDates || []), today])].sort();
+  const reviewedQuestions = correct && previous[answerId] === false
+    ? [...new Set([...(stats.reviewedQuestions || []), answerId])]
+    : stats.reviewedQuestions || [];
+  saveProfileStats({ ...stats, answers, activeDates, reviewedQuestions, correct: values.filter(Boolean).length, errors: values.filter((value) => !value).length });
+}
+
+export function recordPhraseCompleted(phraseId: string) {
+  if (typeof window === "undefined") return;
+  const stats = getProfileStats();
+  const completedPhrases = [...new Set([...(stats.completedPhrases || []), phraseId])];
+  saveProfileStats({ ...stats, completedPhrases });
 }
 
 
@@ -182,5 +198,11 @@ export function getAchievements(done: string[], stats: ProfileStats): Achievemen
     { id: "primeira-atividade", title: "Primeira conquista", description: "Concluiu sua primeira atividade.", icon: "🎯", unlocked: done.length >= 1 },
     { id: "tres-atividades", title: "Explorador do saber", description: "Concluiu 3 atividades diferentes.", icon: "🧭", unlocked: done.length >= 3 },
     { id: "toda-trilha", title: "Trilha completa", description: "Concluiu todas as atividades disponíveis.", icon: "🏆", unlocked: LESSONS.length > 0 && done.length >= LESSONS.length },
+    { id: "primeira-frase", title: "Frase completa", description: "Montou sua primeira frase corretamente.", icon: "💬", unlocked: phrases >= 1 },
+    { id: "tres-frases", title: "Construtor de frases", description: "Montou 3 frases corretamente.", icon: "📝", unlocked: phrases >= 3 },
+    { id: "tres-dias", title: "Presença constante", description: "Praticou em 3 dias diferentes, seguidos.", icon: "🔥", unlocked: streak >= 3 },
+    { id: "sete-dias", title: "Uma semana de aprendizado", description: "Praticou por 7 dias seguidos.", icon: "📅", unlocked: streak >= 7 },
+    { id: "primeira-revisao", title: "Aprender revisando", description: "Corrigiu uma questão que antes havia errado.", icon: "🔁", unlocked: reviewed >= 1 },
+    { id: "cinco-revisoes", title: "Não desiste nunca", description: "Corrigiu 5 questões em revisões.", icon: "💪", unlocked: reviewed >= 5 },
   ];
 })();
