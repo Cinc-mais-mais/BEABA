@@ -216,3 +216,60 @@
 :root.beaba-high-contrast .app-main section {
   border: 2px solid #222222;
 }
+
+
+/* Guided first access and gentle continuity cues on the learning trail. */
+@keyframes bubble-complete {
+  0% { transform: scale(1); box-shadow: 0 0 0 10px color-mix(in oklab, var(--b-green) 18%, transparent), 0 12px 24px color-mix(in oklab, var(--b-green) 40%, transparent); }
+  45% { transform: scale(1.16); box-shadow: 0 0 0 18px color-mix(in oklab, var(--b-green) 22%, transparent), 0 0 34px color-mix(in oklab, var(--b-green) 65%, transparent); }
+  100% { transform: scale(1); }
+}
+@keyframes bubble-unlock {
+  0% { transform: scale(.72); filter: brightness(.9); }
+  65% { transform: scale(1.12); filter: brightness(1.12); }
+  100% { transform: scale(1); filter: brightness(1); }
+}
+@keyframes guided-zoom {
+  0% { transform: scale(1); }
+  55% { transform: scale(1.2); }
+  100% { transform: scale(1.08); }
+}
+@keyframes continue-highlight {
+  0%, 100% { box-shadow: 0 5px 14px rgb(0 0 0 / .08), 0 0 0 0 color-mix(in oklab, var(--b-green) 0%, transparent); }
+  50% { box-shadow: 0 8px 22px rgb(31 184 102 / .22), 0 0 0 7px color-mix(in oklab, var(--b-green) 25%, transparent); }
+}
+.animate-bubble-complete { animation: bubble-complete .85s ease-out both; }
+.animate-bubble-unlock { animation: bubble-unlock .9s cubic-bezier(.2,.8,.2,1) both; }
+.guided-bubble-highlight { position: relative; z-index: 3; animation: guided-zoom 1.15s ease-in-out infinite alternate; }
+.animate-continue-highlight { animation: continue-highlight 1.15s ease-in-out 2; }
+.guided-intro-tooltip {
+  position: absolute;
+  z-index: 20;
+  bottom: calc(100% + 18px);
+  left: 50%;
+  width: min(290px, calc(100vw - 48px));
+  transform: translateX(-50%);
+  display: grid;
+  gap: 5px;
+  padding: 14px 17px;
+  border: 2px solid var(--home-header);
+  border-radius: 18px;
+  background: #FFFFFF;
+  color: var(--home-navy);
+  text-align: center;
+  box-shadow: 0 8px 24px rgb(0 0 0 / .16);
+  font-size: 16px;
+  line-height: 1.35;
+}
+.guided-intro-tooltip::after {
+  content: "";
+  position: absolute;
+  top: 100%;
+  left: calc(50% - 9px);
+  border: 9px solid transparent;
+  border-top-color: var(--home-header);
+}
+@media (prefers-reduced-motion: reduce) {
+  .animate-bubble-complete, .animate-bubble-unlock, .guided-bubble-highlight, .animate-continue-highlight { animation: none !important; }
+  html:focus-within { scroll-behavior: auto; }
+}
