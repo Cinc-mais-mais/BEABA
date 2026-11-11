@@ -1,12 +1,5 @@
-<!-- LOVABLE:BEGIN -->
-> [!IMPORTANT]
-> This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
-> published git history — force pushing, or rebasing/amending/squashing commits
-> that are already pushed — as it rewrites history on Lovable's side and the
-> user will likely lose their project history.
->
-> Commits you push to the connected branch sync back to Lovable and show up in
-> the editor, so keep the branch in a working state.
-<!-- LOVABLE:END -->
+# BEABÁ — orientações do projeto
 
 - Shared responsive sizing lives in `src/styles.css`, scoped by screen classes; preserve existing lesson logic and keep fixed controls clear of safe-area insets.
+- Keep the interface accessible for older adults: use clear labels, large touch targets, strong contrast, and predictable navigation.
+- The application is built with TanStack Start, React, TypeScript, Vite, and Tailwind CSS.
