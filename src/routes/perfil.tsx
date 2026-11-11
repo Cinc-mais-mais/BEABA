@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState, type ChangeEvent } from "react";
-import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound } from "lucide-react";
+import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { speak, useProgress, getProfileStats, LESSONS, type ProfileStats } from "@/lib/app";
 
@@ -143,8 +143,8 @@ function Perfil() {
       </section>
 
       <section className="mt-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
-        <h2 className="mb-4 flex items-center gap-2 font-display text-2xl font-extrabold text-[var(--home-navy)]"><UserRound className="h-7 w-7" /> Minha aparência</h2>
-        <p className="mb-3 font-bold text-[var(--home-navy)]">Escolha um bonequinho</p>
+        <h2 className="mb-4 flex items-center gap-3 font-display text-2xl font-extrabold text-[var(--home-navy)]"><UserRound className="h-7 w-7" /> Minha aparência <button type="button" onClick={() => speak("Minha aparência. Escolha um personagem ou importe sua fotografia.")} aria-label="Ouvir sobre minha aparência" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
+        <p className="mb-3 font-bold text-[var(--home-navy)]">Escolha um personagem</p>
         <div className="grid grid-cols-6 gap-2">
           {AVATARS.map((item) => (
             <button key={item} type="button" onClick={() => chooseAvatar(item)} aria-label={`Escolher avatar ${item}`} aria-pressed={!photo && avatar === item}
@@ -162,45 +162,45 @@ function Perfil() {
       </section>
 
       <section className="mt-6 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]">
-        <h2 className="mb-4 font-display text-2xl font-extrabold text-[var(--home-navy)]">Meu progresso</h2>
+        <h2 className="mb-4 flex items-center gap-3 font-display text-2xl font-extrabold text-[var(--home-navy)]">Meu progresso <button type="button" onClick={() => speak("Meu progresso. Aqui você acompanha suas atividades concluídas, acertos, tentativas incorretas e sua evolução.")} aria-label="Ouvir sobre meu progresso" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
         <div className="grid grid-cols-2 gap-3">
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
             <CheckCircle2 className="mb-2 h-8 w-8 text-[var(--b-green)]" />
-            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{done.length}/{LESSONS.length}</p>
+            <p className="flex items-center gap-2 font-display text-3xl font-extrabold text-[var(--home-navy)]">{done.length}/{LESSONS.length}<button type="button" onClick={() => speak(`Você concluiu ${done.length} de ${LESSONS.length} atividades.`)} aria-label="Ouvir atividades concluídas" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
             <p className="font-bold text-[var(--home-navy)]">Atividades concluídas</p>
           </div>
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
             <CheckCircle2 className="mb-2 h-8 w-8 text-[var(--b-green)]" />
-            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.correct}</p>
+            <p className="flex items-center gap-2 font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.correct}<button type="button" onClick={() => speak(`Você marcou ${stats.correct} respostas corretamente.`)} aria-label="Ouvir quantidade de acertos" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
             <p className="font-bold text-[var(--home-navy)]">Acertos</p>
           </div>
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
             <XCircle className="mb-2 h-8 w-8 text-[var(--b-red)]" />
-            <p className="font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.errors}</p>
+            <p className="flex items-center gap-2 font-display text-3xl font-extrabold text-[var(--home-navy)]">{stats.errors}<button type="button" onClick={() => speak(`Você tem ${stats.errors} respostas para corrigir. Quando acertar uma questão novamente, ela sairá dos erros e passará para os acertos.`)} aria-label="Ouvir quantidade de erros" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
             <p className="font-bold text-[var(--home-navy)]">Tentativas incorretas</p>
           </div>
           <div className="rounded-2xl bg-[var(--home-tag)] p-4">
             <Clock3 className="mb-2 h-8 w-8 text-[var(--b-blue)]" />
-            <p className="font-display text-lg font-extrabold text-[var(--home-navy)]">{stats.lastLesson || "Nenhuma ainda"}</p>
+            <p className="flex items-center gap-2 font-display text-lg font-extrabold text-[var(--home-navy)]">{stats.lastLesson || "Nenhuma ainda"}<button type="button" onClick={() => speak(stats.lastLesson ? `Sua última atividade foi ${stats.lastLesson}, em ${lastDate}.` : "Você ainda não iniciou nenhuma atividade.")} aria-label="Ouvir última atividade" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
             <p className="mt-1 text-sm font-bold text-[var(--home-navy)]">{lastDate}</p>
             <p className="font-bold text-[var(--home-navy)]">Última atividade</p>
           </div>
         </div>
         <div className="mt-5 rounded-2xl bg-[var(--home-tag)] p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <p className="flex items-center gap-2 font-display text-lg font-extrabold text-[var(--home-navy)]"><TrendingUp className="h-6 w-6" /> Evolução</p>
+            <p className="flex items-center gap-2 font-display text-lg font-extrabold text-[var(--home-navy)]"><TrendingUp className="h-6 w-6" /> Evolução <button type="button" onClick={() => speak(`Sua evolução: ${done.length} de ${LESSONS.length} atividades concluídas. Aproveitamento nas respostas: ${accuracy} por cento.`)} aria-label="Ouvir evolução" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
             <span className="font-display text-xl font-extrabold text-[var(--home-navy)]">{taskProgress}%</span>
           </div>
           <div className="h-4 overflow-hidden rounded-full bg-white" role="progressbar" aria-label="Atividades concluídas" aria-valuenow={taskProgress} aria-valuemin={0} aria-valuemax={100}>
             <div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${taskProgress}%` }} />
           </div>
-          <p className="mt-3 font-bold text-[var(--home-navy)]">Aproveitamento nas respostas: {accuracy}%</p>
+          <p className="mt-3 flex items-center gap-2 font-bold text-[var(--home-navy)]">Aproveitamento nas respostas: {accuracy}% <button type="button" onClick={() => speak(`Seu aproveitamento nas respostas é de ${accuracy} por cento.`)} aria-label="Ouvir aproveitamento" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-5 w-5" /></button></p>
           <p className="mt-1 text-sm text-[var(--home-navy)]">{totalAnswers ? "Cada tentativa é uma oportunidade de aprender. Continue praticando!" : "Faça sua primeira atividade para começar a acompanhar seus acertos e sua evolução."}</p>
         </div>
       </section>
 
       <section className="profile-settings mt-6 grid min-w-0 grid-cols-1 gap-3">
-        <h2 className="px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade</h2>
+        <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode aumentar o tamanho do texto e ativar o contraste reforçado.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
         <button type="button" onClick={() => { setBig((value) => !value); speak(big ? "Letra normal" : "Letra grande"); }} aria-pressed={big} aria-label="Aumentar tamanho do texto"
           className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${big ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
           <Type className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Aumentar texto</span><span className="text-sm">{big ? "Ativado" : "Desativado"}</span>
