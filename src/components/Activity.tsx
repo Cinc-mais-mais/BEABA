@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, Star, Volume2, Undo2 } from "lucide-react";
-import { chime, speak, recordActivityAnswer, type Lesson, type Sentence } from "@/lib/app";
+import { chime, speak, recordActivityAnswer, recordPhraseCompleted, type Lesson, type Sentence } from "@/lib/app";
 
 const bg = { red: "bg-red", yellow: "bg-yellow", blue: "bg-blue", orange: "bg-orange" };
 type Props = { lesson: Lesson; onClose: () => void; onDone: () => void };
