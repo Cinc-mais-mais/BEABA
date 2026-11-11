@@ -231,4 +231,4 @@ export function getAchievements(done: string[], stats: ProfileStats): Achievemen
     { id: "primeira-revisao", title: "Aprender revisando", description: "Corrigiu uma questão que antes havia errado.", icon: "🔁", unlocked: reviewed >= 1 },
     { id: "cinco-revisoes", title: "Não desiste nunca", description: "Corrigiu 5 questões em revisões.", icon: "💪", unlocked: reviewed >= 5 },
   ];
-})();
+}
