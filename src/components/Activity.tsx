@@ -32,6 +32,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
       const next = [...built, idx];
       setBuilt(next);
       if (next.length === s.words.length) {
+        recordPhraseCompleted(`${lesson.id}:frase:${i}`);
         chime("ok");
         speak(`Muito bem! ${phrase}`);
         setTimeout(() => {
