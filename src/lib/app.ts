@@ -104,7 +104,7 @@ export function useProgress() {
 
 
 const PROFILE_STATS_KEY = "beaba-profile-stats";
-export type ProfileStats = { correct: number; errors: number; lastLesson: string; lastAt: string | null };
+export type ProfileStats = { correct: number; errors: number; lastLesson: string; lastAt: string | null; answers?: Record<string, boolean> };
 const EMPTY_PROFILE_STATS: ProfileStats = { correct: 0, errors: 0, lastLesson: "", lastAt: null };
 
 export function getProfileStats(): ProfileStats {
@@ -116,6 +116,7 @@ export function getProfileStats(): ProfileStats {
       errors: Number.isFinite(saved.errors) ? Math.max(0, Number(saved.errors)) : 0,
       lastLesson: typeof saved.lastLesson === "string" ? saved.lastLesson : "",
       lastAt: typeof saved.lastAt === "string" ? saved.lastAt : null,
+      answers: saved.answers && typeof saved.answers === "object" ? saved.answers : {},
     };
   } catch {
     return EMPTY_PROFILE_STATS;
@@ -131,8 +132,10 @@ export function recordLessonStarted(lesson: Lesson) {
   saveProfileStats({ ...getProfileStats(), lastLesson: lesson.title, lastAt: new Date().toISOString() });
 }
 
-export function recordActivityAnswer(correct: boolean) {
+export function recordActivityAnswer(answerId: string, correct: boolean) {
   if (typeof window === "undefined") return;
   const stats = getProfileStats();
-  saveProfileStats({ ...stats, correct: stats.correct + (correct ? 1 : 0), errors: stats.errors + (correct ? 0 : 1) });
+  const answers = { ...(stats.answers || {}), [answerId]: correct };
+  const values = Object.values(answers);
+  saveProfileStats({ ...stats, answers, correct: values.filter(Boolean).length, errors: values.filter((value) => !value).length });
 }
