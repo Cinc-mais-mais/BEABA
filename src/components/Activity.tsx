@@ -4,6 +4,37 @@ import { chime, speak, recordActivityAnswer, recordPhraseCompleted, recordComple
 
 type Props = { lesson: Lesson; onClose: () => void; onDone: () => void };
 
+function shuffleArray<T>(items: T[]): T[] {
+  const shuffled = [...items];
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+  return shuffled;
+}
+
+/** Randomizes correct-answer positions in balanced cycles for each activity. */
+function buildBalancedOptions(questions: Lesson["questions"]) {
+  const positionBags = new Map<number, number[]>();
+
+  return questions.map((question) => {
+    const optionCount = question.options.length;
+    if (optionCount <= 1) return [...question.options];
+
+    let positions = positionBags.get(optionCount);
+    if (!positions || positions.length === 0) {
+      positions = shuffleArray(Array.from({ length: optionCount }, (_, index) => index));
+      positionBags.set(optionCount, positions);
+    }
+
+    const correctPosition = positions.pop()!;
+    const distractors = shuffleArray(question.options.filter((option) => option !== question.answer));
+    const arranged = [...distractors];
+    arranged.splice(Math.min(correctPosition, arranged.length), 0, question.answer);
+    return arranged;
+  });
+}
+
 export function Activity(props: Props) {
   return props.lesson.sentences ? <SentenceActivity {...props} sentences={props.lesson.sentences} /> : <SyllableActivity {...props} />;
 }
@@ -156,6 +187,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   const [inputLocked, setInputLocked] = useState(false);
   const nextGuard = useRef(false);
   const q = lesson.questions[i] ?? lesson.questions[0]!;
+  const displayedOptions = useMemo(() => buildBalancedOptions(lesson.questions), [lesson]);
 
   useEffect(() => {
     if (!finished) speak(`${lesson.intro} ${q.word}`);
@@ -224,7 +256,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
             </p>
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
             <div className="grid w-full grid-cols-3 gap-3">
-              {q.options.map((opt, k) => {
+              {(displayedOptions[i] ?? q.options).map((opt, k) => {
                 const colors = ["bg-[#F4D8D5]", "bg-[#F7E8B5]", "bg-[#D8EAF5]"];
                 const isWrong = wrong === opt;
                 const isRight = picked === opt;
