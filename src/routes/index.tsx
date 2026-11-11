@@ -185,7 +185,7 @@ function Index() {
                 onClick={() => { if (!isLocked) startLesson(l); }}
                 disabled={isLocked}
                 aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
-                className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : "animate-float"} ${completedAnimationId === l.id ? "animate-bubble-complete" : ""} ${unlockedAnimationId === l.id ? "animate-bubble-unlock" : ""} ${introTarget === idx ? "guided-bubble-highlight" : ""}`}
+                className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : completedAnimationId === l.id || unlockedAnimationId === l.id || introTarget === idx ? "" : "animate-float"} ${completedAnimationId === l.id ? "animate-bubble-complete" : ""} ${unlockedAnimationId === l.id ? "animate-bubble-unlock" : ""} ${introTarget === idx ? "guided-bubble-highlight" : ""}`}
                 style={{ animationDelay: `${idx * 0.4}s`, ["--b" as string]: `var(--b-${isDone ? "green" : bubble[l.color]})`, ["--bd" as string]: `var(--b-${isDone ? "green" : bubble[l.color]}-d)` }}
               >
                 {l.icon}
