@@ -178,8 +178,8 @@ export const WORD_LIBRARY: LibraryWord[] = (() => {
   const words = new Map<string, LibraryWord>();
   const add = (raw: string, emoji = "") => {
     const word = raw.trim().toLocaleLowerCase("pt-BR");
-    if (!word || words.has(word) || !WORD_CATEGORIES[word]) return;
-    words.set(word, { word, emoji: emoji || WORD_EMOJI[word] || "🔤", category: WORD_CATEGORIES[word] });
+    if (!word || word.length < 2 || words.has(word) || ["eu", "o", "a", "os", "as", "e"].includes(word)) return;
+    words.set(word, { word, emoji: emoji || WORD_EMOJI[word] || "🔤", category: WORD_CATEGORIES[word] || "Outras palavras" });
   };
   LESSONS.forEach((lesson) => {
     lesson.questions.forEach((question) => add(question.word, question.emoji));
@@ -191,6 +191,19 @@ export const WORD_LIBRARY: LibraryWord[] = (() => {
 export type Achievement = { id: string; title: string; description: string; icon: string; unlocked: boolean };
 export function getAchievements(done: string[], stats: ProfileStats): Achievement[] {
   const correct = stats.correct || 0;
+  const activeDates = new Set(stats.activeDates || []);
+  let streak = 0;
+  const now = new Date();
+  const today = now.toLocaleDateString("en-CA");
+  const yesterdayDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
+  const yesterday = yesterdayDate.toLocaleDateString("en-CA");
+  let cursor = activeDates.has(today) ? new Date(now.getFullYear(), now.getMonth(), now.getDate()) : activeDates.has(yesterday) ? yesterdayDate : null;
+  while (cursor && activeDates.has(cursor.toLocaleDateString("en-CA"))) {
+    streak++;
+    cursor.setDate(cursor.getDate() - 1);
+  }
+  const reviewed = (stats.reviewedQuestions || []).length;
+  const phrases = (stats.completedPhrases || []).length;
   return [
     { id: "primeiro-acerto", title: "Primeiro acerto", description: "Acertou sua primeira resposta.", icon: "🌟", unlocked: correct >= 1 },
     { id: "cinco-acertos", title: "Memória afiada", description: "Conquistou 5 acertos.", icon: "🧠", unlocked: correct >= 5 },
