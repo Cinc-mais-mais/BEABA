@@ -39,22 +39,14 @@ export function Activity(props: Props) {
   return props.lesson.sentences ? <SentenceActivity {...props} sentences={props.lesson.sentences} /> : <SyllableActivity {...props} />;
 }
 
-function ProgressHeader({ onClose, current, total, completed }: { onClose: () => void; current: number; total: number; completed: boolean }) {
-  const percent = Math.round(((current - 1 + (completed ? 1 : 0)) / Math.max(total, 1)) * 100);
+function ActivityHeader({ onClose, title }: { onClose: () => void; title: string }) {
   return (
     <div className="flex items-center gap-4">
-      <button onClick={onClose} aria-label="Fechar atividade" className="pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white">
+      <button onClick={onClose} aria-label="Sair da atividade" className="pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white">
         <X className="h-8 w-8" strokeWidth={2.8} />
       </button>
-      <div className="min-w-0 flex-1">
-        <div className="mb-2 flex items-center justify-between gap-3 text-sm font-bold text-slate-700">
-          <span>Seu progresso</span>
-          <span className="tabular-nums">{Math.min(current - 1 + (completed ? 1 : 0), total)} de {total}</span>
-        </div>
-        <div className="h-4 overflow-hidden rounded-full border-2 border-slate-300 bg-slate-200" role="progressbar" aria-label="Progresso da atividade" aria-valuemin={0} aria-valuemax={total} aria-valuenow={Math.min(current - 1 + (completed ? 1 : 0), total)}>
-          <div className="h-full rounded-full bg-[#2877B8] transition-[width] duration-700 ease-out" style={{ width: `${percent}%` }} />
-        </div>
-      </div>
+      <h1 className="min-w-0 flex-1 text-center text-2xl font-extrabold text-slate-800">{title}</h1>
+      <span className="h-14 w-14 shrink-0" aria-hidden />
     </div>
   );
 }
@@ -123,7 +115,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   return (
     <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
-        <ProgressHeader onClose={onClose} current={i + 1} total={sentences.length} completed={awaitingNext || finished} />
+        <ActivityHeader onClose={onClose} title={lesson.title} />
         {finished ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
             <Star className="animate-celebrate h-32 w-32 fill-yellow text-slate-800" strokeWidth={1.5} />
@@ -235,7 +227,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   return (
     <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
-        <ProgressHeader onClose={onClose} current={i + 1} total={lesson.questions.length} completed={awaitingNext || finished} />
+        <ActivityHeader onClose={onClose} title={lesson.title} />
         {finished ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
             <Star className="animate-celebrate h-32 w-32 fill-yellow text-slate-800" strokeWidth={1.5} />
