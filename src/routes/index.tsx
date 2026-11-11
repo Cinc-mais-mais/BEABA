@@ -51,7 +51,11 @@ function Index() {
     try {
       if (window.localStorage.getItem("beaba-guided-first-access") === "done") return;
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
-      const target = Math.max(0, LESSONS.findIndex((lesson) => !savedDone.includes(lesson.id)));
+      const target = LESSONS.findIndex((lesson) => !savedDone.includes(lesson.id));
+      if (target < 0) {
+        window.localStorage.setItem("beaba-guided-first-access", "done");
+        return;
+      }
       window.requestAnimationFrame(() => {
         bubbleRefs.current[target]?.scrollIntoView({ behavior: "smooth", block: "center" });
         window.setTimeout(() => setIntroTarget(target), 450);
