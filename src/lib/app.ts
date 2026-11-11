@@ -101,3 +101,38 @@ export function useProgress() {
   });
   return { done, complete };
 }
+
+
+const PROFILE_STATS_KEY = "beaba-profile-stats";
+export type ProfileStats = { correct: number; errors: number; lastLesson: string; lastAt: string | null };
+const EMPTY_PROFILE_STATS: ProfileStats = { correct: 0, errors: 0, lastLesson: "", lastAt: null };
+
+export function getProfileStats(): ProfileStats {
+  if (typeof window === "undefined") return EMPTY_PROFILE_STATS;
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(PROFILE_STATS_KEY) || "{}") as Partial<ProfileStats>;
+    return {
+      correct: Number.isFinite(saved.correct) ? Math.max(0, Number(saved.correct)) : 0,
+      errors: Number.isFinite(saved.errors) ? Math.max(0, Number(saved.errors)) : 0,
+      lastLesson: typeof saved.lastLesson === "string" ? saved.lastLesson : "",
+      lastAt: typeof saved.lastAt === "string" ? saved.lastAt : null,
+    };
+  } catch {
+    return EMPTY_PROFILE_STATS;
+  }
+}
+
+function saveProfileStats(stats: ProfileStats) {
+  try { window.localStorage.setItem(PROFILE_STATS_KEY, JSON.stringify(stats)); } catch { /* Keep current session usable if storage is full. */ }
+}
+
+export function recordLessonStarted(lesson: Lesson) {
+  if (typeof window === "undefined") return;
+  saveProfileStats({ ...getProfileStats(), lastLesson: lesson.title, lastAt: new Date().toISOString() });
+}
+
+export function recordActivityAnswer(correct: boolean) {
+  if (typeof window === "undefined") return;
+  const stats = getProfileStats();
+  saveProfileStats({ ...stats, correct: stats.correct + (correct ? 1 : 0), errors: stats.errors + (correct ? 0 : 1) });
+}
