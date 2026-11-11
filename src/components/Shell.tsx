@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Home, GraduationCap, User, Volume2, VolumeX, BookOpen } from "lucide-react";
+import { Home, GraduationCap, User, Volume2, VolumeX } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import logo from "@/assets/iconpng.png";
@@ -7,7 +7,6 @@ import { isSoundEnabled, setSoundEnabled, speak } from "@/lib/app";
 
 const tabs = [
   { to: "/", label: "Início", icon: Home, color: "bg-red" },
-  { to: "/palavras", label: "Minhas palavras", icon: BookOpen, color: "bg-blue" },
   { to: "/professor", label: "Professor", icon: GraduationCap, color: "bg-blue" },
   { to: "/perfil", label: "Perfil", icon: User, color: "bg-yellow" },
 ] as const;
