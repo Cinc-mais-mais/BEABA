@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 import { Star, Lock, CheckCircle2 } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
-import { LESSONS, speak, useProgress, type Lesson } from "@/lib/app";
+import { LESSONS, speak, useProgress, recordLessonStarted, type Lesson } from "@/lib/app";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -118,7 +118,7 @@ function Index() {
             <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
-                onClick={() => { if (!isLocked) { speak(l.title); setOpen(l); } }}
+                onClick={() => { if (!isLocked) { speak(l.title); recordLessonStarted(l); setOpen(l); } }}
                 disabled={isLocked}
                 aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
                 className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : "animate-float"}`}
