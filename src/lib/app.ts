@@ -139,3 +139,48 @@ export function recordActivityAnswer(answerId: string, correct: boolean) {
   const values = Object.values(answers);
   saveProfileStats({ ...stats, answers, correct: values.filter(Boolean).length, errors: values.filter((value) => !value).length });
 }
+
+
+export type LibraryWord = { word: string; emoji: string; category: string };
+const WORD_CATEGORIES: Record<string, string> = {
+  abelha: "Animais", gato: "Animais", pato: "Animais", pássaro: "Animais",
+  uva: "Frutas", tomate: "Frutas",
+  boneca: "Objetos", panela: "Objetos", casaco: "Objetos", pipoca: "Alimentos",
+  ovo: "Alimentos", massa: "Alimentos", pão: "Alimentos", leite: "Alimentos",
+  casa: "Lugares", lua: "Natureza", sol: "Natureza", chuva: "Natureza",
+  quente: "Natureza", frio: "Natureza",
+};
+const WORD_EMOJI: Record<string, string> = {
+  abelha: "🐝", ovo: "🥚", uva: "🍇", boneca: "🪆", pipoca: "🍿",
+  panela: "🍲", tomate: "🍅", casaco: "🧥", gato: "🐱", casa: "🏠",
+  pato: "🦆", lua: "🌙", massa: "🍝", pássaro: "🐦", sol: "☀️",
+  pão: "🍞", chuva: "🌧️", leite: "🥛",
+};
+
+/** Built from the current lesson content so the library grows with new activities. */
+export const WORD_LIBRARY: LibraryWord[] = (() => {
+  const words = new Map<string, LibraryWord>();
+  const add = (raw: string, emoji = "") => {
+    const word = raw.trim().toLocaleLowerCase("pt-BR");
+    if (!word || words.has(word) || !WORD_CATEGORIES[word]) return;
+    words.set(word, { word, emoji: emoji || WORD_EMOJI[word] || "🔤", category: WORD_CATEGORIES[word] });
+  };
+  LESSONS.forEach((lesson) => {
+    lesson.questions.forEach((question) => add(question.word, question.emoji));
+    lesson.sentences?.forEach((sentence) => [...sentence.words, ...sentence.extras].forEach((word) => add(word)));
+  });
+  return [...words.values()].sort((a, b) => a.category.localeCompare(b.category, "pt-BR") || a.word.localeCompare(b.word, "pt-BR"));
+})();
+
+export type Achievement = { id: string; title: string; description: string; icon: string; unlocked: boolean };
+export function getAchievements(done: string[], stats: ProfileStats): Achievement[] {
+  const correct = stats.correct || 0;
+  return [
+    { id: "primeiro-acerto", title: "Primeiro acerto", description: "Acertou sua primeira resposta.", icon: "🌟", unlocked: correct >= 1 },
+    { id: "cinco-acertos", title: "Memória afiada", description: "Conquistou 5 acertos.", icon: "🧠", unlocked: correct >= 5 },
+    { id: "dez-acertos", title: "Aprendiz dedicado", description: "Conquistou 10 acertos.", icon: "🏅", unlocked: correct >= 10 },
+    { id: "primeira-atividade", title: "Primeira conquista", description: "Concluiu sua primeira atividade.", icon: "🎯", unlocked: done.length >= 1 },
+    { id: "tres-atividades", title: "Explorador do saber", description: "Concluiu 3 atividades diferentes.", icon: "🧭", unlocked: done.length >= 3 },
+    { id: "toda-trilha", title: "Trilha completa", description: "Concluiu todas as atividades disponíveis.", icon: "🏆", unlocked: LESSONS.length > 0 && done.length >= LESSONS.length },
+  ];
+})();
