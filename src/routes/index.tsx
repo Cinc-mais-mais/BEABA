@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
-import { Star, Lock, CheckCircle2, Volume2, BookOpen } from "lucide-react";
+import { Star, Lock, Volume2, BookOpen, ArrowRight } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
 import { LESSONS, speak, useProgress, recordLessonStarted, type Lesson } from "@/lib/app";
@@ -25,6 +25,11 @@ const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start 
 function Index() {
   const { done, complete } = useProgress();
   const [open, setOpen] = useState<Lesson | null>(null);
+  const [introTarget, setIntroTarget] = useState<number | null>(null);
+  const [completedAnimationId, setCompletedAnimationId] = useState<string | null>(null);
+  const [unlockedAnimationId, setUnlockedAnimationId] = useState<string | null>(null);
+  const [highlightContinue, setHighlightContinue] = useState(false);
+  const introHandled = useRef(false);
   const completedCount = done.length;
   const progressPct = LESSONS.length ? Math.round((completedCount / LESSONS.length) * 100) : 0;
   const nextLessonIndex = LESSONS.findIndex((lesson) => !done.includes(lesson.id));
@@ -39,6 +44,54 @@ function Index() {
   const [trail, setTrail] = useState({ width: 0, height: 0, path: "" });
   const listRef = useRef<HTMLOListElement | null>(null);
   const bubbleRefs = useRef<(HTMLButtonElement | null)[]>([]);
+
+  useEffect(() => {
+    if (introHandled.current || typeof window === "undefined") return;
+    introHandled.current = true;
+    try {
+      if (window.localStorage.getItem("beaba-guided-first-access") === "done") return;
+      const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
+      const target = Math.max(0, LESSONS.findIndex((lesson) => !savedDone.includes(lesson.id)));
+      window.requestAnimationFrame(() => {
+        bubbleRefs.current[target]?.scrollIntoView({ behavior: "smooth", block: "center" });
+        window.setTimeout(() => setIntroTarget(target), 450);
+      });
+    } catch {
+      setIntroTarget(0);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (!completedAnimationId && !unlockedAnimationId && !highlightContinue) return;
+    const timeout = window.setTimeout(() => {
+      setCompletedAnimationId(null);
+      setUnlockedAnimationId(null);
+      setHighlightContinue(false);
+    }, 2400);
+    return () => window.clearTimeout(timeout);
+  }, [completedAnimationId, unlockedAnimationId, highlightContinue]);
+
+  const startLesson = (lesson: Lesson) => {
+    if (introTarget !== null) {
+      try { window.localStorage.setItem("beaba-guided-first-access", "done"); } catch { /* Intro remains dismissible in this session. */ }
+      setIntroTarget(null);
+    }
+    speak(lesson.title);
+    recordLessonStarted(lesson);
+    setOpen(lesson);
+  };
+
+  const finishLesson = (lessonId: string) => {
+    const finishedIndex = LESSONS.findIndex((lesson) => lesson.id === lessonId);
+    const next = LESSONS[finishedIndex + 1];
+    complete(lessonId);
+    setOpen(null);
+    setCompletedAnimationId(lessonId);
+    if (next) {
+      setUnlockedAnimationId(next.id);
+      setHighlightContinue(true);
+    }
+  };
 
   useEffect(() => {
     const list = listRef.current;
@@ -93,7 +146,7 @@ function Index() {
   return (
     <Shell home>
       <h1 className="sr-only">Trilha de atividades</h1>
-      <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson && <div className="mt-4 flex items-center gap-3 rounded-2xl bg-white/75 p-3"><span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full text-xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><div className="min-w-0 flex-1"><p className="text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Próxima atividade</p><p className="font-display font-extrabold text-[var(--home-navy)]">{nextLesson.title}</p></div><CheckCircle2 className="h-6 w-6 shrink-0 text-[var(--b-green)]" /></div>}</section>
+      <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson ? <button type="button" onClick={() => startLesson(nextLesson)} className={`mt-4 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition hover:-translate-y-0.5 active:scale-[0.99] ${highlightContinue ? "animate-continue-highlight ring-4 ring-[var(--b-green)]" : ""}`}><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Sua próxima atividade</span><span className="block font-display text-lg font-extrabold text-[var(--home-navy)]">{nextLesson.title}</span><span className="block text-sm font-bold text-[var(--b-green)]">Continuar aprendendo</span></span><ArrowRight className="h-8 w-8 shrink-0 text-[var(--b-green)]" strokeWidth={2.8} /></button> : <div className="mt-4 rounded-2xl bg-white/75 p-4 text-center font-display font-extrabold text-[var(--home-navy)]">Você concluiu todas as atividades!</div>}</section>
       <div className="mb-4 flex justify-end">
         <Link to="/palavras" onClick={() => speak("Minhas palavras. Aqui ficam as palavras que você já completou nos exercícios.")} className="flex items-center gap-2 rounded-2xl bg-[var(--home-nav)] px-4 py-3 text-[var(--home-navy)] shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition active:scale-95">
           <BookOpen className="h-7 w-7 text-[var(--b-blue)]" />
@@ -125,16 +178,17 @@ function Index() {
               <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
-                onClick={() => { if (!isLocked) { speak(l.title); recordLessonStarted(l); setOpen(l); } }}
+                onClick={() => { if (!isLocked) startLesson(l); }}
                 disabled={isLocked}
                 aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
-                className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : "animate-float"}`}
+                className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : "animate-float"} ${completedAnimationId === l.id ? "animate-bubble-complete" : ""} ${unlockedAnimationId === l.id ? "animate-bubble-unlock" : ""} ${introTarget === idx ? "guided-bubble-highlight" : ""}`}
                 style={{ animationDelay: `${idx * 0.4}s`, ["--b" as string]: `var(--b-${isDone ? "green" : bubble[l.color]})`, ["--bd" as string]: `var(--b-${isDone ? "green" : bubble[l.color]}-d)` }}
               >
                 {l.icon}
                 {isDone && <Star className="absolute -right-2 -top-2 h-12 w-12 fill-yellow text-yellow" strokeWidth={2} />}
                 {isLocked && <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--home-navy)]/35"><Lock className="h-10 w-10 text-white" /></span>}
               </button>
+              {introTarget === idx && <div className="guided-intro-tooltip" role="status"><strong>Vamos começar por aqui!</strong><span>Toque nesta bolinha para entrar na primeira atividade.</span></div>}
               <button
                 type="button"
                 onClick={() => speak(`${l.title}. ${l.intro}`)}
@@ -150,7 +204,7 @@ function Index() {
           );
         })}
       </ol>
-      {open && <Activity lesson={open} onClose={() => setOpen(null)} onDone={() => complete(open.id)} />}
+      {open && <Activity lesson={open} onClose={() => setOpen(null)} onDone={() => finishLesson(open.id)} />}
     </Shell>
   );
 }
