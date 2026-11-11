@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { X, Star, Volume2, Undo2 } from "lucide-react";
-import { chime, speak, type Lesson, type Sentence } from "@/lib/app";
+import { chime, speak, recordActivityAnswer, type Lesson, type Sentence } from "@/lib/app";
 
 const bg = { red: "bg-red", yellow: "bg-yellow", blue: "bg-blue", orange: "bg-orange" };
 type Props = { lesson: Lesson; onClose: () => void; onDone: () => void };
@@ -26,6 +26,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   const choose = (idx: number, w: string) => {
     if (complete || built.includes(idx)) return;
     if (w === s.words[built.length]) {
+      recordActivityAnswer(true);
       const next = [...built, idx];
       setBuilt(next);
       if (next.length === s.words.length) {
@@ -37,6 +38,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
         }, 2200);
       } else speak(w);
     } else {
+      recordActivityAnswer(false);
       setWrong(idx);
       chime("try");
       speak("Quase! Tente de novo.");
@@ -113,6 +115,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   const choose = (opt: string) => {
     if (picked) return;
     if (opt === q.answer) {
+      recordActivityAnswer(true);
       setPicked(opt);
       chime("ok");
       speak(`Muito bem! ${q.word}`);
@@ -121,6 +124,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
         else { setFinished(true); chime("win"); speak("Parabéns! Você conseguiu sozinho! Ganhou uma estrela."); onDone(); }
       }, 1600);
     } else {
+      recordActivityAnswer(false);
       setWrong(opt);
       chime("try");
       speak("Quase! Tente de novo.");
