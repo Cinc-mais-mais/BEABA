@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { Type, Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
+import { Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
 import { speak, useProgress, getProfileStats, getAchievements, LESSONS, type ProfileStats } from "@/lib/app";
 
@@ -25,7 +25,6 @@ const CONTRAST_KEY = "beaba-high-contrast";
 const PROFILE_NAME_KEY = "beaba-profile-name";
 
 function Perfil() {
-  const [big, setBig] = useState(false);
   const [contrast, setContrast] = useState(false);
   const [avatar, setAvatar] = useState("🦉");
   const [photo, setPhoto] = useState<string | null>(null);
@@ -43,7 +42,6 @@ function Perfil() {
 
   useEffect(() => {
     try {
-      setBig(window.localStorage.getItem("beaba-large-text") === "true");
       setContrast(window.localStorage.getItem(CONTRAST_KEY) === "true");
       setAvatar(window.localStorage.getItem(AVATAR_KEY) || "🦉");
       setPhoto(window.localStorage.getItem(PHOTO_KEY));
@@ -57,12 +55,6 @@ function Perfil() {
       setPreferenceLoaded(true);
     }
   }, []);
-
-  useEffect(() => {
-    if (!preferenceLoaded) return;
-    try { window.localStorage.setItem("beaba-large-text", String(big)); } catch { /* local preference may be unavailable */ }
-    document.documentElement.style.fontSize = big ? "24px" : "";
-  }, [big, preferenceLoaded]);
 
   useEffect(() => {
     if (!preferenceLoaded) return;
@@ -375,11 +367,7 @@ function Perfil() {
       </section>
 
       <section className="profile-settings mt-6 grid min-w-0 grid-cols-1 gap-3">
-        <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode aumentar o tamanho do texto e ativar o contraste reforçado.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
-        <button type="button" onClick={() => { setBig((value) => !value); speak(big ? "Letra normal" : "Letra grande"); }} aria-pressed={big} aria-label="Aumentar tamanho do texto"
-          className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${big ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
-          <Type className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Aumentar texto</span><span className="text-sm">{big ? "Ativado" : "Desativado"}</span>
-        </button>
+        <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode ativar o contraste reforçado. O tamanho do texto pode ser ajustado pelo botão no cabeçalho.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
         <button type="button" onClick={() => { setContrast((value) => !value); speak(contrast ? "Contraste normal" : "Contraste reforçado ativado"); }} aria-pressed={contrast} aria-label="Ativar contraste reforçado"
           className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${contrast ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
           <Contrast className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Contraste reforçado</span><span className="text-sm">{contrast ? "Ativado" : "Desativado"}</span>
