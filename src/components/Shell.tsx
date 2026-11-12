@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Home, GraduationCap, User, Volume2, VolumeX } from "lucide-react";
+import { Home, GraduationCap, User, Volume2, VolumeX, CaseSensitive } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import logo from "@/assets/iconpng.png";
@@ -13,9 +13,17 @@ const tabs = [
 
 export function Shell({ children, home = false }: { children: ReactNode; home?: boolean }) {
   const [soundEnabled, setSoundEnabledState] = useState(true);
+  const [largeTextEnabled, setLargeTextEnabled] = useState(false);
 
   useEffect(() => {
     setSoundEnabledState(isSoundEnabled());
+    try {
+      const enabled = window.localStorage.getItem("beaba-large-text") === "true";
+      setLargeTextEnabled(enabled);
+      document.documentElement.style.fontSize = enabled ? "24px" : "";
+    } catch {
+      setLargeTextEnabled(false);
+    }
   }, []);
 
   const toggleSound = () => {
@@ -29,10 +37,16 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
     }
   };
 
-  const readScreen = () => {
-    const nodes = Array.from(document.querySelectorAll<HTMLElement>("[data-speak]"));
-    const text = nodes.map((n) => n.dataset["speak"]).join(". ");
-    speak(text || document.querySelector("main")?.innerText || "");
+  const toggleLargeText = () => {
+    const next = !largeTextEnabled;
+    setLargeTextEnabled(next);
+    try {
+      window.localStorage.setItem("beaba-large-text", String(next));
+    } catch {
+      // Keep the preference active for this session if browser storage is unavailable.
+    }
+    document.documentElement.style.fontSize = next ? "24px" : "";
+    speak(next ? "Texto ampliado ativado." : "Tamanho de texto normal ativado.");
   };
 
   void home;
@@ -50,18 +64,30 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
             className="w-[22vw] max-h-[11dvh] object-contain"
           />
           <span aria-hidden className="absolute left-[44%] top-1/2 h-[22vw] max-h-[11dvh] w-px -translate-y-1/2 bg-white/70" />
-          <button
-            type="button"
-            onClick={toggleSound}
-            aria-pressed={soundEnabled}
-            aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
-            title={soundEnabled ? "Desativar som" : "Ativar som"}
-            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
-          >
-            {soundEnabled
-              ? <Volume2 className="h-7 w-7 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-              : <VolumeX className="h-7 w-7 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
-          </button>
+          <div className="flex shrink-0 items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleSound}
+              aria-pressed={soundEnabled}
+              aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
+              title={soundEnabled ? "Desativar som" : "Ativar som"}
+              className={`flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
+            >
+              {soundEnabled
+                ? <Volume2 className="h-7 w-7 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+                : <VolumeX className="h-7 w-7 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
+            </button>
+            <button
+              type="button"
+              onClick={toggleLargeText}
+              aria-pressed={largeTextEnabled}
+              aria-label={largeTextEnabled ? "Desativar texto grande" : "Ativar texto grande"}
+              title={largeTextEnabled ? "Desativar texto grande" : "Ativar texto grande"}
+              className={`flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${largeTextEnabled ? "bg-[var(--b-blue)]" : "bg-white/15"}`}
+            >
+              <CaseSensitive className="h-7 w-7 text-white" strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
         <svg
           aria-hidden
