@@ -37,19 +37,31 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
 
   void home;
   return (
-    <div className="app-shell relative min-h-dvh overflow-x-hidden bg-[var(--home-bg)] pb-64">
+    <div className="app-shell relative min-h-dvh overflow-x-hidden bg-[var(--home-bg)] pb-28">
       <div aria-hidden className="pointer-events-none fixed -left-[6vw] top-[15dvh] z-0 h-[13vw] w-[24vw] rounded-[60%_40%_55%_45%] bg-[#DCE6F2]" />
       <div aria-hidden className="pointer-events-none fixed -right-[6vw] top-[19dvh] z-0 h-[12vw] w-[21vw] rounded-[45%_55%_40%_60%] bg-[#FBE3D1]" />
       <div aria-hidden className="pointer-events-none fixed -left-[8vw] bottom-28 z-0 h-[20vw] w-[36vw] rounded-[55%_45%_40%_60%] bg-[#DCE6F2]" />
       <div aria-hidden className="pointer-events-none fixed -right-[7vw] bottom-32 z-0 h-[18vw] w-[32vw] rounded-[45%_55%_60%_40%] bg-[#FBE3D1]" />
       <header className="app-header relative z-10">
-        <div className="relative flex h-[11dvh] min-h-16 items-center bg-[var(--home-header)] px-5">
+        <div className="relative flex h-[11dvh] min-h-16 items-center justify-between bg-[var(--home-header)] px-5">
           <img
             src={logo}
             alt="BEABÁ"
             className="w-[22vw] max-h-[11dvh] object-contain"
           />
           <span aria-hidden className="absolute left-[44%] top-1/2 h-[22vw] max-h-[11dvh] w-px -translate-y-1/2 bg-white/70" />
+          <button
+            type="button"
+            onClick={toggleSound}
+            aria-pressed={soundEnabled}
+            aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
+            title={soundEnabled ? "Desativar som" : "Ativar som"}
+            className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
+          >
+            {soundEnabled
+              ? <Volume2 className="h-7 w-7 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
+              : <VolumeX className="h-7 w-7 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
+          </button>
         </div>
         <svg
           aria-hidden
@@ -64,25 +76,6 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
         </svg>
       </header>
       <main className="app-main relative z-10 mx-auto max-w-2xl px-4 py-6">{children}</main>
-
-      <div className="sound-control fixed bottom-28 right-3 z-40 flex flex-col items-center">
-        <span aria-hidden className="absolute -top-3 right-1 h-4 w-1.5 rotate-[30deg] rounded-full bg-[var(--home-spark)]" />
-        <span aria-hidden className="absolute -top-4 right-5 h-4 w-1.5 rotate-[8deg] rounded-full bg-[var(--home-spark)]" />
-        <button
-          onClick={toggleSound}
-          aria-pressed={soundEnabled}
-          aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
-          title={soundEnabled ? "Desativar som" : "Ativar som"}
-          className={`flex h-[72px] w-[72px] items-center justify-center rounded-full shadow-[inset_0_0_0_4px_var(--home-sound-dark),0_8px_18px_color-mix(in_oklab,var(--home-sound)_45%,transparent)] active:scale-95 ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
-        >
-          {soundEnabled
-            ? <Volume2 className="h-10 w-10 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-            : <VolumeX className="h-10 w-10 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
-        </button>
-        <span className="mt-2 rounded-2xl bg-[var(--home-sound-tag)] px-3 py-1 text-center font-display text-[18px] font-bold leading-tight text-[var(--home-navy)]">
-          {soundEnabled ? <>Som ativado<br />Toque para desligar</> : <>Som desativado<br />Toque para ativar</>}
-        </span>
-      </div>
 
       <nav className="app-nav fixed inset-x-0 bottom-0 z-30 rounded-t-[2rem] bg-[var(--home-nav)] shadow-[0_-4px_16px_rgb(0_0_0/0.08)]">
         <ul className="mx-auto flex max-w-2xl justify-around pb-3 pt-4">
