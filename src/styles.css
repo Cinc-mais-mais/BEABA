@@ -126,7 +126,7 @@
 /* Keep touch targets readable without allowing intrinsic text widths to clip. */
 .app-shell {
   --nav-height: 110px;
-  padding-bottom: calc(var(--nav-height) + 180px + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--nav-height) + 24px + env(safe-area-inset-bottom, 0px));
 }
 .app-main { width: 100%; min-width: 0; z-index: auto; }
 .app-header img { width: clamp(88px, 22vw, 180px); }
@@ -138,7 +138,6 @@
 .app-nav li { min-width: 0; }
 .app-nav a { min-height: 88px; font-size: 18px; }
 .app-nav svg { width: 36px; height: 36px; flex-shrink: 0; }
-.sound-control { bottom: calc(var(--nav-height) + 18px + env(safe-area-inset-bottom, 0px)); }
 .person-heading h1 { max-width: 100%; text-align: center; overflow-wrap: anywhere; }
 .teacher-actions button {
   display: grid;
