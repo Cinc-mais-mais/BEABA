@@ -336,7 +336,7 @@ function Index() {
           const isDone = done.includes(l.id);
           const isLocked = !isDone && nextLessonIndex >= 0 && idx > nextLessonIndex;
           return (
-            <li key={l.id} data-trail-point className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
+            <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
               <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
