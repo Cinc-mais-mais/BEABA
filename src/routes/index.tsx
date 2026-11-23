@@ -83,11 +83,7 @@ function Index() {
     return () => window.removeEventListener("beaba-dev-mode", handler);
   }, []);
 
-  useEffect(() => {
-    const active = tutorialStage === "home-prompt" || tutorialStage === "home-ready";
-    document.documentElement.classList.toggle("beaba-tutorial-nav-active", active);
-    return () => document.documentElement.classList.remove("beaba-tutorial-nav-active");
-  }, [tutorialStage]);
+
 
   useEffect(() => {
     const stages = {
