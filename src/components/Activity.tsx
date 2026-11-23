@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { X, Star, Volume2, Undo2, CheckCircle2, ArrowRight } from "lucide-react";
 import { chime, speak, recordActivityAnswer, recordPhraseCompleted, recordCompletedWord, type Lesson, type Sentence } from "@/lib/app";
+import { playTutorialNarration, TUTORIAL_PHASE_ONE } from "@/lib/tutorial";
 
-type Props = { lesson: Lesson; onClose: () => void; onDone: () => void };
+type Props = { lesson: Lesson; onClose: () => void; onDone: () => void; tutorial?: boolean; onTutorialFinished?: () => void };
 
 function shuffleArray<T>(items: T[]): T[] {
   const shuffled = [...items];
@@ -39,15 +40,32 @@ export function Activity(props: Props) {
   return props.lesson.sentences ? <SentenceActivity {...props} sentences={props.lesson.sentences} /> : <SyllableActivity {...props} />;
 }
 
-function ActivityHeader({ onClose, title }: { onClose: () => void; title: string }) {
+function ActivityHeader({ onClose, title, disabled = false }: { onClose: () => void; title: string; disabled?: boolean }) {
   return (
     <div className="flex items-center gap-4">
-      <button onClick={onClose} aria-label="Sair da atividade" className="pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white">
+      <button onClick={onClose} disabled={disabled} aria-label="Sair da atividade" className="pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white disabled:cursor-not-allowed disabled:opacity-50">
         <X className="h-8 w-8" strokeWidth={2.8} />
       </button>
       <h1 className="min-w-0 flex-1 text-center text-2xl font-extrabold text-slate-800">{title}</h1>
       <span className="h-14 w-14 shrink-0" aria-hidden />
     </div>
+  );
+}
+
+function WordPictureButton({ emoji, text, sizeClass = "h-44 w-44 text-8xl", disabled = false }: { emoji: string; text: string; sizeClass?: string; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      onClick={() => speak(text)}
+      disabled={disabled}
+      aria-label={`Ouvir ${text}`}
+      className={`relative flex ${sizeClass} shrink-0 items-center justify-center rounded-3xl bg-[#F0F4F7] disabled:cursor-not-allowed disabled:opacity-90`}
+    >
+      <span aria-hidden>{emoji}</span>
+      <span aria-hidden className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
+        <Volume2 className="h-6 w-6" />
+      </span>
+    </button>
   );
 }
 
@@ -125,12 +143,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
           </div>
         ) : (
           <section className="flex flex-1 flex-col items-center justify-center gap-5 rounded-[2rem] border border-slate-200 bg-white px-4 py-6 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${phrase}`}>
-            <button onClick={() => speak(phrase)} aria-label="Ouvir a frase" className="relative flex h-36 w-36 items-center justify-center rounded-3xl bg-[#F0F4F7] text-7xl">
-              <span aria-hidden>{s.emoji}</span>
-              <span className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
-                <Volume2 className="h-6 w-6" />
-              </span>
-            </button>
+            <WordPictureButton emoji={s.emoji} text={phrase} sizeClass="h-36 w-36 text-7xl" />
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Monte a frase na ordem correta."}</p>
             <div className={`flex min-h-24 w-full flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3 transition-colors ${complete ? "border-emerald-500 bg-emerald-50" : "border-slate-300 bg-slate-50"}`} aria-live="polite">
               {built.map((idx) => (
@@ -169,7 +182,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   );
 }
 
-function SyllableActivity({ lesson, onClose, onDone }: Props) {
+function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutorialFinished }: Props) {
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [wrong, setWrong] = useState<string | null>(null);
@@ -178,15 +191,47 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   const [finished, setFinished] = useState(false);
   const [inputLocked, setInputLocked] = useState(false);
   const nextGuard = useRef(false);
+  const tutorialAdvanceDone = useRef(false);
+  const [tutorialStep, setTutorialStep] = useState<
+    "idle" | "overview" | "activity-intro" | "missing-part" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
+  >(tutorial ? "overview" : "idle");
   const q = lesson.questions[i] ?? lesson.questions[0]!;
   const displayedOptions = useMemo(() => buildBalancedOptions(lesson.questions), [lesson]);
+  const tutorialFirstQuestion = tutorial && i === TUTORIAL_PHASE_ONE.questionIndex;
+  const tutorialOverview = tutorialFirstQuestion && tutorialStep === "overview";
+  const tutorialReady = !tutorialFirstQuestion || tutorialStep === "ready" || tutorialStep === "next-ready";
 
   useEffect(() => {
-    if (!finished) speak(`${lesson.intro} ${q.word}`);
-  }, [i, finished, lesson.intro, q.word]);
+    if (!tutorialFirstQuestion || tutorialStep !== "overview") return;
+    const timer = window.setTimeout(() => setTutorialStep("activity-intro"), TUTORIAL_PHASE_ONE.overviewDelayMs);
+    return () => window.clearTimeout(timer);
+  }, [tutorialFirstQuestion, tutorialStep]);
+
+  useEffect(() => {
+    if (!tutorialFirstQuestion) return;
+    const narrationSteps = {
+      "activity-intro": ["activityIntroduction", "missing-part"],
+      "missing-part": ["missingPart", "options-prompt"],
+      "options-prompt": ["chooseAnswer", "ready"],
+      "correct-feedback": ["correctAnswer", "next-prompt"],
+      "next-prompt": ["nextWord", "next-ready"],
+    } as const;
+    const current = narrationSteps[tutorialStep as keyof typeof narrationSteps];
+    if (!current) return;
+    const [narrationKey, nextStep] = current;
+    return playTutorialNarration(narrationKey, { word: q.word }, () => setTutorialStep(nextStep));
+  }, [tutorialFirstQuestion, tutorialStep, q.word]);
+
+  useEffect(() => {
+    if (!tutorial && !finished) speak(`${lesson.intro} ${q.word}`);
+  }, [tutorial, i, finished, lesson.intro, q.word]);
+
+  useEffect(() => {
+    if (!tutorial) setTutorialStep("idle");
+  }, [tutorial]);
 
   const choose = (opt: string) => {
-    if (picked || inputLocked || awaitingNext) return;
+    if (picked || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)) return;
     if (opt === q.answer) {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, true);
       recordCompletedWord(q.word);
@@ -194,7 +239,11 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
       setPicked(opt);
       setAwaitingNext(true);
       chime("ok");
-      speak(`Muito bem! ${q.word}`);
+      if (tutorialFirstQuestion && tutorialStep === "ready") {
+        setTutorialStep("correct-feedback");
+      } else {
+        speak(`Muito bem! ${q.word}`);
+      }
     } else {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, false);
       setFeedback("Quase! Não tem problema. Tente novamente.");
@@ -206,10 +255,14 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   };
 
   const advance = () => {
-    if (!awaitingNext || nextGuard.current) return;
+    if (!awaitingNext || nextGuard.current || (tutorialFirstQuestion && tutorialStep !== "next-ready")) return;
     nextGuard.current = true;
     setInputLocked(true);
     setAwaitingNext(false);
+    if (tutorialFirstQuestion && !tutorialAdvanceDone.current) {
+      tutorialAdvanceDone.current = true;
+      onTutorialFinished?.();
+    }
     if (i + 1 < lesson.questions.length) {
       setI((value) => value + 1);
       setPicked(null);
@@ -227,7 +280,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
   return (
     <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
-        <ActivityHeader onClose={onClose} title={lesson.title} />
+        <ActivityHeader onClose={onClose} title={lesson.title} disabled={tutorialOverview} />
         {finished ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
             <Star className="animate-celebrate h-32 w-32 fill-yellow text-slate-800" strokeWidth={1.5} />
@@ -237,17 +290,14 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
           </div>
         ) : (
           <section className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white px-4 py-7 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${q.word}`}>
-            <button onClick={() => speak(q.word)} aria-label={`Ouvir a palavra ${q.word}`} className="relative flex h-44 w-44 items-center justify-center rounded-3xl bg-[#F0F4F7] text-8xl">
-              <span aria-hidden>{q.emoji}</span>
-              <span className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
-                <Volume2 className="h-6 w-6" />
-              </span>
-            </button>
-            <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
-              {q.before}<span className={`mx-1 inline-block min-w-[2.2ch] border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
-            </p>
+            <div className={`tutorial-word-area flex flex-col items-center gap-6 ${tutorialFirstQuestion && tutorialStep === "activity-intro" ? "tutorial-focus-target" : ""}`} data-tutorial-target="word-and-picture">
+              <WordPictureButton emoji={q.emoji} text={q.word} disabled={tutorialFirstQuestion && !tutorialReady} />
+              <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
+                {q.before}<span className={`tutorial-missing-part mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
+              </p>
+            </div>
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
-            <div className="grid w-full grid-cols-3 gap-3">
+            <div className={`grid w-full grid-cols-3 gap-3 ${tutorialFirstQuestion && tutorialStep === "options-prompt" ? "tutorial-focus-target" : ""}`} data-tutorial-target="answer-options">
               {(displayedOptions[i] ?? q.options).map((opt, k) => {
                 const colors = ["bg-[#F4D8D5]", "bg-[#F7E8B5]", "bg-[#D8EAF5]"];
                 const isWrong = wrong === opt;
@@ -255,7 +305,7 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
                 return (
                   <button
                     key={opt}
-                    disabled={Boolean(picked) || inputLocked || awaitingNext}
+                    disabled={Boolean(picked) || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)}
                     onClick={() => choose(opt)}
                     className={`pop h-24 rounded-2xl border-2 border-slate-700 font-display text-4xl font-extrabold text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
                   >
@@ -265,9 +315,14 @@ function SyllableActivity({ lesson, onClose, onDone }: Props) {
               })}
             </div>
             <div className="min-h-[76px] w-full">
-              {awaitingNext && (
-                <button onClick={advance} className="pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white">
-                  <CheckCircle2 className="h-6 w-6" /> {i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
+              {awaitingNext && (!tutorialFirstQuestion || tutorialStep === "next-prompt" || tutorialStep === "next-ready") && (
+                <button
+                  onClick={advance}
+                  disabled={tutorialFirstQuestion && tutorialStep !== "next-ready"}
+                  className={`pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white disabled:cursor-wait disabled:opacity-90 ${tutorialFirstQuestion && (tutorialStep === "next-prompt" || tutorialStep === "next-ready") ? "tutorial-focus-target" : ""}`}
+                  data-tutorial-target="next-word"
+                >
+                  <CheckCircle2 className="h-6 w-6" /> {tutorialFirstQuestion && i === 0 ? "Prosseguir" : i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
                 </button>
               )}
             </div>
