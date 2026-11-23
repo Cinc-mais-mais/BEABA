@@ -405,7 +405,7 @@ function Perfil() {
       </section>
 
       <section className="profile-settings mt-6 grid min-w-0 grid-cols-1 gap-3">
-        <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode ativar o contraste reforçado. O tamanho do texto pode ser ajustado pelo botão no cabeçalho.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
+        <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode escolher o tema escuro, ativar ou desativar o som e reforçar o contraste. O tamanho do texto pode ser ajustado pelo botão no cabeçalho.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
         <button
           type="button"
           onClick={toggleTheme}
