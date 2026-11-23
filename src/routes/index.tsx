@@ -264,7 +264,7 @@ function Index() {
       window.removeEventListener("resize", updateTrail);
       window.removeEventListener("load", updateTrail);
     };
-  }, []);
+  }, [tutorialStage]);
 
   if (tutorialStage === "checking") {
     return <div className="fixed inset-0 bg-[var(--home-header)]" aria-label="Preparando o Beabá" />;
