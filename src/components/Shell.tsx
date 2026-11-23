@@ -12,7 +12,8 @@ const tabs = [
 ] as const;
 
 export function Shell({ children, home = false, highlightLargeText = false, largeTextReady = false, onLargeTextTutorialToggle }: { children: ReactNode; home?: boolean; highlightLargeText?: boolean; largeTextReady?: boolean; onLargeTextTutorialToggle?: () => void }) {
-  const [largeTextEnabled, setLargeTextEnabled] = useState(false);\n  const homeTapSequence = useRef<number[]>([]);
+  const [largeTextEnabled, setLargeTextEnabled] = useState(false);
+  const homeTapSequence = useRef<number[]>([]);
 
   useEffect(() => {
     try {
