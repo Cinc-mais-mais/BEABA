@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { Home, GraduationCap, User, CaseSensitive } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import logo from "@/assets/iconpng.png";
 import { speak } from "@/lib/app";
@@ -12,7 +12,7 @@ const tabs = [
 ] as const;
 
 export function Shell({ children, home = false, highlightLargeText = false, largeTextReady = false, onLargeTextTutorialToggle }: { children: ReactNode; home?: boolean; highlightLargeText?: boolean; largeTextReady?: boolean; onLargeTextTutorialToggle?: () => void }) {
-  const [largeTextEnabled, setLargeTextEnabled] = useState(false);
+  const [largeTextEnabled, setLargeTextEnabled] = useState(false);\n  const homeTapSequence = useRef<number[]>([]);
 
   useEffect(() => {
     try {
@@ -90,7 +90,7 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
         <ul className="mx-auto flex max-w-2xl justify-around pb-3 pt-4">
           {tabs.map((t) => (
             <li key={t.to}>
-              <Link to={t.to} onClick={() => speak(t.label)} className="flex flex-col items-center gap-1 text-lg font-bold" activeOptions={{ exact: true }}>
+              <Link to={t.to} onClick={() => { speak(t.label); if (t.to === "/") { const now = Date.now(); homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now]; if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); } } else { homeTapSequence.current = []; } }} className="flex flex-col items-center gap-1 text-lg font-bold" activeOptions={{ exact: true }}>
                 {({ isActive }) => (
                   <span className={`flex flex-col items-center gap-1 ${isActive ? "text-[var(--home-active)]" : "text-[var(--home-navy)]"}`}>
                     <t.icon className="h-9 w-9" strokeWidth={2.5} />
