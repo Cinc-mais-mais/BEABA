@@ -270,7 +270,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
     } else {
       setFinished(true);
       chime("win");
-      speak("Parabéns! Você concluiu a atividade.");
+      if (!tutorialForThisLesson) speak("Parabéns! Você concluiu a atividade.");
       onDone();
     }
   };
