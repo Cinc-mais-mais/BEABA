@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { X, Star, Volume2, Undo2, CheckCircle2, ArrowRight } from "lucide-react";
 import { chime, speak, recordActivityAnswer, recordPhraseCompleted, recordCompletedWord, type Lesson, type Sentence } from "@/lib/app";
 import { playTutorialNarration, TUTORIAL_PHASE_ONE } from "@/lib/tutorial";
@@ -49,6 +49,32 @@ function ActivityHeader({ onClose, title, disabled = false }: { onClose: () => v
       <h1 className="min-w-0 flex-1 text-center text-2xl font-extrabold text-slate-800">{title}</h1>
       <span className="h-14 w-14 shrink-0" aria-hidden />
     </div>
+  );
+}
+
+/**
+ * Botão padrão de avanço para todos os níveis.
+ * Usar este componente em novas atividades garante a pulsação lenta,
+ * sem vinheta, e mantém o mesmo tamanho e hierarquia de ação.
+ */
+export function ExerciseNextButton({
+  onClick,
+  disabled = false,
+  children,
+}: {
+  onClick: () => void;
+  disabled?: boolean;
+  children: ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
+    >
+      {children}
+    </button>
   );
 }
 
@@ -172,9 +198,9 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
             </div>
             <div className="min-h-[76px] w-full">
               {awaitingNext && (
-                <button onClick={advance} className="pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white">
+                <ExerciseNextButton onClick={advance}>
                   <CheckCircle2 className="h-6 w-6" /> {i + 1 < sentences.length ? "Próxima frase" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
-                </button>
+                </ExerciseNextButton>
               )}
             </div>
           </section>
@@ -325,14 +351,12 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
             </div>
             <div className="min-h-[76px] w-full">
               {awaitingNext && (!tutorialFirstQuestion || tutorialStep === "next-prompt" || tutorialStep === "next-ready") && (
-                <button
+                <ExerciseNextButton
                   onClick={advance}
                   disabled={tutorialFirstQuestion && tutorialStep !== "next-ready"}
-                  className={`pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white disabled:cursor-wait disabled:opacity-90 ${tutorialFirstQuestion && (tutorialStep === "next-prompt" || tutorialStep === "next-ready") ? "tutorial-focus-target" : ""}`}
-                  data-tutorial-target="next-word"
                 >
                   <CheckCircle2 className="h-6 w-6" /> {tutorialFirstQuestion && i === 0 ? "Prosseguir" : i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
-                </button>
+                </ExerciseNextButton>
               )}
             </div>
           </section>
