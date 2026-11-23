@@ -73,7 +73,7 @@ export function ExerciseNextButton({
       disabled={disabled}
       className="exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
     >
-      {children}
+      <span className="relative z-10 inline-flex items-center justify-center gap-3">{children}</span>
     </button>
   );
 }
