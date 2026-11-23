@@ -266,6 +266,7 @@ function Index() {
   return (
     <Shell
       home
+      tutorialNavLock={tutorialStage !== "inactive" && tutorialStage !== "checking"}
       highlightLargeText={tutorialStage === "font-prompt" || tutorialStage === "font-ready"}
       largeTextReady={tutorialStage === "font-ready"}
       onLargeTextTutorialToggle={finishTextSizeTutorial}
