@@ -39,6 +39,7 @@ function Index() {
   const progressPct = LESSONS.length ? Math.round((completedCount / LESSONS.length) * 100) : 0;
   const nextLessonIndex = LESSONS.findIndex((lesson) => !done.includes(lesson.id));
   const nextLesson = nextLessonIndex >= 0 ? LESSONS[nextLessonIndex] : null;
+  const tutorialLesson = LESSONS.find((lesson) => lesson.id === TUTORIAL_PHASE_ONE.lessonId) ?? nextLesson;
   const encouragement = completedCount === 0
     ? "Vamos começar? Cada atividade é um passo importante!"
     : completedCount >= LESSONS.length
@@ -202,9 +203,9 @@ function Index() {
     <Shell home>
       <h1 className="sr-only">Trilha de atividades</h1>
       <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson ? <button type="button" disabled={tutorialStage === "home-intro" || tutorialStage === "home-prompt"} onClick={() => {
-          if (tutorialStage === "home-ready") {
+          if (tutorialStage === "home-ready" && tutorialLesson) {
             setTutorialStage("activity");
-            startLesson(nextLesson, true);
+            startLesson(tutorialLesson, true);
           } else {
             startLesson(nextLesson);
           }
