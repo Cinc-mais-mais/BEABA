@@ -51,7 +51,7 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
 
   void home;
   return (
-    <div className="app-shell relative min-h-dvh overflow-x-hidden bg-[var(--home-bg)] pb-28">
+    <div className="app-shell relative min-h-dvh overflow-x-clip bg-[var(--home-bg)] pb-28">
       <div aria-hidden className="pointer-events-none fixed -left-[6vw] top-[15dvh] z-0 h-[13vw] w-[24vw] rounded-[60%_40%_55%_45%] bg-[#DCE6F2]" />
       <div aria-hidden className="pointer-events-none fixed -right-[6vw] top-[19dvh] z-0 h-[12vw] w-[21vw] rounded-[45%_55%_40%_60%] bg-[#FBE3D1]" />
       <div aria-hidden className="pointer-events-none fixed -left-[8vw] bottom-28 z-0 h-[20vw] w-[36vw] rounded-[55%_45%_40%_60%] bg-[#DCE6F2]" />
