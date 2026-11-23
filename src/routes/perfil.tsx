@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
-import { Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, Pencil, Check, X } from "lucide-react";
+import { Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, VolumeX, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak, useProgress, getProfileStats, getAchievements, LESSONS, type ProfileStats } from "@/lib/app";
+import { speak, isSoundEnabled, setSoundEnabled, useProgress, getProfileStats, getAchievements, LESSONS, type ProfileStats } from "@/lib/app";
 
 export const Route = createFileRoute("/perfil")({
   head: () => ({
@@ -26,6 +26,7 @@ const PROFILE_NAME_KEY = "beaba-profile-name";
 
 function Perfil() {
   const [contrast, setContrast] = useState(false);
+  const [soundEnabled, setSoundEnabledState] = useState(true);
   const [avatar, setAvatar] = useState("🦉");
   const [photo, setPhoto] = useState<string | null>(null);
   const [profileName, setProfileName] = useState("Maria");
@@ -43,6 +44,7 @@ function Perfil() {
   useEffect(() => {
     try {
       setContrast(window.localStorage.getItem(CONTRAST_KEY) === "true");
+      setSoundEnabledState(isSoundEnabled());
       setAvatar(window.localStorage.getItem(AVATAR_KEY) || "🦉");
       setPhoto(window.localStorage.getItem(PHOTO_KEY));
       const savedName = window.localStorage.getItem(PROFILE_NAME_KEY) || "Maria";
@@ -61,6 +63,17 @@ function Perfil() {
     document.documentElement.classList.toggle("beaba-high-contrast", contrast);
     try { window.localStorage.setItem(CONTRAST_KEY, String(contrast)); } catch { /* local preference may be unavailable */ }
   }, [contrast, preferenceLoaded]);
+
+  const toggleSound = () => {
+    const next = !soundEnabled;
+    setSoundEnabled(next);
+    setSoundEnabledState(next);
+    if (next) {
+      speak("O som está ativado agora.");
+    } else if ("speechSynthesis" in window) {
+      window.speechSynthesis.cancel();
+    }
+  };
 
   const stopCamera = () => {
     cameraStreamRef.current?.getTracks().forEach((track) => track.stop());
@@ -368,6 +381,17 @@ function Perfil() {
 
       <section className="profile-settings mt-6 grid min-w-0 grid-cols-1 gap-3">
         <h2 className="flex items-center gap-3 px-1 font-display text-2xl font-extrabold text-[var(--home-navy)]">Acessibilidade <button type="button" onClick={() => speak("Acessibilidade. Aqui você pode ativar o contraste reforçado. O tamanho do texto pode ser ajustado pelo botão no cabeçalho.")} aria-label="Ouvir sobre acessibilidade" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-[var(--b-blue)] text-white"><Volume2 className="h-6 w-6" /></button></h2>
+        <button
+          type="button"
+          onClick={toggleSound}
+          aria-pressed={soundEnabled}
+          aria-label={soundEnabled ? "Silenciar som do aplicativo" : "Ativar som do aplicativo"}
+          className={`flex min-h-[76px] items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${soundEnabled ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}
+        >
+          {soundEnabled ? <Volume2 className="h-10 w-10 shrink-0" strokeWidth={2.5} /> : <VolumeX className="h-10 w-10 shrink-0" strokeWidth={2.5} />}
+          <span className="flex-1">Som do aplicativo</span>
+          <span className="text-sm">{soundEnabled ? "Ativado" : "Silenciado"}</span>
+        </button>
         <button type="button" onClick={() => { setContrast((value) => !value); speak(contrast ? "Contraste normal" : "Contraste reforçado ativado"); }} aria-pressed={contrast} aria-label="Ativar contraste reforçado"
           className={`flex items-center gap-4 rounded-[2rem] p-5 text-left font-display text-xl font-bold shadow-[0_8px_18px_rgb(0_0_0/0.08)] active:scale-[0.98] ${contrast ? "bg-[var(--b-green)] text-white" : "bg-[var(--home-nav)] text-[var(--home-navy)]"}`}>
           <Contrast className="h-10 w-10 shrink-0" strokeWidth={2.5} /><span className="flex-1">Contraste reforçado</span><span className="text-sm">{contrast ? "Ativado" : "Desativado"}</span>
