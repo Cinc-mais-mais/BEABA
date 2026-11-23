@@ -203,50 +203,64 @@ function Index() {
     const list = listRef.current;
     if (!list) return;
 
+    let frame = 0;
     const updateTrail = () => {
-      const listRect = list.getBoundingClientRect();
-      const points = bubbleRefs.current
-        .slice(0, LESSONS.length)
-        .map((bubble) => {
-          if (!bubble) return null;
-          const rect = bubble.getBoundingClientRect();
+      if (frame) window.cancelAnimationFrame(frame);
+      frame = window.requestAnimationFrame(() => {
+        const listRect = list.getBoundingClientRect();
+        const pointElements = Array.from(list.querySelectorAll<HTMLElement>("[data-trail-point]"));
+        const points = pointElements.map((element) => {
+          const rect = element.getBoundingClientRect();
           return {
             x: rect.left + rect.width / 2 - listRect.left,
             y: rect.top + rect.height / 2 - listRect.top,
           };
-        })
-        .filter((point): point is { x: number; y: number } => point !== null);
+        });
 
-      if (points.length < 2) {
-        setTrail({ width: listRect.width, height: listRect.height, path: "", firstSegment: "" });
-        return;
-      }
+        if (points.length < 2) {
+          setTrail({ width: listRect.width, height: listRect.height, path: "", firstSegment: "" });
+          return;
+        }
 
-      let path = `M ${points[0].x} ${points[0].y}`;
-      let firstSegment = "";
-      for (let i = 1; i < points.length; i++) {
-        const previous = points[i - 1];
-        const current = points[i];
-        const middleY = (previous.y + current.y) / 2;
-        const segment = ` C ${previous.x} ${middleY}, ${current.x} ${middleY}, ${current.x} ${current.y}`;
-        path += segment;
-        if (i === 1) firstSegment = `M ${points[0].x} ${points[0].y}${segment}`;
-      }
+        let path = `M ${points[0].x} ${points[0].y}`;
+        let firstSegment = "";
+        for (let i = 1; i < points.length; i++) {
+          const previous = points[i - 1];
+          const current = points[i];
+          const middleY = (previous.y + current.y) / 2;
+          const direction = current.x >= previous.x ? 1 : -1;
+          const bend = Math.max(18, Math.abs(current.x - previous.x) * 0.28);
+          const segment = ` C ${previous.x + direction * bend} ${middleY}, ${current.x - direction * bend} ${middleY}, ${current.x} ${current.y}`;
+          path += segment;
+          if (i === 1) firstSegment = `M ${points[0].x} ${points[0].y}${segment}`;
+        }
 
-      setTrail({ width: listRect.width, height: listRect.height, path, firstSegment });
+        setTrail({ width: listRect.width, height: listRect.height, path, firstSegment });
+      });
     };
 
-    updateTrail();
-    const observer = new ResizeObserver(updateTrail);
-    observer.observe(list);
-    bubbleRefs.current.forEach((bubble) => {
-      if (bubble) observer.observe(bubble);
+    const resizeObserver = new ResizeObserver(() => {
+      list.querySelectorAll<HTMLElement>("[data-trail-point]").forEach((element) => resizeObserver.observe(element));
+      updateTrail();
     });
+    resizeObserver.observe(list);
+    list.querySelectorAll<HTMLElement>("[data-trail-point]").forEach((element) => resizeObserver.observe(element));
+
+    const mutationObserver = new MutationObserver(() => {
+      list.querySelectorAll<HTMLElement>("[data-trail-point]").forEach((element) => resizeObserver.observe(element));
+      updateTrail();
+    });
+    mutationObserver.observe(list, { childList: true, subtree: true });
+
     window.addEventListener("resize", updateTrail);
     window.addEventListener("load", updateTrail);
+    void document.fonts?.ready.then(updateTrail);
+    updateTrail();
 
     return () => {
-      observer.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
+      resizeObserver.disconnect();
+      mutationObserver.disconnect();
       window.removeEventListener("resize", updateTrail);
       window.removeEventListener("load", updateTrail);
     };
@@ -303,7 +317,7 @@ function Index() {
             stroke="var(--home-dot)"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
-            style={{ strokeWidth: 7, strokeDasharray: "0 20" }}
+            style={{ strokeWidth: 7, strokeDasharray: "1 18" }}
           />
           {done.includes(TUTORIAL_PHASE_ONE.lessonId) && trail.firstSegment && (
             <path
@@ -322,7 +336,7 @@ function Index() {
           const isDone = done.includes(l.id);
           const isLocked = !isDone && nextLessonIndex >= 0 && idx > nextLessonIndex;
           return (
-            <li key={l.id} className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
+            <li key={l.id} data-trail-point className={`relative z-10 flex flex-col items-center ${offsets[idx] ?? "self-center"}`}>
               <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
