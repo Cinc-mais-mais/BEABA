@@ -224,9 +224,10 @@
   100% { transform: scale(1); }
 }
 @keyframes bubble-unlock {
-  0% { transform: scale(.72); filter: brightness(.9); }
-  65% { transform: scale(1.12); filter: brightness(1.12); }
-  100% { transform: scale(1); filter: brightness(1); }
+  0% { transform: scale(.72); filter: grayscale(1) brightness(.92); opacity: .5; }
+  55% { transform: scale(1.13); filter: grayscale(0) brightness(1.14); opacity: 1; }
+  78% { transform: scale(.98); filter: grayscale(0) brightness(1.04); }
+  100% { transform: scale(1); filter: grayscale(0) brightness(1); opacity: 1; }
 }
 @keyframes guided-zoom {
   0% { transform: scale(1); }
@@ -390,4 +391,23 @@
     0 0 0 5px rgb(255 255 255 / .98),
     0 0 0 9px rgb(31 184 102 / .46),
     0 8px 22px rgb(21 143 77 / .30);
+}
+
+
+/* Sequência pós-Vogais: a trilha se preenche até a próxima atividade. */
+@keyframes tutorial-trail-draw {
+  from { stroke-dasharray: 0 100; }
+  to { stroke-dasharray: 100 0; }
+}
+.tutorial-trail-progress {
+  animation: tutorial-trail-draw 1.15s ease-out both;
+}
+.tutorial-header-focus {
+  box-shadow:
+    0 0 0 5px rgb(255 255 255 / .96),
+    0 0 0 9px rgb(30 168 240 / .46),
+    0 0 0 100vmax rgb(19 27 42 / .20);
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-trail-progress { animation: none !important; stroke-dasharray: 100 0 !important; }
 }
