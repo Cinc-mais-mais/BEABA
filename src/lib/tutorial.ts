@@ -32,7 +32,11 @@ export const TUTORIAL_PHASE_ONE = {
       audioSrc: null as string | null,
     },
     missingPart: {
-      text: "A palavra é \"{{word}}\". Você pode clicar no quadrado com o desenho para ouvir a palavra de novo.",
+      text: "A palavra é \"{{word}}\".",
+      audioSrc: null as string | null,
+    },
+    pictureAudio: {
+      text: "Você pode clicar no quadrado com o desenho para ouvir a palavra de novo.",
       audioSrc: null as string | null,
     },
     chooseAnswer: {
