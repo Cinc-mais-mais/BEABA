@@ -340,6 +340,7 @@ function Index() {
               <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
+                data-trail-point
                 onClick={() => { if (!isLocked || developerLevelsUnlocked) startLesson(l); }}
                 disabled={isLocked && !developerLevelsUnlocked}
                 aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
