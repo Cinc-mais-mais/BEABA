@@ -88,7 +88,7 @@ function WordPictureButton({ emoji, text, sizeClass = "h-44 w-44 text-8xl", disa
       className={`activity-picture relative flex ${sizeClass} shrink-0 items-center justify-center rounded-3xl bg-[#F0F4F7] disabled:cursor-not-allowed disabled:opacity-90 ${highlighted ? "tutorial-focus-target" : ""}`}
     >
       <span aria-hidden>{emoji}</span>
-      <span aria-hidden className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
+      <span aria-hidden className="activity-picture-audio absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
         <Volume2 className="h-6 w-6" />
       </span>
     </button>
