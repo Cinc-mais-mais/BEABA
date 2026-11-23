@@ -406,7 +406,7 @@
   box-shadow:
     0 0 0 5px rgb(255 255 255 / .96),
     0 0 0 9px rgb(30 168 240 / .46),
-    0 0 0 100vmax rgb(19 27 42 / .20);
+    0 4px 14px rgb(0 0 0 / .22);
 }
 @media (prefers-reduced-motion: reduce) {
   .tutorial-trail-progress { animation: none !important; stroke-dasharray: 100 0 !important; }
