@@ -55,8 +55,7 @@ function Index() {
     try {
       const alreadyCompleted = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey) === "done";
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
-      const previousGuidanceCompleted = window.localStorage.getItem("beaba-guided-first-access") === "done";
-      if (alreadyCompleted || savedDone.length > 0 || previousGuidanceCompleted) {
+      if (alreadyCompleted || savedDone.length > 0) {
         window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
         setTutorialStage("inactive");
         return;
@@ -278,7 +277,7 @@ function Index() {
         tutorial={tutorialActivity}
         onClose={() => {
           setOpen(null);
-          if (tutorialActivity) setTutorialStage("home-ready");
+          if (tutorialActivity) setTutorialStage("home-prompt");
           setTutorialActivity(false);
         }}
         onTutorialFinished={() => {
