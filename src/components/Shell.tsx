@@ -51,7 +51,7 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
             alt="BEABÁ"
             className="w-[22vw] max-h-[11dvh] object-contain"
           />
-          <span aria-hidden className="absolute left-[44%] top-1/2 h-[22vw] max-h-[11dvh] w-px -translate-y-1/2 bg-white/70" />
+
           <div className="flex shrink-0 items-center">
             <button
               type="button"
