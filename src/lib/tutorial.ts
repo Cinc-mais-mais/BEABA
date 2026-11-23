@@ -39,6 +39,10 @@ export const TUTORIAL_PHASE_ONE = {
       text: "Você pode clicar no quadrado com o desenho para ouvir a palavra de novo.",
       audioSrc: null as string | null,
     },
+    pictureRepeat: {
+      text: "{{word}}.",
+      audioSrc: null as string | null,
+    },
     chooseAnswer: {
       text: "Sua vez. Aperte no que está faltando para completar a palavra.",
       audioSrc: null as string | null,
