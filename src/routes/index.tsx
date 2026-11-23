@@ -209,7 +209,7 @@ function Index() {
           } else {
             startLesson(nextLesson);
           }
-        }} className={`mt-4 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_5px_14px_rgb(0_0,0,0.08)] transition hover:-translate-y-0.5 active:scale-[0.99] disabled:cursor-wait disabled:opacity-75 ${tutorialStage === "home-prompt" || tutorialStage === "home-ready" ? "tutorial-focus-target" : ""} ${highlightContinue ? "animate-continue-highlight ring-4 ring-[var(--b-green)]" : ""}`} data-tutorial-target="continue-activity"><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Sua próxima atividade</span><span className="block font-display text-lg font-extrabold text-[var(--home-navy)]">{nextLesson.title}</span><span className="block text-sm font-bold text-[var(--b-green)]">Continuar aprendendo</span></span><ArrowRight className="h-8 w-8 shrink-0 text-[var(--b-green)]" strokeWidth={2.8} /></button> : <div className="mt-4 rounded-2xl bg-white/75 p-4 text-center font-display font-extrabold text-[var(--home-navy)]">Você concluiu todas as atividades!</div>}</section>
+        }} className={`mt-4 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition hover:-translate-y-0.5 active:scale-[0.99] disabled:cursor-wait disabled:opacity-75 ${tutorialStage === "home-prompt" || tutorialStage === "home-ready" ? "tutorial-focus-target" : ""} ${highlightContinue ? "animate-continue-highlight ring-4 ring-[var(--b-green)]" : ""}`} data-tutorial-target="continue-activity"><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Sua próxima atividade</span><span className="block font-display text-lg font-extrabold text-[var(--home-navy)]">{nextLesson.title}</span><span className="block text-sm font-bold text-[var(--b-green)]">Continuar aprendendo</span></span><ArrowRight className="h-8 w-8 shrink-0 text-[var(--b-green)]" strokeWidth={2.8} /></button> : <div className="mt-4 rounded-2xl bg-white/75 p-4 text-center font-display font-extrabold text-[var(--home-navy)]">Você concluiu todas as atividades!</div>}</section>
       <div className="mb-4 flex justify-end">
         <Link to="/palavras" onClick={() => speak("Minhas palavras. Aqui ficam as palavras que você já completou nos exercícios.")} className="flex items-center gap-2 rounded-2xl bg-[var(--home-nav)] px-4 py-3 text-[var(--home-navy)] shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition active:scale-95">
           <BookOpen className="h-7 w-7 text-[var(--b-blue)]" />
@@ -269,7 +269,7 @@ function Index() {
       </ol>
       {(tutorialStage === "home-intro" || tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
         <div
-          className={`tutorial-dim-layer fixed inset-0 z-[40] pointer-events-auto ${tutorialStage === "home-intro" ? "bg-transparent" : "bg-slate-950/20"}`}
+          className={`tutorial-dim-layer fixed inset-0 z-[40] pointer-events-auto ${tutorialStage === "home-intro" ? "bg-transparent" : "bg-transparent"}`}
           aria-hidden="true"
         />
       )}
