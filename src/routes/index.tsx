@@ -362,8 +362,8 @@ function Index() {
         onClose={() => {
           if (tutorialActivity) return;
           setOpen(null);
-          setTutorialStage("home-prompt");
           setTutorialActivity(false);
+          try { setTutorialStage(window.localStorage.getItem("beaba-tutorial-skip") === "true" || window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey) === "done" ? "inactive" : "home-prompt"); } catch { setTutorialStage("home-prompt"); }
         }}
         onDone={() => {
           if (tutorialActivity && open.id === TUTORIAL_PHASE_ONE.lessonId) {
