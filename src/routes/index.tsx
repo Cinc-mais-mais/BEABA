@@ -56,13 +56,17 @@ function Index() {
     try {
       const tutorialStatus = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey);
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
-      if (tutorialStatus === "done" || savedDone.includes(TUTORIAL_PHASE_ONE.lessonId)) {
-        window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
+      if (tutorialStatus === "done") {
         setTutorialStage("inactive");
         return;
       }
       if (tutorialStatus === "activity-completed") {
         setTutorialStage("trail-animation");
+        return;
+      }
+      if (savedDone.includes(TUTORIAL_PHASE_ONE.lessonId)) {
+        window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
+        setTutorialStage("inactive");
         return;
       }
       setTutorialStage("welcome-intro");
