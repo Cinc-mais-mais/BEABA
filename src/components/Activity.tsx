@@ -73,7 +73,7 @@ export function ExerciseNextButton({
       disabled={disabled}
       className="activity-next-button exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
     >
-      <span className="relative z-10 inline-flex items-center justify-center gap-3">{children}</span>
+      <span className="activity-next-content relative z-10 flex w-full items-center justify-between gap-3">{children}</span>
     </button>
   );
 }
@@ -199,7 +199,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
             <div className="activity-footer min-h-[56px] w-full">
               {awaitingNext && (
                 <ExerciseNextButton onClick={advance}>
-                  <CheckCircle2 className="h-6 w-6" /> {i + 1 < sentences.length ? "Próxima frase" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
+                  <CheckCircle2 className="h-6 w-6" /> <span className="activity-next-label">{i + 1 < sentences.length ? "Próxima frase" : "Concluir atividade"}</span> <ArrowRight className="h-6 w-6" />
                 </ExerciseNextButton>
               )}
             </div>
@@ -355,7 +355,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                   onClick={advance}
                   disabled={tutorialFirstQuestion && tutorialStep !== "next-ready"}
                 >
-                  <CheckCircle2 className="h-6 w-6" /> {tutorialFirstQuestion && i === 0 ? "Prosseguir" : i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
+                  <CheckCircle2 className="h-6 w-6" /> <span className="activity-next-label">{tutorialFirstQuestion && i === 0 ? "Prosseguir" : i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"}</span> <ArrowRight className="h-6 w-6" />
                 </ExerciseNextButton>
               )}
             </div>
