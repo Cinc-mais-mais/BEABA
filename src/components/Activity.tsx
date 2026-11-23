@@ -227,7 +227,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
 
   useEffect(() => {
     if (!tutorialForThisLesson && !finished) speak(`${lesson.intro} ${q.word}`);
-  }, [tutorial, i, finished, lesson.intro, q.word]);
+  }, [tutorialForThisLesson, i, finished, lesson.intro, q.word]);
 
   useEffect(() => {
     if (!tutorial) setTutorialStep("idle");
