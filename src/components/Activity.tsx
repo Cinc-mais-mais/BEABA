@@ -342,7 +342,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                     key={opt}
                     disabled={Boolean(picked) || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)}
                     onClick={() => choose(opt)}
-                    className={`pop exercise-cursive-option h-24 rounded-2xl border-2 border-slate-700 text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
+                    className={`activity-answer-option pop exercise-cursive-option h-24 rounded-2xl border-2 border-slate-700 text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
                   >
                     {opt.toLocaleLowerCase("pt-BR")}
                   </button>
