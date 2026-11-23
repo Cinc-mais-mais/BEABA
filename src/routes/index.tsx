@@ -28,7 +28,7 @@ type TutorialStage = "checking" | "welcome-intro" | "welcome-prompt" | "welcome-
 function Index() {
   const { done, complete } = useProgress();
   const [open, setOpen] = useState<Lesson | null>(null);
-  const [cheatUnlocked, setCheatUnlocked] = useState(() => { try { return window.localStorage.getItem("beaba-dev-mode-enabled") === "true"; } catch { return false; } });
+  const [cheatUnlocked, setCheatUnlocked] = useState(() => { try { return window.localStorage.getItem("beaba-dev-mode-enabled") === "true"; } catch { return false; } });\n  const [developerLevelsUnlocked, setDeveloperLevelsUnlocked] = useState(() => { try { return window.localStorage.getItem("beaba-dev-unlock-levels") === "true"; } catch { return false; } });
   const [cheatPanel, setCheatPanel] = useState(false);
   const [tutorialStage, setTutorialStage] = useState<TutorialStage>("checking");
   const [tutorialActivity, setTutorialActivity] = useState(false);
@@ -323,15 +323,15 @@ function Index() {
               <div className="relative">
               <button
                 ref={(element) => { bubbleRefs.current[idx] = element; }}
-                onClick={() => { if (!isLocked || cheatUnlocked) startLesson(l); }}
-                disabled={isLocked && !cheatUnlocked}
+                onClick={() => { if (!isLocked || developerLevelsUnlocked) startLesson(l); }}
+                disabled={isLocked && !developerLevelsUnlocked}
                 aria-label={`${l.title}${isDone ? ", concluída" : isLocked ? ", bloqueada" : ", disponível"}`}
                 className={`home-bubble balloon-shine flex h-[130px] w-[130px] items-center justify-center rounded-full font-display text-5xl font-extrabold text-[#FFFFFF] ${isLocked ? "cursor-not-allowed opacity-45 grayscale" : completedAnimationId === l.id || unlockedAnimationId === l.id || introTarget === idx ? "" : "animate-float"} ${completedAnimationId === l.id ? "animate-bubble-complete" : ""} ${unlockedAnimationId === l.id ? "animate-bubble-unlock" : ""} ${introTarget === idx ? "guided-bubble-highlight" : ""}`}
                 style={{ animationDelay: `${idx * 0.4}s`, ["--b" as string]: `var(--b-${isDone ? "green" : bubble[l.color]})`, ["--bd" as string]: `var(--b-${isDone ? "green" : bubble[l.color]}-d)` }}
               >
                 {l.icon}
                 {isDone && <Star className="absolute -right-2 -top-2 h-12 w-12 fill-yellow text-yellow" strokeWidth={2} />}
-                {isLocked && !cheatUnlocked && <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--home-navy)]/35"><Lock className="h-10 w-10 text-white" /></span>}
+                {isLocked && !developerLevelsUnlocked && <span className="absolute inset-0 flex items-center justify-center rounded-full bg-[var(--home-navy)]/35"><Lock className="h-10 w-10 text-white" /></span>}
               </button>
               {introTarget === idx && <div className="guided-intro-tooltip" role="status"><strong>Vamos começar por aqui!</strong><span>Toque nesta bolinha para entrar na primeira atividade.</span></div>}
               <button
@@ -349,13 +349,13 @@ function Index() {
           );
         })}
       </ol>
-      {(tutorialStage === "home-intro" || tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
+      {!open && (tutorialStage === "home-intro" || tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
         <div
           className={`tutorial-dim-layer fixed inset-0 z-[40] pointer-events-none ${tutorialStage === "home-intro" ? "bg-transparent" : "bg-slate-950/20"}`}
           aria-hidden="true"
         />
       )}
-      {cheatPanel && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4"><section className="w-full max-w-md rounded-3xl p-6 shadow-2xl" style={{ backgroundColor: "var(--app-surface, #FFFFFF)", color: "var(--app-text, #172033)" }}><h2 className="mb-3 text-2xl font-extrabold">Modo de desenvolvedor</h2><p className="mb-4">Atalhos de teste: atividades bloqueadas acessíveis e conclusão fora da sequência.</p><div className="flex flex-col gap-3"><button className="rounded-xl bg-[var(--b-green)] p-3 font-bold text-white" onClick={() => { setTutorialStage("inactive"); setTutorialActivity(false); try { window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey,"done"); window.localStorage.setItem("beaba-guided-first-access","done"); window.localStorage.setItem("beaba-tutorial-skip","true"); window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatUnlocked(true); setCheatPanel(false); }}>Pular tutorial</button><button className="rounded-xl bg-[var(--b-blue)] p-3 font-bold text-white" onClick={() => { setCheatUnlocked(true); try { window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatPanel(false); }}>Liberar atividades bloqueadas</button><button className="rounded-xl bg-slate-600 p-3 font-bold text-white" onClick={() => setCheatPanel(false)}>Fechar</button></div></section></div>}
+      {cheatPanel && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4"><section className="w-full max-w-md rounded-3xl p-6 shadow-2xl" style={{ backgroundColor: "var(--app-surface, #FFFFFF)", color: "var(--app-text, #172033)" }}><h2 className="mb-3 text-2xl font-extrabold">Modo de desenvolvedor</h2><p className="mb-4">Atalhos de teste: atividades bloqueadas acessíveis e conclusão fora da sequência.</p><div className="flex flex-col gap-3"><button className="rounded-xl bg-[var(--b-green)] p-3 font-bold text-white" onClick={() => { setTutorialStage("inactive"); setTutorialActivity(false); try { window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey,"done"); window.localStorage.setItem("beaba-guided-first-access","done"); window.localStorage.setItem("beaba-tutorial-skip","true"); window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatUnlocked(true); setCheatPanel(false); }}>Pular tutorial</button><button className="rounded-xl bg-[var(--b-blue)] p-3 font-bold text-white" onClick={() => { setDeveloperLevelsUnlocked(true); try { window.localStorage.setItem("beaba-dev-unlock-levels","true"); window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatUnlocked(true); setCheatPanel(false); }}>Liberar atividades bloqueadas</button><button className="rounded-xl bg-slate-600 p-3 font-bold text-white" onClick={() => setCheatPanel(false)}>Fechar</button></div></section></div>}
       {open && <Activity
         lesson={open}
         tutorial={tutorialActivity}
