@@ -272,3 +272,42 @@
   .animate-bubble-complete, .animate-bubble-unlock, .guided-bubble-highlight, .animate-continue-highlight { animation: none !important; }
   html:focus-within { scroll-behavior: auto; }
 }
+
+
+/* Primeira fase do tutorial: foco visual e pulsação lenta para pessoas idosas. */
+@keyframes tutorial-heartbeat {
+  0%, 100% { transform: scale(1); }
+  12% { transform: scale(1.035); }
+  25% { transform: scale(1); }
+  39% { transform: scale(1.025); }
+  55% { transform: scale(1); }
+}
+.tutorial-focus-target {
+  position: relative !important;
+  z-index: 70 !important;
+  isolation: isolate;
+  border-radius: 1.25rem;
+  box-shadow:
+    0 0 0 5px rgb(255 255 255 / .92),
+    0 0 0 9px rgb(30 168 240 / .48),
+    0 0 0 100vmax rgb(19 27 42 / .24);
+  animation: tutorial-heartbeat 2.1s ease-in-out infinite;
+  transform-origin: center;
+}
+.tutorial-word-area {
+  padding: 8px 12px;
+  border-radius: 1.5rem;
+}
+.tutorial-focus-blank {
+  padding: 0.05em 0.18em;
+  border-radius: 0.25rem;
+  outline: 3px solid rgb(30 168 240 / .55);
+  outline-offset: 4px;
+  background: #FFF7D6;
+}
+.welcome-tutorial .tutorial-focus-target {
+  border-radius: 1.25rem;
+}
+@media (prefers-reduced-motion: reduce) {
+  .tutorial-focus-target { animation: none !important; }
+}
