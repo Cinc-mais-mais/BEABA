@@ -42,11 +42,11 @@ export function Activity(props: Props) {
 
 function ActivityHeader({ onClose, title, disabled = false }: { onClose: () => void; title: string; disabled?: boolean }) {
   return (
-    <div className="flex items-center gap-4">
-      <button onClick={onClose} disabled={disabled} aria-label="Sair da atividade" className="pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white disabled:cursor-not-allowed disabled:opacity-50">
+    <div className="activity-header flex items-center gap-4">
+      <button onClick={onClose} disabled={disabled} aria-label="Sair da atividade" className="activity-close-button pop flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white disabled:cursor-not-allowed disabled:opacity-50">
         <X className="h-8 w-8" strokeWidth={2.8} />
       </button>
-      <h1 className="min-w-0 flex-1 text-center text-2xl font-extrabold text-slate-800">{title}</h1>
+      <h1 className="activity-title min-w-0 flex-1 text-center text-2xl font-extrabold text-slate-800">{title}</h1>
       <span className="h-14 w-14 shrink-0" aria-hidden />
     </div>
   );
@@ -71,7 +71,7 @@ export function ExerciseNextButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
+      className="activity-next-button exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
     >
       <span className="relative z-10 inline-flex items-center justify-center gap-3">{children}</span>
     </button>
@@ -85,7 +85,7 @@ function WordPictureButton({ emoji, text, sizeClass = "h-44 w-44 text-8xl", disa
       onClick={onClick ?? (() => speak(text))}
       disabled={disabled}
       aria-label={`Ouvir ${text}`}
-      className={`relative flex ${sizeClass} shrink-0 items-center justify-center rounded-3xl bg-[#F0F4F7] disabled:cursor-not-allowed disabled:opacity-90 ${highlighted ? "tutorial-focus-target" : ""}`}
+      className={`activity-picture relative flex ${sizeClass} shrink-0 items-center justify-center rounded-3xl bg-[#F0F4F7] disabled:cursor-not-allowed disabled:opacity-90 ${highlighted ? "tutorial-focus-target" : ""}`}
     >
       <span aria-hidden>{emoji}</span>
       <span aria-hidden className="absolute -bottom-3 -right-3 flex h-12 w-12 items-center justify-center rounded-full border-2 border-white bg-[#D66A19] text-white shadow">
@@ -153,38 +153,38 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
     } else {
       setFinished(true);
       chime("win");
-      if (!tutorialForThisLesson) speak("Parabéns! Você concluiu a atividade.");
+      speak("Parabéns! Você concluiu a atividade.");
       onDone();
     }
   };
 
   return (
-    <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
-      <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
+    <div className="activity-screen activity-screen--sentence fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
+      <div className="activity-layout mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
         <ActivityHeader onClose={onClose} title={lesson.title} />
         {finished ? (
-          <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
+          <div className="activity-finished flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
             <Star className="animate-celebrate h-32 w-32 fill-yellow text-slate-800" strokeWidth={1.5} />
             <h2 className="text-4xl font-extrabold text-slate-900">Atividade concluída</h2>
             <p className="text-xl text-slate-700">Você montou todas as frases.</p>
             <button onClick={onClose} className="pop rounded-2xl bg-[#2877B8] px-9 py-4 text-2xl font-bold text-white">Continuar</button>
           </div>
         ) : (
-          <section className="flex flex-1 flex-col items-center justify-center gap-5 rounded-[2rem] border border-slate-200 bg-white px-4 py-6 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${phrase}`}>
+          <section className="activity-stage activity-stage--sentence flex flex-1 flex-col items-center justify-center gap-5 rounded-[2rem] border border-slate-200 bg-white px-4 py-6 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${phrase}`}>
             <WordPictureButton emoji={s.emoji} text={phrase} sizeClass="h-36 w-36 text-7xl" />
-            <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Monte a frase na ordem correta."}</p>
-            <div className={`flex min-h-24 w-full flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3 transition-colors ${complete ? "border-emerald-500 bg-emerald-50" : "border-slate-300 bg-slate-50"}`} aria-live="polite">
+            <p className="activity-feedback min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Monte a frase na ordem correta."}</p>
+            <div className={`activity-built-phrase flex min-h-24 w-full flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3 transition-colors ${complete ? "border-emerald-500 bg-emerald-50" : "border-slate-300 bg-slate-50"}`} aria-live="polite">
               {built.map((idx) => (
                 <span key={idx} className={`exercise-cursive-built rounded-xl px-3 py-2 ${complete ? "text-emerald-800" : "text-slate-900"}`}>{tiles.find((t) => t.k === idx)?.w}</span>
               ))}
               {complete && <CheckCircle2 className="ml-1 h-7 w-7 text-emerald-700" aria-label="Correto" />}
             </div>
             {built.length > 0 && !complete && (
-              <button disabled={inputLocked} onClick={() => setBuilt(built.slice(0, -1))} aria-label="Desfazer última palavra" className="pop flex h-12 items-center gap-2 rounded-xl bg-slate-100 px-5 text-lg font-bold text-slate-800 disabled:opacity-50">
+              <button disabled={inputLocked} onClick={() => setBuilt(built.slice(0, -1))} aria-label="Desfazer última palavra" className="activity-undo-button pop flex h-12 items-center gap-2 rounded-xl bg-slate-100 px-5 text-lg font-bold text-slate-800 disabled:opacity-50">
                 <Undo2 className="h-6 w-6" /> Voltar
               </button>
             )}
-            <div className="grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
+            <div className="activity-options activity-options--tiles grid w-full grid-cols-2 gap-3 sm:grid-cols-3">
               {tiles.map((t, n) => {
                 const used = built.includes(t.k);
                 const colors = ["bg-[#F4D8D5]", "bg-[#F7E8B5]", "bg-[#D8EAF5]", "bg-[#E9E2F2]"];
@@ -196,7 +196,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
                 );
               })}
             </div>
-            <div className="min-h-[76px] w-full">
+            <div className="activity-footer min-h-[56px] w-full">
               {awaitingNext && (
                 <ExerciseNextButton onClick={advance}>
                   <CheckCircle2 className="h-6 w-6" /> {i + 1 < sentences.length ? "Próxima frase" : "Concluir atividade"} <ArrowRight className="h-6 w-6" />
@@ -307,7 +307,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
   };
 
   return (
-    <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
+    <div className="activity-screen activity-screen--syllable fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
         <ActivityHeader onClose={onClose} title={lesson.title} disabled={tutorialForThisLesson} />
         {finished ? (
@@ -318,8 +318,8 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
             <button onClick={onClose} className="pop rounded-2xl bg-[#2877B8] px-9 py-4 text-2xl font-bold text-white">Continuar</button>
           </div>
         ) : (
-          <section className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white px-4 py-7 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${q.word}`}>
-            <div className={`tutorial-word-area flex flex-col items-center gap-6 ${tutorialFirstQuestion && tutorialStep === "activity-intro" ? "tutorial-focus-target" : ""}`} data-tutorial-target="word-and-picture">
+          <section className="activity-stage activity-stage--syllable flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white px-4 py-7 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${q.word}`}>
+            <div className={`activity-word-group tutorial-word-area flex flex-col items-center gap-6 ${tutorialFirstQuestion && tutorialStep === "activity-intro" ? "tutorial-focus-target" : ""}`} data-tutorial-target="word-and-picture">
               <WordPictureButton
                 emoji={q.emoji}
                 text={q.word}
@@ -331,8 +331,8 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                 {q.before.toLocaleLowerCase("pt-BR")}<span className={`tutorial-missing-part exercise-cursive mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target tutorial-focus-blank" : ""}`}>{picked?.toLocaleLowerCase("pt-BR") ?? "\u00A0"}</span>{q.after.toLocaleLowerCase("pt-BR")}
               </p>
             </div>
-            <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
-            <div className={`grid w-full grid-cols-3 gap-3 ${tutorialFirstQuestion && tutorialStep === "options-prompt" ? "tutorial-focus-target" : ""}`} data-tutorial-target="answer-options">
+            <p className="activity-feedback min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
+            <div className={`activity-options activity-options--syllables grid w-full grid-cols-3 gap-3 ${tutorialFirstQuestion && tutorialStep === "options-prompt" ? "tutorial-focus-target" : ""}`} data-tutorial-target="answer-options">
               {(displayedOptions[i] ?? q.options).map((opt, k) => {
                 const colors = ["bg-[#F4D8D5]", "bg-[#F7E8B5]", "bg-[#D8EAF5]"];
                 const isWrong = wrong === opt;
@@ -349,7 +349,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                 );
               })}
             </div>
-            <div className="min-h-[76px] w-full">
+            <div className="activity-footer min-h-[56px] w-full">
               {awaitingNext && (!tutorialFirstQuestion || tutorialStep === "next-prompt" || tutorialStep === "next-ready") && (
                 <ExerciseNextButton
                   onClick={advance}
