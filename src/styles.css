@@ -326,6 +326,9 @@
   font-style: normal;
   font-weight: 400;
   font-synthesis: none;
+  font-variant-ligatures: contextual;
+  font-feature-settings: "calt" 1, "clig" 1, "kern" 1;
+  font-kerning: normal;
   letter-spacing: 0;
   text-transform: none;
 }
