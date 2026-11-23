@@ -52,11 +52,11 @@ function ActivityHeader({ onClose, title, disabled = false }: { onClose: () => v
   );
 }
 
-function WordPictureButton({ emoji, text, sizeClass = "h-44 w-44 text-8xl", disabled = false, highlighted = false }: { emoji: string; text: string; sizeClass?: string; disabled?: boolean; highlighted?: boolean }) {
+function WordPictureButton({ emoji, text, sizeClass = "h-44 w-44 text-8xl", disabled = false, highlighted = false, onClick }: { emoji: string; text: string; sizeClass?: string; disabled?: boolean; highlighted?: boolean; onClick?: () => void }) {
   return (
     <button
       type="button"
-      onClick={() => speak(text)}
+      onClick={onClick ?? (() => speak(text))}
       disabled={disabled}
       aria-label={`Ouvir ${text}`}
       className={`relative flex ${sizeClass} shrink-0 items-center justify-center rounded-3xl bg-[#F0F4F7] disabled:cursor-not-allowed disabled:opacity-90 ${highlighted ? "tutorial-focus-target" : ""}`}
@@ -214,6 +214,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
       "activity-intro": ["activityIntroduction", "missing-part"],
       "missing-part": ["missingPart", "picture-audio"],
       "picture-audio": ["pictureAudio", "options-prompt"],
+      "picture-repeat": ["pictureRepeat", "options-prompt"],
       "options-prompt": ["chooseAnswer", "ready"],
       "correct-feedback": ["correctAnswer", "next-prompt"],
       "next-prompt": ["nextWord", "next-ready"],
@@ -293,7 +294,13 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
         ) : (
           <section className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white px-4 py-7 shadow-sm sm:px-8" data-speak={`${lesson.intro} ${q.word}`}>
             <div className={`tutorial-word-area flex flex-col items-center gap-6 ${tutorialFirstQuestion && tutorialStep === "activity-intro" ? "tutorial-focus-target" : ""}`} data-tutorial-target="word-and-picture">
-              <WordPictureButton emoji={q.emoji} text={q.word} disabled={tutorialFirstQuestion && !tutorialReady} highlighted={tutorialFirstQuestion && tutorialStep === "picture-audio"} />
+              <WordPictureButton
+                emoji={q.emoji}
+                text={q.word}
+                disabled={tutorialFirstQuestion && !tutorialReady && tutorialStep !== "picture-audio"}
+                highlighted={tutorialFirstQuestion && (tutorialStep === "picture-audio" || tutorialStep === "picture-repeat")}
+                onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : undefined}
+              />
               <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
                 {q.before}<span className={`tutorial-missing-part mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
               </p>
