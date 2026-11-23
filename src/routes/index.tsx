@@ -78,9 +78,16 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    const handler = (event: KeyboardEvent) => { if (event.ctrlKey && event.shiftKey && event.code === "KeyB") { event.preventDefault(); setCheatUnlocked(true); setCheatPanel(true); } };
-    window.addEventListener("keydown", handler); return () => window.removeEventListener("keydown", handler);
+    const handler = () => { setCheatUnlocked(true); setCheatPanel(true); };
+    window.addEventListener("beaba-dev-mode", handler);
+    return () => window.removeEventListener("beaba-dev-mode", handler);
   }, []);
+
+  useEffect(() => {
+    const active = tutorialStage === "home-prompt" || tutorialStage === "home-ready";
+    document.documentElement.classList.toggle("beaba-tutorial-nav-active", active);
+    return () => document.documentElement.classList.remove("beaba-tutorial-nav-active");
+  }, [tutorialStage]);
 
   useEffect(() => {
     const stages = {
