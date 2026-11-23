@@ -82,7 +82,7 @@ export const LESSONS: Lesson[] = [
   ]},
   { id: "frases", title: "Monte a Frase", icon: "Aa", color: "red", intro: "Ouça a frase e toque nas palavras na ordem certa.", questions: [], sentences: [
     { emoji: "🐱", words: ["O", "gato", "bebe", "leite"], extras: ["casa", "pula"] },
-    { emoji: "☀️", words: ["O", "sol", "está", "quente"], extras: ["lua", "frio"] },
+    { emoji: "☀️", words: ["O", "Sol", "está", "quente"], extras: ["lua", "frio"] },
     { emoji: "🍞", words: ["Eu", "como", "pão"], extras: ["bola", "vou"] },
     { emoji: "🌧️", words: ["A", "chuva", "caiu"], extras: ["pato", "sol"] },
   ]},
