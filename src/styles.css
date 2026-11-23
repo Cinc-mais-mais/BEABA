@@ -382,3 +382,12 @@
     line-height: 1.55;
   }
 }
+
+
+/* No início, a vinheta fixa escurece a tela; o cartão mantém somente o halo. */
+.tutorial-home-focus {
+  box-shadow:
+    0 0 0 5px rgb(255 255 255 / .96),
+    0 0 0 9px rgb(30 168 240 / .48),
+    0 8px 20px rgb(35 87 141 / .22);
+}
