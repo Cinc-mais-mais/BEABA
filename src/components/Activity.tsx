@@ -193,7 +193,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
   const nextGuard = useRef(false);
   const tutorialAdvanceDone = useRef(false);
   const [tutorialStep, setTutorialStep] = useState<
-    "idle" | "overview" | "activity-intro" | "missing-part" | "picture-audio" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
+    "idle" | "overview" | "activity-intro" | "missing-part" | "picture-audio" | "picture-repeat" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
   >(tutorial ? "overview" : "idle");
   const q = lesson.questions[i] ?? lesson.questions[0]!;
   const displayedOptions = useMemo(() => buildBalancedOptions(lesson.questions), [lesson]);
