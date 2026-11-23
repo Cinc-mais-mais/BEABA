@@ -302,7 +302,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
                 onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : undefined}
               />
               <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
-                {q.before}<span className={`tutorial-missing-part mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
+                {q.before}<span className={`tutorial-missing-part mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target tutorial-focus-blank" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
               </p>
             </div>
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
