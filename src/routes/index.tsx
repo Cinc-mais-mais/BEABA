@@ -267,8 +267,11 @@ function Index() {
           );
         })}
       </ol>
-      {(tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
-        <div className="tutorial-dim-layer fixed inset-0 z-[40] bg-slate-950/20 pointer-events-none" aria-hidden="true" />
+      {(tutorialStage === "home-intro" || tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
+        <div
+          className={`tutorial-dim-layer fixed inset-0 z-[40] pointer-events-auto ${tutorialStage === "home-intro" ? "bg-transparent" : "bg-slate-950/20"}`}
+          aria-hidden="true"
+        />
       )}
       {open && <Activity
         lesson={open}
@@ -300,7 +303,7 @@ function WelcomeTutorialScreen({ highlighted, disabled, onStart }: { highlighted
         <h1 className="max-w-xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl">Olá! Você está no Beabá.</h1>
       </div>
       <div className="w-full max-w-sm pb-4">
-        {highlighted && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
+        {highlighted && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-auto" aria-hidden="true" />}
         <button
           type="button"
           disabled={disabled}
