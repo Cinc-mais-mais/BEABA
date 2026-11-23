@@ -97,10 +97,12 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
                   const now = Date.now();
                   homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now];
                   if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); }
-                }} className={`flex flex-col items-center gap-1 text-lg font-bold ${t.to === "/" ? "text-[var(--home-active)]" : "text-[var(--home-navy)] opacity-50"}`} aria-label={t.to === "/" ? "Início (toque seis vezes para abrir modo de desenvolvedor)" : t.label}>
-                  <t.icon className="h-9 w-9" strokeWidth={2.5} />
-                  {t.label}
-                  <span className={`h-1.5 w-8 rounded-full ${t.to === "/" ? "bg-[var(--home-active)]" : "bg-transparent"}`} />
+                }} className="flex flex-col items-center gap-1 text-lg font-bold" aria-label={t.to === "/" ? "Início (toque seis vezes para abrir modo de desenvolvedor)" : t.label}>
+                  <span className={`flex flex-col items-center gap-1 ${t.to === "/" ? "text-[var(--home-active)]" : "text-[var(--home-navy)] opacity-50"}`}>
+                    <t.icon className="h-9 w-9" strokeWidth={2.5} />
+                    {t.label}
+                    <span className={`h-1.5 w-8 rounded-full ${t.to === "/" ? "bg-[var(--home-active)]" : "bg-transparent"}`} />
+                  </span>
                 </button>
               ) : (
                 <Link to={t.to} onClick={() => { speak(t.label); if (t.to === "/") { const now = Date.now(); homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now]; if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); } } else { homeTapSequence.current = []; } }} className="flex flex-col items-center gap-1 text-lg font-bold" activeOptions={{ exact: true }}>
