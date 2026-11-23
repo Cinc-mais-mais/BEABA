@@ -84,8 +84,10 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   const complete = built.length === s.words.length;
 
   useEffect(() => {
-    if (!finished) speak(`${lesson.intro} ${phrase}`);
-  }, [i, finished, lesson.intro, phrase]);
+    if (finished) return;
+    // Lê a frase atual ao entrar na atividade e sempre que avançar para outra.
+    speak(phrase);
+  }, [i, finished, phrase]);
 
   const choose = (idx: number, w: string) => {
     if (inputLocked || awaitingNext || complete || built.includes(idx)) return;
@@ -225,8 +227,11 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
   }, [tutorialFirstQuestion, tutorialStep, q.word]);
 
   useEffect(() => {
-    if (!tutorialForThisLesson && !finished) speak(`${lesson.intro} ${q.word}`);
-  }, [tutorialForThisLesson, i, finished, lesson.intro, q.word]);
+    if (finished || tutorialFirstQuestion) return;
+    // A primeira questão do tutorial já fala a palavra na narração guiada.
+    // Nas demais questões, a palavra é lida automaticamente ao entrar nela.
+    speak(q.word);
+  }, [tutorialFirstQuestion, i, finished, q.word]);
 
   useEffect(() => {
     if (!tutorial) setTutorialStep("idle");
