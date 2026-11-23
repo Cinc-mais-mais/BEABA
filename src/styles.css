@@ -855,3 +855,87 @@
   .activity-options--syllables { gap: 6px; }
   .activity-next-button > span { gap: 5px; }
 }
+
+
+/* Reequilíbrio vertical da atividade: mais espaço para a ação principal. */
+.activity-stage--syllable {
+  grid-template-rows: minmax(150px, 1fr) auto auto minmax(88px, auto);
+  gap: clamp(8px, 1.4dvh, 14px);
+}
+.activity-stage--syllable .activity-word-group {
+  justify-content: flex-start;
+  align-self: stretch;
+  padding-top: clamp(2px, 1dvh, 10px);
+  gap: clamp(8px, 1.5dvh, 14px);
+}
+.activity-stage--syllable .activity-picture {
+  width: clamp(104px, min(19dvh, 34vw), 164px);
+  height: clamp(104px, min(19dvh, 34vw), 164px);
+  font-size: clamp(4.8rem, 10.5dvh, 6.7rem);
+}
+.activity-stage--syllable .activity-feedback {
+  margin: 0;
+  font-size: clamp(1.05rem, 2.8dvh, 1.25rem);
+}
+.activity-stage--syllable .activity-options--syllables > button {
+  height: clamp(70px, 9.8dvh, 88px) !important;
+  min-height: clamp(70px, 9.8dvh, 88px);
+  font-size: clamp(1.45rem, 4.1dvh, 2.15rem);
+}
+.activity-stage--syllable .activity-footer {
+  min-height: clamp(88px, 11.2dvh, 104px) !important;
+  flex: 0 0 auto;
+}
+.activity-stage--syllable .activity-next-button {
+  min-height: clamp(82px, 10.5dvh, 98px) !important;
+  padding: clamp(12px, 1.8dvh, 17px) clamp(14px, 3vw, 24px) !important;
+  font-size: clamp(1.15rem, 3.35dvh, 1.4rem) !important;
+  line-height: 1.15;
+  flex: 0 0 auto;
+}
+.activity-next-content {
+  width: 100%;
+  min-width: 0;
+}
+.activity-next-content > svg {
+  width: clamp(22px, 3.2dvh, 28px);
+  height: clamp(22px, 3.2dvh, 28px);
+  flex: 0 0 auto;
+}
+.activity-next-label {
+  flex: 1 1 auto;
+  min-width: 0;
+  text-align: center;
+  line-height: 1.15;
+  text-wrap: balance;
+}
+@media (max-height: 700px) {
+  .activity-stage--syllable {
+    grid-template-rows: minmax(112px, 1fr) auto auto minmax(74px, auto);
+  }
+  .activity-stage--syllable .activity-word-group {
+    padding-top: 0;
+    gap: 6px;
+  }
+  .activity-stage--syllable .activity-picture {
+    width: clamp(88px, 15dvh, 116px);
+    height: clamp(88px, 15dvh, 116px);
+    font-size: clamp(4rem, 9dvh, 5.2rem);
+  }
+  .activity-stage--syllable .activity-options--syllables > button {
+    height: clamp(60px, 9dvh, 74px) !important;
+    min-height: clamp(60px, 9dvh, 74px);
+  }
+  .activity-stage--syllable .activity-footer {
+    min-height: 76px !important;
+  }
+  .activity-stage--syllable .activity-next-button {
+    min-height: 72px !important;
+    font-size: clamp(1.05rem, 3dvh, 1.25rem) !important;
+  }
+}
+@media (max-height: 500px) {
+  .activity-stage--syllable {
+    grid-template-rows: minmax(100px, 1fr) auto auto minmax(72px, auto);
+  }
+}
