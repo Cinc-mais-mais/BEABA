@@ -411,3 +411,227 @@
 @media (prefers-reduced-motion: reduce) {
   .tutorial-trail-progress { animation: none !important; stroke-dasharray: 100 0 !important; }
 }
+
+
+/* Botão de avanço padrão dos níveis: pulsação lenta, sem vinheta na tela. */
+.exercise-next-button {
+  position: relative;
+  isolation: isolate;
+  transform-origin: center;
+}
+.exercise-next-button::after {
+  content: "";
+  position: absolute;
+  inset: -3px;
+  z-index: -1;
+  border: 2px solid rgb(255 255 255 / .42);
+  border-radius: inherit;
+  pointer-events: none;
+  animation: exercise-next-pulse 2.5s ease-in-out infinite;
+}
+@keyframes exercise-next-pulse {
+  0%, 100% { transform: scale(1); opacity: .28; }
+  50% { transform: scale(1.035); opacity: .85; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .exercise-next-button::after { animation: none !important; opacity: .5; }
+}
+
+/* Tema escuro global do BEABÁ: superfícies ardósia, texto claro e acentos vivos. */
+:root.beaba-dark-theme {
+  color-scheme: dark;
+  --home-bg: #171D27;
+  --home-blob-l: #26374B;
+  --home-blob-r: #403137;
+  --home-header: #1A4268;
+  --home-navy: #EEF3F8;
+  --home-active: #8ABEFF;
+  --home-nav: #232D3A;
+  --home-dot: #586879;
+  --home-tag: #3B3541;
+  --home-sound-tag: #49382C;
+  --b-red: #F0756E;
+  --b-red-d: #C8504B;
+  --b-blue: #50B9EA;
+  --b-blue-d: #2188BB;
+  --b-yellow: #F2C85D;
+  --b-yellow-d: #C89B32;
+  --b-orange: #F18A4C;
+  --b-orange-d: #C96A34;
+  --b-green: #35C982;
+  --b-green-d: #168D5B;
+  --background: #171D27;
+  --foreground: #F0F4F8;
+  --card: #242E3B;
+  --card-foreground: #F0F4F8;
+  --popover: #2C3745;
+  --popover-foreground: #F0F4F8;
+  --primary: #50B9EA;
+  --primary-foreground: #102131;
+  --secondary: #2C3745;
+  --secondary-foreground: #F0F4F8;
+  --muted: #2C3745;
+  --muted-foreground: #C1CBD6;
+  --accent: #34475A;
+  --accent-foreground: #F0F4F8;
+  --destructive: #E66D67;
+  --destructive-foreground: #160F12;
+  --border: #536273;
+  --input: #384858;
+  --ring: #70C5F0;
+  --shadow-pop: 0 6px 0 0 #0E141C;
+  --app-surface: #242E3B;
+  --app-surface-raised: #2D3948;
+  --app-surface-muted: #202A36;
+  --app-text: #F0F4F8;
+  --app-muted-text: #C1CBD6;
+  --app-border: #536273;
+  --activity-bg: #171D27;
+  --activity-picture: #344252;
+  --activity-option-rose: #594149;
+  --activity-option-gold: #594D35;
+  --activity-option-blue: #344D60;
+  --activity-option-lilac: #4C425E;
+}
+:root.beaba-dark-theme body {
+  background-color: var(--home-bg);
+  color: var(--home-navy);
+}
+:root.beaba-dark-theme .app-shell {
+  background-color: var(--home-bg);
+}
+:root.beaba-dark-theme .app-nav {
+  border-top: 1px solid var(--app-border);
+}
+:root.beaba-dark-theme .app-main [class~="bg-white"],
+:root.beaba-dark-theme .app-main [class~="bg-white/75"],
+:root.beaba-dark-theme .app-main [class~="bg-white/90"] {
+  background-color: var(--app-surface) !important;
+}
+:root.beaba-dark-theme .app-main [class~="bg-slate-50"],
+:root.beaba-dark-theme .app-main [class~="bg-slate-100"] {
+  background-color: var(--app-surface-muted) !important;
+}
+:root.beaba-dark-theme .app-main [class~="text-slate-950"],
+:root.beaba-dark-theme .app-main [class~="text-slate-900"],
+:root.beaba-dark-theme .app-main [class~="text-slate-800"] {
+  color: var(--app-text) !important;
+}
+:root.beaba-dark-theme .app-main [class~="text-slate-700"] {
+  color: var(--app-muted-text) !important;
+}
+:root.beaba-dark-theme .app-main [class~="text-red-700"] {
+  color: #FF9A91 !important;
+}
+:root.beaba-dark-theme .app-main [class~="border-slate-200"],
+:root.beaba-dark-theme .app-main [class~="border-slate-300"],
+:root.beaba-dark-theme .app-main [class~="border-slate-700"],
+:root.beaba-dark-theme .app-main [class~="border-slate-900"] {
+  border-color: var(--app-border) !important;
+}
+:root.beaba-dark-theme .app-main [class~="bg-emerald-50"] {
+  background-color: #203D35 !important;
+}
+:root.beaba-dark-theme .app-main [class~="bg-emerald-200"] {
+  background-color: #28634A !important;
+}
+:root.beaba-dark-theme .app-main [class~="text-emerald-800"],
+:root.beaba-dark-theme .app-main [class~="text-emerald-700"] {
+  color: #A3E8C3 !important;
+}
+:root.beaba-dark-theme .app-main [class~="ring-emerald-500"] {
+  --tw-ring-color: #56D394 !important;
+}
+:root.beaba-dark-theme .app-main .teacher-actions [class~="bg-[#FFFFFF]/90"] {
+  background-color: var(--app-surface-raised) !important;
+  color: var(--app-text) !important;
+}
+
+/* A área de exercícios recebe uma superfície própria, preservando as opções coloridas. */
+:root.beaba-dark-theme .activity-screen {
+  background-color: var(--activity-bg) !important;
+}
+:root.beaba-dark-theme .activity-screen section[class~="bg-white"],
+:root.beaba-dark-theme .activity-screen [class~="bg-white"] {
+  background-color: var(--app-surface) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#F0F4F7]"] {
+  background-color: var(--activity-picture) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#F3F5F7]"] {
+  background-color: var(--activity-bg) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#F4D8D5]"] {
+  background-color: var(--activity-option-rose) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#F7E8B5]"] {
+  background-color: var(--activity-option-gold) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#D8EAF5]"] {
+  background-color: var(--activity-option-blue) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#E9E2F2]"] {
+  background-color: var(--activity-option-lilac) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#2877B8]"] {
+  background-color: #287EB7 !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-[#D66A19]"] {
+  background-color: #E07828 !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-slate-50"],
+:root.beaba-dark-theme .activity-screen [class~="bg-slate-100"] {
+  background-color: var(--app-surface-muted) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="text-slate-950"],
+:root.beaba-dark-theme .activity-screen [class~="text-slate-900"],
+:root.beaba-dark-theme .activity-screen [class~="text-slate-800"] {
+  color: var(--app-text) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="text-slate-700"] {
+  color: var(--app-muted-text) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="border-slate-200"],
+:root.beaba-dark-theme .activity-screen [class~="border-slate-300"],
+:root.beaba-dark-theme .activity-screen [class~="border-slate-700"],
+:root.beaba-dark-theme .activity-screen [class~="border-slate-900"] {
+  border-color: var(--app-border) !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="border-b-[5px]"] {
+  border-bottom-color: #DCE6EF !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-emerald-50"] {
+  background-color: #203D35 !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-emerald-200"] {
+  background-color: #28634A !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="text-emerald-800"],
+:root.beaba-dark-theme .activity-screen [class~="text-emerald-700"] {
+  color: #A3E8C3 !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="ring-emerald-500"] {
+  --tw-ring-color: #56D394 !important;
+}
+:root.beaba-dark-theme .activity-screen [class~="bg-slate-900"] {
+  background-color: #0D141D !important;
+}
+:root.beaba-dark-theme .activity-screen .exercise-next-button {
+  background-color: #287EB7 !important;
+  color: #FFFFFF !important;
+  border-color: #83C5EB !important;
+}
+
+:root.beaba-dark-theme .app-main [class~="bg-[#FFFFFF]/90"] {
+  background-color: var(--app-surface-raised) !important;
+}
+
+/* O modo de contraste continua acumulando bordas e foco mais marcados no tema escuro. */
+:root.beaba-dark-theme.beaba-high-contrast {
+  --app-surface: #1D2936;
+  --app-surface-raised: #263747;
+  --app-surface-muted: #18232F;
+  --app-text: #FFFFFF;
+  --app-muted-text: #E0E8F0;
+  --app-border: #A9C2D8;
+}
