@@ -57,6 +57,7 @@ function Index() {
     if (typeof window === "undefined") return;
     try {
       const tutorialStatus = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey);
+      const developerTutorialSkip = window.localStorage.getItem("beaba-tutorial-skip") === "true";
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
       if (developerTutorialSkip || savedDone.length >= LESSONS.length || tutorialStatus === "done") {
         setTutorialStage("inactive");
