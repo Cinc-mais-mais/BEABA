@@ -74,13 +74,15 @@ export function playTutorialNarration(
   let audio: HTMLAudioElement | null = null;
   let utterance: SpeechSynthesisUtterance | null = null;
   let fallbackTimer: number | null = null;
+  let speechFallbackStarted = false;
 
   const finish = () => {
     if (!cancelled) onEnded?.();
   };
 
   const useSpeechSynthesis = () => {
-    if (cancelled) return;
+    if (cancelled || speechFallbackStarted) return;
+    speechFallbackStarted = true;
     if (typeof window === "undefined" || !("speechSynthesis" in window)) {
       finish();
       return;
