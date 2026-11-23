@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
 
 const bubble = { red: "red", yellow: "yellow", blue: "blue", orange: "orange" } as const;
 const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[18%] sm:ml-[28%] translate-y-8", "self-start ml-6"];
-type TutorialStage = "checking" | "welcome-intro" | "welcome-prompt" | "welcome-ready" | "home-intro" | "home-prompt" | "home-ready" | "activity" | "inactive";
+type TutorialStage = "checking" | "welcome-intro" | "welcome-prompt" | "welcome-ready" | "home-intro" | "home-prompt" | "home-ready" | "activity" | "trail-animation" | "trail-intro" | "font-intro" | "font-prompt" | "font-ready" | "inactive";
 
 function Index() {
   const { done, complete } = useProgress();
@@ -47,18 +47,22 @@ function Index() {
       : completedCount === LESSONS.length - 1
         ? "Está quase lá! Falta só mais uma atividade!"
         : "Muito bem! Continue assim, você está aprendendo cada vez mais!";
-  const [trail, setTrail] = useState({ width: 0, height: 0, path: "" });
+  const [trail, setTrail] = useState({ width: 0, height: 0, path: "", firstSegment: "" });
   const listRef = useRef<HTMLOListElement | null>(null);
   const bubbleRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     try {
-      const alreadyCompleted = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey) === "done";
+      const tutorialStatus = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey);
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
-      if (alreadyCompleted || savedDone.length > 0) {
+      if (tutorialStatus === "done" || savedDone.includes(TUTORIAL_PHASE_ONE.lessonId)) {
         window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
         setTutorialStage("inactive");
+        return;
+      }
+      if (tutorialStatus === "activity-completed") {
+        setTutorialStage("trail-animation");
         return;
       }
       setTutorialStage("welcome-intro");
@@ -73,11 +77,28 @@ function Index() {
       "welcome-prompt": ["welcomePrompt", "welcome-ready"],
       "home-intro": ["homeIntroduction", "home-prompt"],
       "home-prompt": ["continueActivity", "home-ready"],
+      "trail-intro": ["trailCompleted", "font-intro"],
+      "font-prompt": ["largeTextGuide", "font-ready"],
     } as const;
     const stage = stages[tutorialStage as keyof typeof stages];
     if (!stage) return;
     const [narration, nextStage] = stage;
     return playTutorialNarration(narration, {}, () => setTutorialStage(nextStage));
+  }, [tutorialStage]);
+
+  useEffect(() => {
+    if (tutorialStage === "trail-animation") {
+      window.requestAnimationFrame(() => {
+        bubbleRefs.current[1]?.scrollIntoView({ behavior: "smooth", block: "center" });
+      });
+      const timer = window.setTimeout(() => setTutorialStage("trail-intro"), 1450);
+      return () => window.clearTimeout(timer);
+    }
+    if (tutorialStage === "font-intro") {
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      const timer = window.setTimeout(() => setTutorialStage("font-prompt"), 550);
+      return () => window.clearTimeout(timer);
+    }
   }, [tutorialStage]);
 
   useEffect(() => {
@@ -123,6 +144,33 @@ function Index() {
     setOpen(lesson);
   };
 
+  const finishGuidedLesson = (lessonId: string) => {
+    const finishedIndex = LESSONS.findIndex((lesson) => lesson.id === lessonId);
+    const next = LESSONS[finishedIndex + 1];
+    complete(lessonId);
+    setOpen(null);
+    setTutorialActivity(false);
+    setCompletedAnimationId(lessonId);
+    setHighlightContinue(false);
+    if (next) setUnlockedAnimationId(next.id);
+    try {
+      window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "activity-completed");
+    } catch {
+      // A sequência continua nesta sessão se o armazenamento local estiver indisponível.
+    }
+    setTutorialStage("trail-animation");
+  };
+
+  const finishTextSizeTutorial = () => {
+    try {
+      window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
+      window.localStorage.setItem("beaba-guided-first-access", "done");
+    } catch {
+      // O tutorial permanece concluído durante a sessão atual.
+    }
+    setTutorialStage("inactive");
+  };
+
   const finishLesson = (lessonId: string) => {
     const finishedIndex = LESSONS.findIndex((lesson) => lesson.id === lessonId);
     const next = LESSONS[finishedIndex + 1];
@@ -154,19 +202,22 @@ function Index() {
         .filter((point): point is { x: number; y: number } => point !== null);
 
       if (points.length < 2) {
-        setTrail({ width: listRect.width, height: listRect.height, path: "" });
+        setTrail({ width: listRect.width, height: listRect.height, path: "", firstSegment: "" });
         return;
       }
 
       let path = `M ${points[0].x} ${points[0].y}`;
+      let firstSegment = "";
       for (let i = 1; i < points.length; i++) {
         const previous = points[i - 1];
         const current = points[i];
         const middleY = (previous.y + current.y) / 2;
-        path += ` C ${previous.x} ${middleY}, ${current.x} ${middleY}, ${current.x} ${current.y}`;
+        const segment = ` C ${previous.x} ${middleY}, ${current.x} ${middleY}, ${current.x} ${current.y}`;
+        path += segment;
+        if (i === 1) firstSegment = `M ${points[0].x} ${points[0].y}${segment}`;
       }
 
-      setTrail({ width: listRect.width, height: listRect.height, path });
+      setTrail({ width: listRect.width, height: listRect.height, path, firstSegment });
     };
 
     updateTrail();
@@ -200,7 +251,12 @@ function Index() {
   }
 
   return (
-    <Shell home>
+    <Shell
+      home
+      highlightLargeText={tutorialStage === "font-prompt" || tutorialStage === "font-ready"}
+      largeTextReady={tutorialStage === "font-ready"}
+      onLargeTextTutorialToggle={finishTextSizeTutorial}
+    >
       <h1 className="sr-only">Trilha de atividades</h1>
       <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson ? <button type="button" disabled={tutorialStage === "home-intro" || tutorialStage === "home-prompt"} onClick={() => {
           if (tutorialStage === "home-ready" && tutorialLesson) {
@@ -232,6 +288,18 @@ function Index() {
             vectorEffect="non-scaling-stroke"
             style={{ strokeWidth: 7, strokeDasharray: "0 20" }}
           />
+          {done.includes(TUTORIAL_PHASE_ONE.lessonId) && trail.firstSegment && (
+            <path
+              d={trail.firstSegment}
+              pathLength={100}
+              fill="none"
+              stroke="var(--b-green)"
+              strokeLinecap="round"
+              vectorEffect="non-scaling-stroke"
+              className={tutorialStage === "trail-animation" ? "tutorial-trail-progress" : ""}
+              style={{ strokeWidth: 9, strokeDasharray: tutorialStage === "trail-animation" ? "0 100" : "100 0" }}
+            />
+          )}
         </svg>
         {LESSONS.map((l, idx) => {
           const isDone = done.includes(l.id);
@@ -277,19 +345,18 @@ function Index() {
         lesson={open}
         tutorial={tutorialActivity}
         onClose={() => {
+          if (tutorialActivity) return;
           setOpen(null);
-          if (tutorialActivity) setTutorialStage("home-prompt");
+          setTutorialStage("home-prompt");
           setTutorialActivity(false);
         }}
-        onTutorialFinished={() => {
-          try {
-            window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
-            window.localStorage.setItem("beaba-guided-first-access", "done");
-          } catch { /* Tutorial ends for this session even if browser storage is unavailable. */ }
-          setTutorialActivity(false);
-          setTutorialStage("inactive");
+        onDone={() => {
+          if (tutorialActivity && open.id === TUTORIAL_PHASE_ONE.lessonId) {
+            finishGuidedLesson(open.id);
+          } else {
+            finishLesson(open.id);
+          }
         }}
-        onDone={() => finishLesson(open.id)}
       />}
     </Shell>
   );
