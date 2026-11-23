@@ -635,3 +635,9 @@
   --app-muted-text: #E0E8F0;
   --app-border: #A9C2D8;
 }
+
+
+/* Durante a etapa de destaque do botão Continuar, a navegação inferior permanece clicável. */
+:root.beaba-tutorial-nav-active .app-nav {
+  z-index: 80 !important;
+}
