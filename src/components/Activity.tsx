@@ -3,7 +3,7 @@ import { X, Star, Volume2, Undo2, CheckCircle2, ArrowRight } from "lucide-react"
 import { chime, speak, recordActivityAnswer, recordPhraseCompleted, recordCompletedWord, type Lesson, type Sentence } from "@/lib/app";
 import { playTutorialNarration, TUTORIAL_PHASE_ONE } from "@/lib/tutorial";
 
-type Props = { lesson: Lesson; onClose: () => void; onDone: () => void; tutorial?: boolean; onTutorialFinished?: () => void };
+type Props = { lesson: Lesson; onClose: () => void; onDone: () => void; tutorial?: boolean };
 
 function shuffleArray<T>(items: T[]): T[] {
   const shuffled = [...items];
@@ -125,7 +125,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
     } else {
       setFinished(true);
       chime("win");
-      speak("Parabéns! Você concluiu a atividade.");
+      if (!tutorialForThisLesson) speak("Parabéns! Você concluiu a atividade.");
       onDone();
     }
   };
@@ -182,7 +182,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
   );
 }
 
-function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutorialFinished }: Props) {
+function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) {
   const [i, setI] = useState(0);
   const [picked, setPicked] = useState<string | null>(null);
   const [wrong, setWrong] = useState<string | null>(null);
@@ -191,7 +191,6 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
   const [finished, setFinished] = useState(false);
   const [inputLocked, setInputLocked] = useState(false);
   const nextGuard = useRef(false);
-  const tutorialAdvanceDone = useRef(false);
   const [tutorialStep, setTutorialStep] = useState<
     "idle" | "overview" | "activity-intro" | "missing-part" | "picture-audio" | "picture-repeat" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
   >(tutorial ? "overview" : "idle");
@@ -262,10 +261,6 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
     nextGuard.current = true;
     setInputLocked(true);
     setAwaitingNext(false);
-    if (tutorialFirstQuestion && !tutorialAdvanceDone.current) {
-      tutorialAdvanceDone.current = true;
-      onTutorialFinished?.();
-    }
     if (i + 1 < lesson.questions.length) {
       setI((value) => value + 1);
       setPicked(null);
@@ -283,7 +278,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
   return (
     <div className="activity-screen fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
       <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
-        <ActivityHeader onClose={onClose} title={lesson.title} disabled={tutorialOverview} />
+        <ActivityHeader onClose={onClose} title={lesson.title} disabled={tutorialForThisLesson} />
         {finished ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
             <Star className="animate-celebrate h-32 w-32 fill-yellow text-slate-800" strokeWidth={1.5} />
