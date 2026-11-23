@@ -1031,3 +1031,17 @@
     min-height: 72px !important;
   }
 }
+
+
+/* Mantém as palavras das atividades de montagem de frases centralizadas também. */
+.activity-screen .activity-options--tiles > button {
+  display: grid;
+  place-items: center;
+  text-align: center;
+  line-height: 1.08;
+  overflow-wrap: anywhere;
+}
+:root[style*="font-size: 24px"] .activity-screen .activity-options--tiles > button {
+  font-size: clamp(1.15rem, 3.25dvh, 1.7rem) !important;
+  line-height: 1.08;
+}
