@@ -311,3 +311,71 @@
 @media (prefers-reduced-motion: reduce) {
   .tutorial-focus-target { animation: none !important; }
 }
+
+
+/* Letra cursiva brasileira nas palavras e respostas dos exercícios.
+   O restante da interface mantém a Atkinson Hyperlegible para leitura contínua. */
+:root {
+  --font-cursive: "Playwrite BR", "Segoe Print", "Comic Sans MS", cursive;
+}
+.activity-screen .exercise-cursive,
+.activity-screen .exercise-cursive-built,
+.activity-screen .exercise-cursive-option,
+.activity-screen .exercise-cursive-tile {
+  font-family: var(--font-cursive);
+  font-style: normal;
+  font-weight: 400;
+  font-synthesis: none;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.activity-screen .word-prompt.exercise-cursive {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.02em;
+  white-space: normal;
+  font-size: clamp(42px, 10vw, 58px);
+  line-height: 1.65;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+.activity-screen .word-prompt .tutorial-missing-part {
+  display: inline-flex;
+  min-width: 1.1em;
+  line-height: 1.35;
+  vertical-align: baseline;
+}
+.activity-screen .exercise-cursive-option {
+  font-size: clamp(36px, 8vw, 44px);
+  line-height: 1.45;
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+.activity-screen .exercise-cursive-built {
+  font-size: clamp(28px, 6vw, 36px);
+  line-height: 1.6;
+}
+.activity-screen .grid button.exercise-cursive-tile {
+  min-height: 88px;
+  height: auto;
+  font-size: clamp(28px, 6.5vw, 36px);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+@media (max-width: 639px) {
+  .activity-screen .word-prompt.exercise-cursive {
+    font-size: clamp(40px, 11vw, 50px);
+    line-height: 1.7;
+  }
+  .activity-screen .grid button.exercise-cursive-option {
+    font-size: 40px;
+    line-height: 1.5;
+  }
+  .activity-screen .grid button.exercise-cursive-tile {
+    min-height: 92px;
+    font-size: clamp(27px, 7vw, 34px);
+    line-height: 1.55;
+  }
+}
