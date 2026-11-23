@@ -1,9 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { Star, Lock, Volume2, BookOpen, ArrowRight } from "lucide-react";
+import logo from "@/assets/iconpng.png";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
 import { LESSONS, speak, useProgress, recordLessonStarted, type Lesson } from "@/lib/app";
+import { playTutorialNarration, TUTORIAL_PHASE_ONE } from "@/lib/tutorial";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -21,10 +23,13 @@ export const Route = createFileRoute("/")({
 
 const bubble = { red: "red", yellow: "yellow", blue: "blue", orange: "orange" } as const;
 const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[18%] sm:ml-[28%] translate-y-8", "self-start ml-6"];
+type TutorialStage = "checking" | "welcome-intro" | "welcome-prompt" | "welcome-ready" | "home-intro" | "home-prompt" | "home-ready" | "activity" | "inactive";
 
 function Index() {
   const { done, complete } = useProgress();
   const [open, setOpen] = useState<Lesson | null>(null);
+  const [tutorialStage, setTutorialStage] = useState<TutorialStage>("checking");
+  const [tutorialActivity, setTutorialActivity] = useState(false);
   const [introTarget, setIntroTarget] = useState<number | null>(null);
   const [completedAnimationId, setCompletedAnimationId] = useState<string | null>(null);
   const [unlockedAnimationId, setUnlockedAnimationId] = useState<string | null>(null);
@@ -46,7 +51,37 @@ function Index() {
   const bubbleRefs = useRef<(HTMLButtonElement | null)[]>([]);
 
   useEffect(() => {
-    if (introHandled.current || typeof window === "undefined") return;
+    if (typeof window === "undefined") return;
+    try {
+      const alreadyCompleted = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey) === "done";
+      const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
+      const previousGuidanceCompleted = window.localStorage.getItem("beaba-guided-first-access") === "done";
+      if (alreadyCompleted || savedDone.length > 0 || previousGuidanceCompleted) {
+        window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
+        setTutorialStage("inactive");
+        return;
+      }
+      setTutorialStage("welcome-intro");
+    } catch {
+      setTutorialStage("welcome-intro");
+    }
+  }, []);
+
+  useEffect(() => {
+    const stages = {
+      "welcome-intro": ["welcome", "welcome-prompt"],
+      "welcome-prompt": ["welcomePrompt", "welcome-ready"],
+      "home-intro": ["homeIntroduction", "home-prompt"],
+      "home-prompt": ["continueActivity", "home-ready"],
+    } as const;
+    const stage = stages[tutorialStage as keyof typeof stages];
+    if (!stage) return;
+    const [narration, nextStage] = stage;
+    return playTutorialNarration(narration, {}, () => setTutorialStage(nextStage));
+  }, [tutorialStage]);
+
+  useEffect(() => {
+    if (tutorialStage !== "inactive" || introHandled.current || typeof window === "undefined") return;
     introHandled.current = true;
     try {
       if (window.localStorage.getItem("beaba-guided-first-access") === "done") return;
@@ -65,7 +100,7 @@ function Index() {
     } catch {
       setIntroTarget(0);
     }
-  }, []);
+  }, [tutorialStage]);
 
   useEffect(() => {
     if (!completedAnimationId && !unlockedAnimationId && !highlightContinue) return;
@@ -77,11 +112,12 @@ function Index() {
     return () => window.clearTimeout(timeout);
   }, [completedAnimationId, unlockedAnimationId, highlightContinue]);
 
-  const startLesson = (lesson: Lesson) => {
+  const startLesson = (lesson: Lesson, guidedTutorial = false) => {
     if (introTarget !== null) {
       try { window.localStorage.setItem("beaba-guided-first-access", "done"); } catch { /* Intro remains dismissible in this session. */ }
       setIntroTarget(null);
     }
+    setTutorialActivity(guidedTutorial);
     speak(lesson.title);
     recordLessonStarted(lesson);
     setOpen(lesson);
@@ -149,10 +185,31 @@ function Index() {
     };
   }, []);
 
+  if (tutorialStage === "checking") {
+    return <div className="fixed inset-0 bg-[var(--home-header)]" aria-label="Preparando o Beabá" />;
+  }
+
+  if (tutorialStage === "welcome-intro" || tutorialStage === "welcome-prompt" || tutorialStage === "welcome-ready") {
+    return (
+      <WelcomeTutorialScreen
+        highlighted={tutorialStage === "welcome-prompt" || tutorialStage === "welcome-ready"}
+        disabled={tutorialStage !== "welcome-ready"}
+        onStart={() => setTutorialStage("home-intro")}
+      />
+    );
+  }
+
   return (
     <Shell home>
       <h1 className="sr-only">Trilha de atividades</h1>
-      <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson ? <button type="button" onClick={() => startLesson(nextLesson)} className={`mt-4 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition hover:-translate-y-0.5 active:scale-[0.99] ${highlightContinue ? "animate-continue-highlight ring-4 ring-[var(--b-green)]" : ""}`}><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Sua próxima atividade</span><span className="block font-display text-lg font-extrabold text-[var(--home-navy)]">{nextLesson.title}</span><span className="block text-sm font-bold text-[var(--b-green)]">Continuar aprendendo</span></span><ArrowRight className="h-8 w-8 shrink-0 text-[var(--b-green)]" strokeWidth={2.8} /></button> : <div className="mt-4 rounded-2xl bg-white/75 p-4 text-center font-display font-extrabold text-[var(--home-navy)]">Você concluiu todas as atividades!</div>}</section>
+      <section className="mb-8 w-full rounded-[2rem] bg-[var(--home-nav)] p-5 shadow-[0_8px_20px_rgb(0_0_0/0.07)]"><div className="flex items-center justify-between gap-3"><div><p className="font-display text-lg font-extrabold text-[var(--home-navy)]">Sua jornada</p><p className="font-display text-sm font-bold text-[var(--home-navy)]">{completedCount} de {LESSONS.length} atividades concluídas</p></div><span className="font-display text-2xl font-extrabold tabular-nums text-[var(--home-navy)]">{progressPct}%</span></div><div className="mt-3 h-4 overflow-hidden rounded-full bg-[var(--home-tag)]" role="progressbar" aria-label="Progresso da trilha" aria-valuenow={progressPct} aria-valuemin={0} aria-valuemax={100}><div className="h-full rounded-full bg-[var(--b-blue)] transition-all duration-500" style={{ width: `${progressPct}%` }} /></div><p className="mt-3 text-center font-display text-sm font-bold text-[var(--home-navy)]" aria-live="polite">{encouragement}</p>{nextLesson ? <button type="button" disabled={tutorialStage === "home-intro" || tutorialStage === "home-prompt"} onClick={() => {
+          if (tutorialStage === "home-ready") {
+            setTutorialStage("activity");
+            startLesson(nextLesson, true);
+          } else {
+            startLesson(nextLesson);
+          }
+        }} className={`mt-4 flex w-full items-center gap-3 rounded-2xl bg-white p-4 text-left shadow-[0_5px_14px_rgb(0_0,0,0.08)] transition hover:-translate-y-0.5 active:scale-[0.99] disabled:cursor-wait disabled:opacity-75 ${tutorialStage === "home-prompt" || tutorialStage === "home-ready" ? "tutorial-focus-target" : ""} ${highlightContinue ? "animate-continue-highlight ring-4 ring-[var(--b-green)]" : ""}`} data-tutorial-target="continue-activity"><span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full text-2xl font-extrabold text-white" style={{ backgroundColor: "var(--b-green)" }}>{nextLesson.icon}</span><span className="min-w-0 flex-1"><span className="block text-xs font-bold uppercase tracking-wide text-[var(--home-navy)]">Sua próxima atividade</span><span className="block font-display text-lg font-extrabold text-[var(--home-navy)]">{nextLesson.title}</span><span className="block text-sm font-bold text-[var(--b-green)]">Continuar aprendendo</span></span><ArrowRight className="h-8 w-8 shrink-0 text-[var(--b-green)]" strokeWidth={2.8} /></button> : <div className="mt-4 rounded-2xl bg-white/75 p-4 text-center font-display font-extrabold text-[var(--home-navy)]">Você concluiu todas as atividades!</div>}</section>
       <div className="mb-4 flex justify-end">
         <Link to="/palavras" onClick={() => speak("Minhas palavras. Aqui ficam as palavras que você já completou nos exercícios.")} className="flex items-center gap-2 rounded-2xl bg-[var(--home-nav)] px-4 py-3 text-[var(--home-navy)] shadow-[0_5px_14px_rgb(0_0_0/0.08)] transition active:scale-95">
           <BookOpen className="h-7 w-7 text-[var(--b-blue)]" />
@@ -210,7 +267,49 @@ function Index() {
           );
         })}
       </ol>
-      {open && <Activity lesson={open} onClose={() => setOpen(null)} onDone={() => finishLesson(open.id)} />}
+      {(tutorialStage === "home-prompt" || tutorialStage === "home-ready") && (
+        <div className="tutorial-dim-layer fixed inset-0 z-[40] bg-slate-950/20 pointer-events-none" aria-hidden="true" />
+      )}
+      {open && <Activity
+        lesson={open}
+        tutorial={tutorialActivity}
+        onClose={() => {
+          setOpen(null);
+          if (tutorialActivity) setTutorialStage("home-ready");
+          setTutorialActivity(false);
+        }}
+        onTutorialFinished={() => {
+          try {
+            window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey, "done");
+            window.localStorage.setItem("beaba-guided-first-access", "done");
+          } catch { /* Tutorial ends for this session even if browser storage is unavailable. */ }
+          setTutorialActivity(false);
+          setTutorialStage("inactive");
+        }}
+        onDone={() => finishLesson(open.id)}
+      />}
     </Shell>
+  );
+}
+
+function WelcomeTutorialScreen({ highlighted, disabled, onStart }: { highlighted: boolean; disabled: boolean; onStart: () => void }) {
+  return (
+    <main className="welcome-tutorial fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-between overflow-y-auto bg-[var(--home-header)] px-6 py-10 text-white sm:py-14">
+      <div className="flex w-full flex-1 flex-col items-center justify-center gap-8">
+        <img src={logo} alt="Ícone do aplicativo Beabá" className="max-h-[48dvh] w-[min(72vw,340px)] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.2)]" />
+        <h1 className="max-w-xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl">Olá! Você está no Beabá.</h1>
+      </div>
+      <div className="w-full max-w-sm pb-4">
+        {highlighted && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
+        <button
+          type="button"
+          disabled={disabled}
+          onClick={onStart}
+          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 disabled:opacity-80 ${highlighted ? "tutorial-focus-target" : ""}`}
+        >
+          Iniciar
+        </button>
+      </div>
+    </main>
   );
 }
