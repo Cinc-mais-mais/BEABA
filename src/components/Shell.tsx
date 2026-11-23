@@ -56,7 +56,9 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
             <button
               type="button"
               onClick={() => {
-                toggleLargeText();
+                if (!highlightLargeText || !largeTextReady || !largeTextEnabled) {
+                  toggleLargeText();
+                }
                 if (highlightLargeText && largeTextReady) onLargeTextTutorialToggle?.();
               }}
               disabled={highlightLargeText && !largeTextReady}
