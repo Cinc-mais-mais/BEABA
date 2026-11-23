@@ -87,7 +87,9 @@ export function playTutorialNarration(
     window.speechSynthesis.speak(utterance);
   };
 
-  if (typeof window === "undefined" || !isSoundEnabled()) {
+  if (typeof window === "undefined") {
+    onEnded?.();
+  } else if (!isSoundEnabled()) {
     fallbackTimer = window.setTimeout(finish, 0);
   } else if (clip.audioSrc) {
     audio = new Audio(clip.audioSrc);
