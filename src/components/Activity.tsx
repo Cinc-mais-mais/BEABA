@@ -308,7 +308,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
 
   return (
     <div className="activity-screen activity-screen--syllable fixed inset-0 z-50 overflow-y-auto bg-[#F3F5F7]" role="dialog" aria-modal="true" aria-label={lesson.title}>
-      <div className="mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
+      <div className="activity-layout mx-auto flex min-h-dvh max-w-2xl flex-col gap-5 px-4 py-4 sm:py-6">
         <ActivityHeader onClose={onClose} title={lesson.title} disabled={tutorialForThisLesson} />
         {finished ? (
           <div className="flex flex-1 flex-col items-center justify-center gap-6 rounded-[2rem] border border-slate-200 bg-white p-8 text-center" data-speak="Parabéns! Você conseguiu!">
