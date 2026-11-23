@@ -6,7 +6,7 @@ import { isSoundEnabled } from "@/lib/app";
  * em cada fala com o caminho do respectivo arquivo de áudio.
  */
 export const TUTORIAL_PHASE_ONE = {
-  storageKey: "beaba-tutorial-phase-one-complete",
+  storageKey: "beaba-tutorial-complete-v2",
   lessonId: "vogais",
   questionIndex: 0,
   overviewDelayMs: 3000,
@@ -53,6 +53,14 @@ export const TUTORIAL_PHASE_ONE = {
     },
     nextWord: {
       text: "Aperte aqui em prosseguir para ir para a próxima palavra!",
+      audioSrc: null as string | null,
+    },
+    trailCompleted: {
+      text: "Muito bem! Você concluiu a atividade Vogais. Veja: a primeira bolinha está completa e a próxima atividade foi desbloqueada.",
+      audioSrc: null as string | null,
+    },
+    largeTextGuide: {
+      text: "Este é o botão para aumentar o tamanho do texto. Clique nele para ver as letras maiores. Para voltar ao tamanho normal, é só apertar novamente.",
       audioSrc: null as string | null,
     },
   },
