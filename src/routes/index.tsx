@@ -297,8 +297,8 @@ function Index() {
 function WelcomeTutorialScreen({ highlighted, disabled, onStart }: { highlighted: boolean; disabled: boolean; onStart: () => void }) {
   return (
     <main className="welcome-tutorial fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-between overflow-y-auto bg-[var(--home-header)] px-6 py-10 text-white sm:py-14">
-      <div className="flex w-full flex-1 flex-col items-center justify-center gap-8">
-        <img src={logo} alt="Ícone do aplicativo Beabá" className="max-h-[48dvh] w-[min(72vw,340px)] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.2)]" />
+      <div className="flex w-full flex-1 flex-col items-center justify-start gap-6 pt-[5dvh]">
+        <img src={logo} alt="Ícone do aplicativo Beabá" className="max-h-[42dvh] w-[min(72vw,340px)] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.2)]" />
         <h1 className="max-w-xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl">Olá! Você está no Beabá.</h1>
       </div>
       <div className="w-full max-w-sm pb-4">
