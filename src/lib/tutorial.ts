@@ -9,7 +9,7 @@ export const TUTORIAL_PHASE_ONE = {
   storageKey: "beaba-tutorial-phase-one-complete",
   lessonId: "vogais",
   questionIndex: 0,
-  overviewDelayMs: 2600,
+  overviewDelayMs: 3000,
   narration: {
     welcome: {
       text: "Olá, você está no Beabá.",
