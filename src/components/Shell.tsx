@@ -1,9 +1,9 @@
 import { Link } from "@tanstack/react-router";
-import { Home, GraduationCap, User, Volume2, VolumeX, CaseSensitive } from "lucide-react";
+import { Home, GraduationCap, User, CaseSensitive } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import logo from "@/assets/iconpng.png";
-import { isSoundEnabled, setSoundEnabled, speak } from "@/lib/app";
+import { speak } from "@/lib/app";
 
 const tabs = [
   { to: "/", label: "Início", icon: Home, color: "bg-red" },
@@ -11,12 +11,10 @@ const tabs = [
   { to: "/perfil", label: "Perfil", icon: User, color: "bg-yellow" },
 ] as const;
 
-export function Shell({ children, home = false }: { children: ReactNode; home?: boolean }) {
-  const [soundEnabled, setSoundEnabledState] = useState(true);
+export function Shell({ children, home = false, highlightLargeText = false, largeTextReady = false, onLargeTextTutorialToggle }: { children: ReactNode; home?: boolean; highlightLargeText?: boolean; largeTextReady?: boolean; onLargeTextTutorialToggle?: () => void }) {
   const [largeTextEnabled, setLargeTextEnabled] = useState(false);
 
   useEffect(() => {
-    setSoundEnabledState(isSoundEnabled());
     try {
       const enabled = window.localStorage.getItem("beaba-large-text") === "true";
       setLargeTextEnabled(enabled);
@@ -25,17 +23,6 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
       setLargeTextEnabled(false);
     }
   }, []);
-
-  const toggleSound = () => {
-    const next = !soundEnabled;
-    setSoundEnabled(next);
-    setSoundEnabledState(next);
-    if (next) {
-      speak("O som está ativado agora.");
-    } else if ("speechSynthesis" in window) {
-      window.speechSynthesis.cancel();
-    }
-  };
 
   const toggleLargeText = () => {
     const next = !largeTextEnabled;
@@ -56,7 +43,8 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
       <div aria-hidden className="pointer-events-none fixed -right-[6vw] top-[19dvh] z-0 h-[12vw] w-[21vw] rounded-[45%_55%_40%_60%] bg-[#FBE3D1]" />
       <div aria-hidden className="pointer-events-none fixed -left-[8vw] bottom-28 z-0 h-[20vw] w-[36vw] rounded-[55%_45%_40%_60%] bg-[#DCE6F2]" />
       <div aria-hidden className="pointer-events-none fixed -right-[7vw] bottom-32 z-0 h-[18vw] w-[32vw] rounded-[45%_55%_60%_40%] bg-[#FBE3D1]" />
-      <header className="app-header relative z-10">
+      {highlightLargeText && <div className="fixed inset-0 z-40 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
+      <header className={`app-header relative ${highlightLargeText ? "z-50" : "z-10"}`}>
         <div className="relative flex h-[11dvh] min-h-16 items-center justify-between bg-[var(--home-header)] px-5">
           <img
             src={logo}
@@ -64,26 +52,19 @@ export function Shell({ children, home = false }: { children: ReactNode; home?: 
             className="w-[22vw] max-h-[11dvh] object-contain"
           />
           <span aria-hidden className="absolute left-[44%] top-1/2 h-[22vw] max-h-[11dvh] w-px -translate-y-1/2 bg-white/70" />
-          <div className="flex shrink-0 items-center gap-2">
+          <div className="flex shrink-0 items-center">
             <button
               type="button"
-              onClick={toggleSound}
-              aria-pressed={soundEnabled}
-              aria-label={soundEnabled ? "Desativar som" : "Ativar som"}
-              title={soundEnabled ? "Desativar som" : "Ativar som"}
-              className={`flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${soundEnabled ? "bg-[var(--b-green)]" : "bg-[var(--home-dot)]"}`}
-            >
-              {soundEnabled
-                ? <Volume2 className="h-7 w-7 text-white" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />
-                : <VolumeX className="h-7 w-7 text-[var(--home-navy)]" strokeWidth={2.5} strokeLinecap="round" strokeLinejoin="round" />}
-            </button>
-            <button
-              type="button"
-              onClick={toggleLargeText}
+              onClick={() => {
+                toggleLargeText();
+                if (highlightLargeText && largeTextReady) onLargeTextTutorialToggle?.();
+              }}
+              disabled={highlightLargeText && !largeTextReady}
               aria-pressed={largeTextEnabled}
               aria-label={largeTextEnabled ? "Desativar texto grande" : "Ativar texto grande"}
               title={largeTextEnabled ? "Desativar texto grande" : "Ativar texto grande"}
-              className={`flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white ${largeTextEnabled ? "bg-[var(--b-blue)]" : "bg-white/15"}`}
+              data-tutorial-target="large-text"
+              className={`relative z-[70] flex h-12 w-12 items-center justify-center rounded-full border-2 border-white/75 shadow-[0_3px_10px_rgb(0_0_0/0.18)] transition active:scale-95 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-2 focus-visible:outline-white disabled:cursor-wait ${largeTextEnabled ? "bg-[var(--b-blue)]" : "bg-white/15"} ${highlightLargeText ? "tutorial-focus-target tutorial-header-focus" : ""}`}
             >
               <CaseSensitive className="h-7 w-7 text-white" strokeWidth={2.5} />
             </button>
