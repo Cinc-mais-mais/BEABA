@@ -193,11 +193,12 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
   const nextGuard = useRef(false);
   const tutorialAdvanceDone = useRef(false);
   const [tutorialStep, setTutorialStep] = useState<
-    "idle" | "overview" | "activity-intro" | "missing-part" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
+    "idle" | "overview" | "activity-intro" | "missing-part" | "picture-audio" | "options-prompt" | "ready" | "correct-feedback" | "next-prompt" | "next-ready"
   >(tutorial ? "overview" : "idle");
   const q = lesson.questions[i] ?? lesson.questions[0]!;
   const displayedOptions = useMemo(() => buildBalancedOptions(lesson.questions), [lesson]);
-  const tutorialFirstQuestion = tutorial && i === TUTORIAL_PHASE_ONE.questionIndex;
+  const tutorialForThisLesson = tutorial && lesson.id === TUTORIAL_PHASE_ONE.lessonId;
+  const tutorialFirstQuestion = tutorialForThisLesson && i === TUTORIAL_PHASE_ONE.questionIndex;
   const tutorialOverview = tutorialFirstQuestion && tutorialStep === "overview";
   const tutorialReady = !tutorialFirstQuestion || tutorialStep === "ready" || tutorialStep === "next-ready";
 
@@ -224,7 +225,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
   }, [tutorialFirstQuestion, tutorialStep, q.word]);
 
   useEffect(() => {
-    if (!tutorial && !finished) speak(`${lesson.intro} ${q.word}`);
+    if (!tutorialForThisLesson && !finished) speak(`${lesson.intro} ${q.word}`);
   }, [tutorial, i, finished, lesson.intro, q.word]);
 
   useEffect(() => {
