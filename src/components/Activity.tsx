@@ -147,7 +147,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Monte a frase na ordem correta."}</p>
             <div className={`flex min-h-24 w-full flex-wrap items-center justify-center gap-2 rounded-2xl border-2 border-dashed p-3 transition-colors ${complete ? "border-emerald-500 bg-emerald-50" : "border-slate-300 bg-slate-50"}`} aria-live="polite">
               {built.map((idx) => (
-                <span key={idx} className={`rounded-xl px-3 py-2 font-display text-2xl font-extrabold ${complete ? "text-emerald-800" : "text-slate-900"}`}>{tiles.find((t) => t.k === idx)?.w}</span>
+                <span key={idx} className={`exercise-cursive-built rounded-xl px-3 py-2 ${complete ? "text-emerald-800" : "text-slate-900"}`}>{tiles.find((t) => t.k === idx)?.w}</span>
               ))}
               {complete && <CheckCircle2 className="ml-1 h-7 w-7 text-emerald-700" aria-label="Correto" />}
             </div>
@@ -162,7 +162,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
                 const colors = ["bg-[#F4D8D5]", "bg-[#F7E8B5]", "bg-[#D8EAF5]", "bg-[#E9E2F2]"];
                 return (
                   <button key={t.k} disabled={used || complete || inputLocked || awaitingNext} onClick={() => choose(t.k, t.w)}
-                    className={`pop h-16 min-w-0 rounded-2xl border-2 border-slate-700 font-display text-2xl font-extrabold text-slate-950 disabled:cursor-not-allowed ${colors[n % 4]} ${used ? "invisible" : ""} ${wrong === t.k ? "animate-shake" : ""}`}>
+                    className={`pop exercise-cursive-tile min-h-[76px] h-auto min-w-0 rounded-2xl border-2 border-slate-700 px-2 py-3 text-slate-950 disabled:cursor-not-allowed ${colors[n % 4]} ${used ? "invisible" : ""} ${wrong === t.k ? "animate-shake" : ""}`}>
                     {t.w}
                   </button>
                 );
@@ -301,8 +301,8 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
                 highlighted={tutorialFirstQuestion && (tutorialStep === "picture-audio" || tutorialStep === "picture-repeat")}
                 onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : undefined}
               />
-              <p className="word-prompt font-display text-5xl font-extrabold tracking-wider text-slate-950 sm:text-6xl" aria-live="polite">
-                {q.before}<span className={`tutorial-missing-part mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target tutorial-focus-blank" : ""}`}>{picked ?? "\u00A0"}</span>{q.after}
+              <p className="word-prompt exercise-cursive text-slate-950" aria-live="polite">
+                {q.before.toLocaleLowerCase("pt-BR")}<span className={`tutorial-missing-part exercise-cursive mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target tutorial-focus-blank" : ""}`}>{picked?.toLocaleLowerCase("pt-BR") ?? "\u00A0"}</span>{q.after.toLocaleLowerCase("pt-BR")}
               </p>
             </div>
             <p className="min-h-7 text-center text-lg font-bold text-slate-700" role="status" aria-live="polite">{feedback || "Escolha a parte que falta."}</p>
@@ -316,9 +316,9 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false, onTutoria
                     key={opt}
                     disabled={Boolean(picked) || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)}
                     onClick={() => choose(opt)}
-                    className={`pop h-24 rounded-2xl border-2 border-slate-700 font-display text-4xl font-extrabold text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
+                    className={`pop exercise-cursive-option h-24 rounded-2xl border-2 border-slate-700 text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
                   >
-                    {opt}
+                    {opt.toLocaleLowerCase("pt-BR")}
                   </button>
                 );
               })}
