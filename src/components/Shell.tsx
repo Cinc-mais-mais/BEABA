@@ -39,10 +39,10 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
   void home;
   return (
     <div className="app-shell relative min-h-dvh overflow-x-clip bg-[var(--home-bg)] pb-28">
-      <div aria-hidden className="pointer-events-none fixed -left-[6vw] top-[15dvh] z-0 h-[13vw] w-[24vw] rounded-[60%_40%_55%_45%] bg-[#DCE6F2]" />
-      <div aria-hidden className="pointer-events-none fixed -right-[6vw] top-[19dvh] z-0 h-[12vw] w-[21vw] rounded-[45%_55%_40%_60%] bg-[#FBE3D1]" />
-      <div aria-hidden className="pointer-events-none fixed -left-[8vw] bottom-28 z-0 h-[20vw] w-[36vw] rounded-[55%_45%_40%_60%] bg-[#DCE6F2]" />
-      <div aria-hidden className="pointer-events-none fixed -right-[7vw] bottom-32 z-0 h-[18vw] w-[32vw] rounded-[45%_55%_60%_40%] bg-[#FBE3D1]" />
+      <div aria-hidden className="pointer-events-none fixed -left-[6vw] top-[15dvh] z-0 h-[13vw] w-[24vw] rounded-[60%_40%_55%_45%] bg-[var(--home-blob-l)]" />
+      <div aria-hidden className="pointer-events-none fixed -right-[6vw] top-[19dvh] z-0 h-[12vw] w-[21vw] rounded-[45%_55%_40%_60%] bg-[var(--home-blob-r)]" />
+      <div aria-hidden className="pointer-events-none fixed -left-[8vw] bottom-28 z-0 h-[20vw] w-[36vw] rounded-[55%_45%_40%_60%] bg-[var(--home-blob-l)]" />
+      <div aria-hidden className="pointer-events-none fixed -right-[7vw] bottom-32 z-0 h-[18vw] w-[32vw] rounded-[45%_55%_60%_40%] bg-[var(--home-blob-r)]" />
       {highlightLargeText && <div className="fixed inset-0 z-40 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
       <header className={`app-header relative ${highlightLargeText ? "z-50" : "z-10"}`}>
         <div className="relative flex h-[11dvh] min-h-16 items-center justify-between bg-[var(--home-header)] px-5">
