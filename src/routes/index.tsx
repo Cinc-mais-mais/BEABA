@@ -28,7 +28,7 @@ type TutorialStage = "checking" | "welcome-intro" | "welcome-prompt" | "welcome-
 function Index() {
   const { done, complete } = useProgress();
   const [open, setOpen] = useState<Lesson | null>(null);
-  const [cheatUnlocked, setCheatUnlocked] = useState(false);
+  const [cheatUnlocked, setCheatUnlocked] = useState(() => { try { return window.localStorage.getItem("beaba-dev-mode-enabled") === "true"; } catch { return false; } });
   const [cheatPanel, setCheatPanel] = useState(false);
   const [tutorialStage, setTutorialStage] = useState<TutorialStage>("checking");
   const [tutorialActivity, setTutorialActivity] = useState(false);
@@ -58,7 +58,7 @@ function Index() {
     try {
       const tutorialStatus = window.localStorage.getItem(TUTORIAL_PHASE_ONE.storageKey);
       const savedDone = JSON.parse(window.localStorage.getItem("abc-progress") || "[]") as string[];
-      if (savedDone.length >= LESSONS.length || tutorialStatus === "done") {
+      if (developerTutorialSkip || savedDone.length >= LESSONS.length || tutorialStatus === "done") {
         setTutorialStage("inactive");
         return;
       }
@@ -78,7 +78,7 @@ function Index() {
   }, []);
 
   useEffect(() => {
-    const handler = () => { setCheatUnlocked(true); setCheatPanel(true); };
+    const handler = () => { setCheatUnlocked(true); setCheatPanel(true); try { window.localStorage.setItem("beaba-dev-mode-enabled", "true"); } catch {} };
     window.addEventListener("beaba-dev-mode", handler);
     return () => window.removeEventListener("beaba-dev-mode", handler);
   }, []);
@@ -355,7 +355,7 @@ function Index() {
           aria-hidden="true"
         />
       )}
-      {cheatPanel && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4"><section className="w-full max-w-md rounded-3xl p-6 shadow-2xl" style={{ backgroundColor: "var(--app-surface, #FFFFFF)", color: "var(--app-text, #172033)" }}><h2 className="mb-3 text-2xl font-extrabold">Modo de desenvolvedor</h2><p className="mb-4">Atalhos de teste: atividades bloqueadas acessíveis e conclusão fora da sequência.</p><div className="flex flex-col gap-3"><button className="rounded-xl bg-[var(--b-green)] p-3 font-bold text-white" onClick={() => { setTutorialStage("inactive"); setTutorialActivity(false); try { window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey,"done"); window.localStorage.setItem("beaba-guided-first-access","done"); } catch {} setCheatPanel(false); }}>Pular tutorial</button><button className="rounded-xl bg-[var(--b-blue)] p-3 font-bold text-white" onClick={() => { setCheatUnlocked(true); setCheatPanel(false); }}>Liberar atividades bloqueadas</button><button className="rounded-xl bg-slate-600 p-3 font-bold text-white" onClick={() => setCheatPanel(false)}>Fechar</button></div></section></div>}
+      {cheatPanel && <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4"><section className="w-full max-w-md rounded-3xl p-6 shadow-2xl" style={{ backgroundColor: "var(--app-surface, #FFFFFF)", color: "var(--app-text, #172033)" }}><h2 className="mb-3 text-2xl font-extrabold">Modo de desenvolvedor</h2><p className="mb-4">Atalhos de teste: atividades bloqueadas acessíveis e conclusão fora da sequência.</p><div className="flex flex-col gap-3"><button className="rounded-xl bg-[var(--b-green)] p-3 font-bold text-white" onClick={() => { setTutorialStage("inactive"); setTutorialActivity(false); try { window.localStorage.setItem(TUTORIAL_PHASE_ONE.storageKey,"done"); window.localStorage.setItem("beaba-guided-first-access","done"); window.localStorage.setItem("beaba-tutorial-skip","true"); window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatUnlocked(true); setCheatPanel(false); }}>Pular tutorial</button><button className="rounded-xl bg-[var(--b-blue)] p-3 font-bold text-white" onClick={() => { setCheatUnlocked(true); try { window.localStorage.setItem("beaba-dev-mode-enabled","true"); } catch {} setCheatPanel(false); }}>Liberar atividades bloqueadas</button><button className="rounded-xl bg-slate-600 p-3 font-bold text-white" onClick={() => setCheatPanel(false)}>Fechar</button></div></section></div>}
       {open && <Activity
         lesson={open}
         tutorial={tutorialActivity}
