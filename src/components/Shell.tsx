@@ -11,7 +11,7 @@ const tabs = [
   { to: "/perfil", label: "Perfil", icon: User, color: "bg-yellow" },
 ] as const;
 
-export function Shell({ children, home = false, highlightLargeText = false, largeTextReady = false, onLargeTextTutorialToggle }: { children: ReactNode; home?: boolean; highlightLargeText?: boolean; largeTextReady?: boolean; onLargeTextTutorialToggle?: () => void }) {
+export function Shell({ children, home = false, highlightLargeText = false, largeTextReady = false, tutorialNavLock = false, onLargeTextTutorialToggle }: { children: ReactNode; home?: boolean; highlightLargeText?: boolean; largeTextReady?: boolean; tutorialNavLock?: boolean; onLargeTextTutorialToggle?: () => void }) {
   const [largeTextEnabled, setLargeTextEnabled] = useState(false);
   const homeTapSequence = useRef<number[]>([]);
 
@@ -91,15 +91,28 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
         <ul className="mx-auto flex max-w-2xl justify-around pb-3 pt-4">
           {tabs.map((t) => (
             <li key={t.to}>
-              <Link to={t.to} onClick={() => { speak(t.label); if (t.to === "/") { const now = Date.now(); homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now]; if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); } } else { homeTapSequence.current = []; } }} className="flex flex-col items-center gap-1 text-lg font-bold" activeOptions={{ exact: true }}>
-                {({ isActive }) => (
-                  <span className={`flex flex-col items-center gap-1 ${isActive ? "text-[var(--home-active)]" : "text-[var(--home-navy)]"}`}>
-                    <t.icon className="h-9 w-9" strokeWidth={2.5} />
-                    {t.label}
-                    <span className={`h-1.5 w-8 rounded-full ${isActive ? "bg-[var(--home-active)]" : "bg-transparent"}`} />
-                  </span>
-                )}
-              </Link>
+              {tutorialNavLock ? (
+                <button type="button" disabled={t.to !== "/"} onClick={() => {
+                  if (t.to !== "/") return;
+                  const now = Date.now();
+                  homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now];
+                  if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); }
+                }} className={`flex flex-col items-center gap-1 text-lg font-bold ${t.to === "/" ? "text-[var(--home-active)]" : "text-[var(--home-navy)] opacity-50"}`} aria-label={t.to === "/" ? "Início (toque seis vezes para abrir modo de desenvolvedor)" : t.label}>
+                  <t.icon className="h-9 w-9" strokeWidth={2.5} />
+                  {t.label}
+                  <span className={`h-1.5 w-8 rounded-full ${t.to === "/" ? "bg-[var(--home-active)]" : "bg-transparent"}`} />
+                </button>
+              ) : (
+                <Link to={t.to} onClick={() => { speak(t.label); if (t.to === "/") { const now = Date.now(); homeTapSequence.current = [...homeTapSequence.current.filter((time) => now - time <= 2500), now]; if (homeTapSequence.current.length >= 6) { homeTapSequence.current = []; window.dispatchEvent(new Event("beaba-dev-mode")); } } else { homeTapSequence.current = []; } }} className="flex flex-col items-center gap-1 text-lg font-bold" activeOptions={{ exact: true }}>
+                  {({ isActive }) => (
+                    <span className={`flex flex-col items-center gap-1 ${isActive ? "text-[var(--home-active)]" : "text-[var(--home-navy)]"}`}>
+                      <t.icon className="h-9 w-9" strokeWidth={2.5} />
+                      {t.label}
+                      <span className={`h-1.5 w-8 rounded-full ${isActive ? "bg-[var(--home-active)]" : "bg-transparent"}`} />
+                    </span>
+                  )}
+                </Link>
+              )}
             </li>
           ))}
         </ul>
