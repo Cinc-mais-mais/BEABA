@@ -143,7 +143,6 @@ function Index() {
       setIntroTarget(null);
     }
     setTutorialActivity(guidedTutorial);
-    speak(lesson.title);
     recordLessonStarted(lesson);
     setOpen(lesson);
   };
