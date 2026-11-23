@@ -289,8 +289,8 @@
   border-radius: 1.25rem;
   box-shadow:
     0 0 0 5px rgb(255 255 255 / .92),
-    0 0 0 9px rgb(30 168 240 / .48),
-    0 0 0 100vmax rgb(19 27 42 / .24);
+    0 0 0 9px rgb(30 168 240 / .40),
+    0 0 0 100vmax rgb(19 27 42 / .20);
   animation: tutorial-heartbeat 2.1s ease-in-out infinite;
   transform-origin: center;
 }
