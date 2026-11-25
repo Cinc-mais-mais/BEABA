@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { speakWithGoogleLive } from "./google-live-speech";
+import { speakWithGoogleLive } from "./google-live-speech";\nimport { playAudioText } from "./audio";
 
 const SOUND_KEY = "beaba-sound-enabled";
 
@@ -23,31 +23,7 @@ export function setSoundEnabled(enabled: boolean) {
 
 export function speak(text: string, onEnded?: () => void) {
   if (typeof window === "undefined" || !isSoundEnabled()) return () => {};
-  const word = text.trim().replace(/[.!?]+$/, "").toLocaleLowerCase("pt-BR");
-  if (["abelha", "ovo", "uva"].includes(word)) {
-    let cancelled = false;
-    const audio = new Audio(`/audio/tutorial/picture-repeat-${word}.wav`);
-    audio.onended = () => { if (!cancelled) onEnded?.(); };
-    const fallback = () => {
-      if (cancelled) return;
-      audio.onended = null;
-      audio.onerror = null;
-      const cancelLive = speakWithGoogleLive(text, onEnded);
-      cleanupLive = cancelLive;
-    };
-    audio.onerror = fallback;
-    let cleanupLive = () => {};
-    void audio.play().catch(fallback);
-    return () => {
-      cancelled = true;
-      audio.pause();
-      audio.currentTime = 0;
-      audio.onended = null;
-      audio.onerror = null;
-      cleanupLive();
-    };
-  }
-  return speakWithGoogleLive(text, onEnded);
+  return playAudioText(text, onEnded, () => speakWithGoogleLive(text, onEnded));
 }
 
 /** Short cheerful tones via Web Audio (no files needed). */
