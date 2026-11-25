@@ -15,7 +15,7 @@ function Palavras() {
   const [completedWords, setCompletedWords] = useState<string[]>([]);
   useEffect(() => { setCompletedWords(getCompletedWords()); }, []);
   const completedLibrary = WORD_LIBRARY.filter((item) => completedWords.includes(item.word));
-  const categories = useMemo(() => ["Todas", ...Array.from(new Set(completedLibrary.map((item) => item.category))).sort((a, b) => a.localeCompare(b, "pt-BR"))], []);
+  const categories = useMemo(() => ["Todas", ...Array.from(new Set(completedLibrary.map((item) => item.category))).sort((a, b) => a.localeCompare(b, "pt-BR"))], [completedLibrary]);
   const filtered = completedLibrary.filter((item) => (category === "Todas" || item.category === category) && item.word.includes(search.trim().toLocaleLowerCase("pt-BR")));
   return (
     <Shell home>
