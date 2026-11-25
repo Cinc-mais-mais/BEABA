@@ -1,4 +1,5 @@
 import { isSoundEnabled, speak } from "@/lib/app";
+import { playAudioFile, playAudioText } from "@/lib/audio";
 
 /** Configuração da primeira fase do tutorial e caminhos dos áudios gravados. */
 export const TUTORIAL_PHASE_ONE = {
@@ -88,49 +89,25 @@ export function playTutorialNarration(
   onEnded?: () => void,
 ): () => void {
   const clip = TUTORIAL_PHASE_ONE.narration[key];
-  const audioSrc = resolveAudioSrc(key, values, clip.audioSrc);
+  const legacyAudioSrc = resolveAudioSrc(key, values, clip.audioSrc);
   const text = Object.entries(values).reduce<string>(
     (result, [name, value]) => result.replaceAll(`{{${name}}}`, value),
     clip.text,
   );
-  let cancelled = false;
-  let audio: HTMLAudioElement | null = null;
-  let fallbackTimer: number | null = null;
-  let speechStarted = false;
-  let cancelSpeech = () => {};
-
-  const finish = () => {
-    if (!cancelled) onEnded?.();
-  };
-
-  const startGoogleLiveSpeech = () => {
-    if (cancelled || speechStarted) return;
-    speechStarted = true;
-    cancelSpeech = speak(text, finish);
-  };
 
   if (typeof window === "undefined") {
     onEnded?.();
-  } else if (!isSoundEnabled()) {
-    fallbackTimer = window.setTimeout(finish, 0);
-  } else if (audioSrc) {
-    audio = new Audio(audioSrc);
-    audio.onended = finish;
-    audio.onerror = startGoogleLiveSpeech;
-    void audio.play().catch(startGoogleLiveSpeech);
-  } else {
-    startGoogleLiveSpeech();
+    return () => {};
+  }
+  if (!isSoundEnabled()) {
+    const timer = window.setTimeout(() => onEnded?.(), 0);
+    return () => window.clearTimeout(timer);
   }
 
-  return () => {
-    cancelled = true;
-    if (fallbackTimer !== null) window.clearTimeout(fallbackTimer);
-    if (audio) {
-      audio.pause();
-      audio.currentTime = 0;
-      audio.onended = null;
-      audio.onerror = null;
+  return playAudioText(text, onEnded, () => {
+    if (legacyAudioSrc) {
+      return playAudioFile(legacyAudioSrc, onEnded, () => speak(text, onEnded));
     }
-    cancelSpeech();
-  };
+    return speak(text, onEnded);
+  });
 }
