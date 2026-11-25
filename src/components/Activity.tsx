@@ -264,7 +264,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
   }, [tutorial]);
 
   const choose = (opt: string) => {
-    if (picked || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)) return;
+    if (picked || inputLocked || awaitingNext || (tutorialFirstQuestion && tutorialStep !== "options-prompt" && tutorialStep !== "ready")) return;
     if (opt === q.answer) {
       recordActivityAnswer(`${lesson.id}:questao:${i}`, true);
       recordCompletedWord(q.word);
@@ -272,7 +272,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
       setPicked(opt);
       setAwaitingNext(true);
       chime("ok");
-      if (tutorialFirstQuestion && tutorialStep === "ready") {
+      if (tutorialFirstQuestion && (tutorialStep === "options-prompt" || tutorialStep === "ready")) {
         setTutorialStep("correct-feedback");
       } else {
         speak(`Muito bem! ${q.word}`);
@@ -288,7 +288,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
   };
 
   const advance = () => {
-    if (!awaitingNext || nextGuard.current || (tutorialFirstQuestion && tutorialStep !== "next-ready")) return;
+    if (!awaitingNext || nextGuard.current || (tutorialFirstQuestion && tutorialStep !== "next-prompt" && tutorialStep !== "next-ready")) return;
     nextGuard.current = true;
     setInputLocked(true);
     setAwaitingNext(false);
@@ -340,7 +340,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                 return (
                   <button
                     key={opt}
-                    disabled={Boolean(picked) || inputLocked || awaitingNext || (tutorialFirstQuestion && !tutorialReady)}
+                    disabled={Boolean(picked) || inputLocked || awaitingNext || (tutorialFirstQuestion && tutorialStep !== "options-prompt" && tutorialStep !== "ready")}
                     onClick={() => choose(opt)}
                     className={`activity-answer-option pop exercise-cursive-option h-24 rounded-2xl border-2 border-slate-700 text-slate-950 disabled:cursor-not-allowed ${isRight ? "bg-emerald-200 ring-4 ring-emerald-500" : colors[k % 3]} ${isWrong ? "animate-shake" : ""}`}
                   >
@@ -353,7 +353,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
               {awaitingNext && (!tutorialFirstQuestion || tutorialStep === "next-prompt" || tutorialStep === "next-ready") && (
                 <ExerciseNextButton
                   onClick={advance}
-                  disabled={tutorialFirstQuestion && tutorialStep !== "next-ready"}
+                  disabled={tutorialFirstQuestion && tutorialStep !== "next-prompt" && tutorialStep !== "next-ready"}
                 >
                   <CheckCircle2 className="h-6 w-6" /> <span className="activity-next-label">{tutorialFirstQuestion && i === 0 ? "Prosseguir" : i + 1 < lesson.questions.length ? "Próxima questão" : "Concluir atividade"}</span> <ArrowRight className="h-6 w-6" />
                 </ExerciseNextButton>
