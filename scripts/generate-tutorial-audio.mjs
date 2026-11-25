@@ -35,6 +35,7 @@ const entries = [
 // Usamos 22 segundos entre chamadas para deixar margem para a janela móvel.
 const MIN_REQUEST_INTERVAL_MS = 22_000;
 const MAX_RETRIES = 6;
+const MAX_AUTOMATIC_RETRY_DELAY_MS = 120_000;
 let lastRequestAt = 0;
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
@@ -91,6 +92,18 @@ function wavHeader(pcmLength, sampleRate = 24000, channels = 1, bitDepth = 16) {
   return header;
 }
 
+function formatDuration(ms) {
+  const totalSeconds = Math.ceil(ms / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  return [
+    hours ? `${hours}h` : "",
+    minutes ? `${minutes}min` : "",
+    seconds && !hours ? `${seconds}s` : "",
+  ].filter(Boolean).join(" ");
+}
+
 async function generateAudio(id, transcript) {
   const filePath = join(outputDir, `${id}.wav`);
   if (await isValidWav(filePath)) {
@@ -131,9 +144,19 @@ async function generateAudio(id, transcript) {
       const retryDelayMs = getRetryDelayMs(payload);
       const transientServerError = [500, 502, 503, 504].includes(response.status);
       const retryableRateLimit = response.status === 429 && retryDelayMs !== null;
+
+      if (retryableRateLimit && retryDelayMs > MAX_AUTOMATIC_RETRY_DELAY_MS) {
+        const resumeAt = new Date(Date.now() + retryDelayMs);
+        console.warn("");
+        console.warn(`A cota do Gemini pediu uma espera de ${formatDuration(retryDelayMs)} para gerar "${id}".`);
+        console.warn(`A geração foi pausada para não deixar o terminal aguardando por horas. Tente novamente após ${resumeAt.toLocaleString("pt-BR")}.`);
+        console.warn("Os WAVs já gerados foram preservados. Execute o mesmo comando novamente para continuar.");
+        return "paused";
+      }
+
       if (attempt < MAX_RETRIES && (retryableRateLimit || transientServerError)) {
         const delay = Math.max(retryDelayMs ?? 0, MIN_REQUEST_INTERVAL_MS) + 1500;
-        console.warn(`Limite/instabilidade ao gerar ${id}. Nova tentativa em ${Math.ceil(delay / 1000)}s (tentativa ${attempt + 1}/${MAX_RETRIES}).`);
+        console.warn(`Limite/instabilidade ao gerar ${id}. Nova tentativa em ${formatDuration(delay)} (tentativa ${attempt + 1}/${MAX_RETRIES}).`);
         await sleep(delay);
         continue;
       }
@@ -161,11 +184,21 @@ async function generateAudio(id, transcript) {
 
 let generated = 0;
 let skipped = 0;
+let pausedAt = null;
 for (const [id, transcript] of entries) {
   const result = await generateAudio(id, transcript);
   if (result === "generated") generated++;
-  else skipped++;
+  else if (result === "skipped") skipped++;
+  else if (result === "paused") {
+    pausedAt = id;
+    break;
+  }
 }
 
-console.log(`\nConcluído: ${generated} novo(s) WAV(s), ${skipped} já existente(s). Total: ${entries.length}.`);
-console.log("Revise os arquivos antes de adicioná-los ao repositório.");
+const completed = generated + skipped;
+console.log(`\nProgresso: ${completed}/${entries.length} arquivo(s) prontos (${generated} novo(s), ${skipped} já existente(s)).`);
+if (pausedAt) {
+  console.log(`Faltam ${entries.length - completed} arquivo(s), começando por "${pausedAt}". Execute novamente após o horário indicado acima.`);
+} else {
+  console.log("Todos os áudios foram gerados. Revise os arquivos antes de adicioná-los ao repositório.");
+}
