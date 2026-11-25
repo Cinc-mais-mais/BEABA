@@ -24,7 +24,7 @@ export const Route = createFileRoute("/")({
 
 const bubble = { red: "red", yellow: "yellow", blue: "blue", orange: "orange" } as const;
 const offsets = ["self-start ml-6", "self-end mr-6", "self-center", "self-start ml-[18%] sm:ml-[28%] translate-y-8", "self-start ml-6"];
-type TutorialStage = "checking" | "welcome-intro" | "welcome-ready" | "home-intro" | "home-prompt" | "home-ready" | "activity" | "trail-animation" | "trail-intro" | "font-intro" | "font-prompt" | "font-ready" | "inactive";
+type TutorialStage = "checking" | "welcome-selection-first" | "welcome-selection-second" | "welcome-selection-ready" | "home-intro" | "home-prompt" | "home-ready" | "activity" | "trail-animation" | "trail-intro" | "font-intro" | "font-prompt" | "font-ready" | "inactive";
 
 function Index() {
   const { done, complete } = useProgress();
@@ -74,9 +74,9 @@ function Index() {
         setTutorialStage("inactive");
         return;
       }
-      setTutorialStage("welcome-intro");
+      setTutorialStage("welcome-selection-first");
     } catch {
-      setTutorialStage("welcome-intro");
+      setTutorialStage("welcome-selection-first");
     }
   }, []);
 
@@ -89,20 +89,11 @@ function Index() {
 
 
   useEffect(() => {
-    if (tutorialStage === "welcome-intro") {
-      let instructionsSeen = false;
-      try {
-        instructionsSeen =
-          window.localStorage.getItem(TUTORIAL_PHASE_ONE.instructionsSeenStorageKey) === "true";
-      } catch (error) {
-        console.error("Could not read the tutorial instruction preference.", error);
-      }
-
-      return playTutorialNarration(
-        instructionsSeen ? "welcomeReturning" : "welcome",
-        {},
-        () => setTutorialStage("welcome-ready"),
-      );
+    if (tutorialStage === "welcome-selection-first") {
+      return playTutorialNarration("selectionLearn", {}, () => setTutorialStage("welcome-selection-second"));
+    }
+    if (tutorialStage === "welcome-selection-second") {
+      return playTutorialNarration("selectionSkip", {}, () => setTutorialStage("welcome-selection-ready"));
     }
 
     const stages = {
@@ -289,7 +280,7 @@ function Index() {
     const welcomeReady = tutorialStage === "welcome-ready";
     return (
       <WelcomeTutorialScreen
-        highlighted={welcomeReady}
+        highlightedTarget={highlightedTarget}
         onListen={() => {
           try {
             window.localStorage.setItem(TUTORIAL_PHASE_ONE.instructionsSeenStorageKey, "true");
@@ -452,18 +443,18 @@ function WelcomeTutorialScreen({
         <h1 className="max-w-xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl">Olá! Você está no Beabá.</h1>
       </div>
       <div className="flex w-full max-w-sm flex-col gap-3 pb-4">
-        {highlighted && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-auto" aria-hidden="true" />}
+        {highlightedTarget && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
         <button
           type="button"
           onClick={onListen}
-          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlighted ? "tutorial-focus-target" : ""}`}
+          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlightedTarget === "listen" ? "tutorial-focus-target tutorial-focus-pulse" : ""}`}
         >
           Ouvir instruções
         </button>
         <button
           type="button"
           onClick={onStart}
-          className="relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl border-2 border-white bg-transparent px-8 py-4 font-display text-2xl font-extrabold text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95"
+          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl border-2 border-white bg-transparent px-8 py-4 font-display text-2xl font-extrabold text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlightedTarget === "start" ? "tutorial-focus-target tutorial-focus-pulse" : ""}`}
         >
           Iniciar
         </button>
