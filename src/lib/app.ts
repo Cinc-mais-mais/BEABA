@@ -94,7 +94,11 @@ export function useProgress() {
   }, []);
   const complete = (id: string) => setDone((d) => {
     const next = d.includes(id) ? d : [...d, id];
-    localStorage.setItem(KEY, JSON.stringify(next));
+    // O progresso continua atualizando na sessão mesmo se o armazenamento
+    // local estiver indisponível (restrições, quota ou modo privado).
+    try { localStorage.setItem(KEY, JSON.stringify(next)); } catch (error) {
+      console.warn("Não foi possível persistir o progresso da atividade.", error);
+    }
     return next;
   });
   return { done, complete };
