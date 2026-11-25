@@ -9,6 +9,17 @@ if (!apiKey) {
 const outputDir = join(process.cwd(), "public", "audio", "tutorial");
 await mkdir(outputDir, { recursive: true });
 
+// Para substituir WAVs existentes, execute com REGENERATE_AUDIO=true.
+const forceRegenerate = process.env.REGENERATE_AUDIO === "true";
+const voiceName = "Gacrux";
+const voiceDirection =
+  "Leia em português brasileiro, com voz adulta, natural e profissional, como uma narradora experiente explicando instruções a outro adulto. " +
+  "Utilize uma entonação serena, neutra e acolhedora, sem infantilização. Fale de maneira clara, articulada e ligeiramente pausada, " +
+  "facilitando a compreensão de pessoas idosas. Mantenha um ritmo moderado, com entonação natural e discreta. " +
+  "Evite entusiasmo exagerado, voz sorridente artificial, dramatização, melodias vocais excessivas, tom de desenho animado ou interpretação de personagem. " +
+  "Transmita respeito, autonomia, confiança e tranquilidade. Não fale como se estivesse conversando com uma criança. " +
+  "Pronuncie corretamente todas as palavras, sem alterar, acrescentar ou omitir o texto fornecido.";
+
 const entries = [
   ["selection-learn", "Você está no Beabá. Aperte aqui para aprender a usar o aplicativo."],
   ["selection-skip", "Se você já sabe utilizar o app, aperte aqui para pular o tutorial."],
@@ -106,7 +117,7 @@ function formatDuration(ms) {
 
 async function generateAudio(id, transcript) {
   const filePath = join(outputDir, `${id}.wav`);
-  if (await isValidWav(filePath)) {
+  if (!forceRegenerate && await isValidWav(filePath)) {
     console.log(`Já existe, ignorando: ${filePath}`);
     return "skipped";
   }
@@ -121,11 +132,11 @@ async function generateAudio(id, transcript) {
         method: "POST",
         headers: { "content-type": "application/json" },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: `Leia exatamente o texto a seguir, em português brasileiro, com voz clara, acolhedora, calma e pausada, adequada a pessoas idosas: ${transcript}` }] }],
+          contents: [{ parts: [{ text: `${voiceDirection} Leia exatamente o seguinte texto: ${transcript}` }] }],
           generationConfig: {
             responseModalities: ["AUDIO"],
             speechConfig: {
-              voiceConfig: { prebuiltVoiceConfig: { voiceName: "Kore" } },
+              voiceConfig: { prebuiltVoiceConfig: { voiceName } },
             },
           },
         }),
@@ -200,5 +211,5 @@ console.log(`\nProgresso: ${completed}/${entries.length} arquivo(s) prontos (${g
 if (pausedAt) {
   console.log(`Faltam ${entries.length - completed} arquivo(s), começando por "${pausedAt}". Execute novamente após o horário indicado acima.`);
 } else {
-  console.log("Todos os áudios foram gerados. Revise os arquivos antes de adicioná-los ao repositório.");
+  console.log(`Todos os áudios estão prontos usando a voz ${voiceName}${forceRegenerate ? " (substituição forçada)" : ""}. Revise os arquivos antes de adicioná-los ao repositório.`);
 }
