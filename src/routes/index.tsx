@@ -5,6 +5,7 @@ import logo from "@/assets/iconpng.png";
 import { Shell } from "@/components/Shell";
 import { Activity } from "@/components/Activity";
 import { LESSONS, speak, useProgress, recordLessonStarted, type Lesson } from "@/lib/app";
+import { unlockGoogleLiveAudio } from "@/lib/google-live-speech";
 import { playTutorialNarration, TUTORIAL_PHASE_ONE } from "@/lib/tutorial";
 
 export const Route = createFileRoute("/")({
@@ -274,8 +275,16 @@ function Index() {
     return (
       <WelcomeTutorialScreen
         highlighted={tutorialStage === "welcome-prompt" || tutorialStage === "welcome-ready"}
-        disabled={tutorialStage !== "welcome-ready"}
-        onStart={() => setTutorialStage("home-intro")}
+        onStart={() => {
+          try {
+            void unlockGoogleLiveAudio().catch((error: unknown) => {
+              console.error("Unable to enable Google Live audio.", error);
+            });
+          } catch (error) {
+            console.error("Unable to enable Google Live audio.", error);
+          }
+          setTutorialStage("home-intro");
+        }}
       />
     );
   }
@@ -395,7 +404,7 @@ function Index() {
   );
 }
 
-function WelcomeTutorialScreen({ highlighted, disabled, onStart }: { highlighted: boolean; disabled: boolean; onStart: () => void }) {
+function WelcomeTutorialScreen({ highlighted, onStart }: { highlighted: boolean; onStart: () => void }) {
   return (
     <main className="welcome-tutorial fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-between overflow-y-auto bg-[var(--home-header)] px-6 py-10 text-white sm:py-14">
       <div className="flex w-full flex-1 flex-col items-center justify-start gap-6 pt-[5dvh]">
@@ -406,9 +415,8 @@ function WelcomeTutorialScreen({ highlighted, disabled, onStart }: { highlighted
         {highlighted && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-auto" aria-hidden="true" />}
         <button
           type="button"
-          disabled={disabled}
           onClick={onStart}
-          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 disabled:opacity-80 ${highlighted ? "tutorial-focus-target" : ""}`}
+          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlighted ? "tutorial-focus-target" : ""}`}
         >
           Iniciar
         </button>

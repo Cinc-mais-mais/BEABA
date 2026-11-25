@@ -44,6 +44,11 @@ function getAudioContext() {
   return audioContext;
 }
 
+export function unlockGoogleLiveAudio() {
+  const context = getAudioContext();
+  return context.state === "suspended" ? context.resume() : Promise.resolve();
+}
+
 function clearAudio(speech: ActiveSpeech) {
   for (const source of speech.sources) {
     source.onended = null;
@@ -262,7 +267,7 @@ export function speakWithGoogleLive(text: string, onEnded?: () => void) {
 
   try {
     const context = getAudioContext();
-    const resume = context.state === "suspended" ? context.resume() : Promise.resolve();
+    const resume = unlockGoogleLiveAudio();
 
     void resume
       .then(async () => {
