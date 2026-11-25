@@ -13,7 +13,7 @@ export const TUTORIAL_PHASE_ONE = {
   narration: {
     welcome: {
       text: "Olá, clique em Ouvir instruções caso precise de ajuda, ou clique em Iniciar caso queira pular as instruções.",
-      audioSrc: null as string | null,
+      audioSrc: null as string |audioSrc: "/audio/tutorial/home-introduction.wav" as string |audioSrc: "/audio/tutorial/continue-activity.wav" as string |audioSrc: "/audio/tutorial/activity-introduction.wav" as string |audioSrc: "/audio/tutorial/picture-audio.wav" as string |audioSrc: "/audio/tutorial/choose-answer.wav" as string |audioSrc: "/audio/tutorial/next-word.wav" as string |audioSrc: "/audio/tutorial/trail-completed.wav" as string |audioSrc: "/audio/tutorial/large-text-guide.wav" as string | null,
     },
     welcomeReturning: {
       text: "Olá, seja bem-vindo ao Beabá. Clique em Ouvir instruções ou Iniciar.",
@@ -74,6 +74,11 @@ export function playTutorialNarration(
   onEnded?: () => void,
 ): () => void {
   const clip = TUTORIAL_PHASE_ONE.narration[key];
+  const word = values.word?.trim().toLocaleLowerCase("pt-BR");
+  const dynamicAudioSrc = word && ["missingPart", "pictureRepeat", "correctAnswer"].includes(key)
+    ? `/audio/tutorial/${key.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase())}-${word}.wav`
+    : null;
+  const audioSrc = dynamicAudioSrc ?? clip.audioSrc;
   const text = Object.entries(values).reduce<string>(
     (result, [name, value]) => result.replaceAll(`{{${name}}}`, value),
     clip.text,
