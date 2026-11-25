@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { speakWithGoogleLive } from "./google-live-speech";\nimport { playAudioText, stopAudioPlayback } from "./audio";
+import { speakWithGoogleLive } from "./google-live-speech";
+import { playAudioText, stopAudioPlayback } from "./audio";
 
 const SOUND_KEY = "beaba-sound-enabled";
 
