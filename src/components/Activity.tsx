@@ -60,10 +60,12 @@ function ActivityHeader({ onClose, title, disabled = false }: { onClose: () => v
 export function ExerciseNextButton({
   onClick,
   disabled = false,
+  highlighted = false,
   children,
 }: {
   onClick: () => void;
   disabled?: boolean;
+  highlighted?: boolean;
   children: ReactNode;
 }) {
   return (
