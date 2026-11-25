@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { speakWithGoogleLive } from "./google-live-speech";
 
 const SOUND_KEY = "beaba-sound-enabled";
 
@@ -20,13 +21,9 @@ export function setSoundEnabled(enabled: boolean) {
   }
 }
 
-export function speak(text: string) {
-  if (typeof window === "undefined" || !("speechSynthesis" in window) || !isSoundEnabled()) return;
-  window.speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(text);
-  u.lang = "pt-BR";
-  u.rate = 0.85;
-  window.speechSynthesis.speak(u);
+export function speak(text: string, onEnded?: () => void) {
+  if (typeof window === "undefined" || !isSoundEnabled()) return () => {};
+  return speakWithGoogleLive(text, onEnded);
 }
 
 /** Short cheerful tones via Web Audio (no files needed). */

@@ -1,9 +1,8 @@
-import { isSoundEnabled } from "@/lib/app";
+import { isSoundEnabled, speak } from "@/lib/app";
 
 /**
  * Configuração da primeira fase do tutorial.
- * Para substituir a voz provisória por gravações, basta preencher audioSrc
- * em cada fala com o caminho do respectivo arquivo de áudio.
+ * A voz usa o Google Live API; audioSrc pode substituir uma fala por uma gravação.
  */
 export const TUTORIAL_PHASE_ONE = {
   storageKey: "beaba-tutorial-complete-v2",
@@ -74,35 +73,24 @@ export function playTutorialNarration(
   onEnded?: () => void,
 ): () => void {
   const clip = TUTORIAL_PHASE_ONE.narration[key];
-  const text = Object.entries(values).reduce(
+  const text = Object.entries(values).reduce<string>(
     (result, [name, value]) => result.replaceAll(`{{${name}}}`, value),
     clip.text,
   );
   let cancelled = false;
   let audio: HTMLAudioElement | null = null;
-  let utterance: SpeechSynthesisUtterance | null = null;
   let fallbackTimer: number | null = null;
-  let speechFallbackStarted = false;
+  let speechStarted = false;
+  let cancelSpeech = () => {};
 
   const finish = () => {
     if (!cancelled) onEnded?.();
   };
 
-  const useSpeechSynthesis = () => {
-    if (cancelled || speechFallbackStarted) return;
-    speechFallbackStarted = true;
-    if (typeof window === "undefined" || !("speechSynthesis" in window)) {
-      finish();
-      return;
-    }
-    window.speechSynthesis.cancel();
-    utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "pt-BR";
-    utterance.rate = 0.84;
-    utterance.pitch = 1;
-    utterance.onend = finish;
-    utterance.onerror = finish;
-    window.speechSynthesis.speak(utterance);
+  const startGoogleLiveSpeech = () => {
+    if (cancelled || speechStarted) return;
+    speechStarted = true;
+    cancelSpeech = speak(text, finish);
   };
 
   if (typeof window === "undefined") {
@@ -112,10 +100,10 @@ export function playTutorialNarration(
   } else if (clip.audioSrc) {
     audio = new Audio(clip.audioSrc);
     audio.onended = finish;
-    audio.onerror = useSpeechSynthesis;
-    void audio.play().catch(useSpeechSynthesis);
+    audio.onerror = startGoogleLiveSpeech;
+    void audio.play().catch(startGoogleLiveSpeech);
   } else {
-    useSpeechSynthesis();
+    startGoogleLiveSpeech();
   }
 
   return () => {
@@ -127,12 +115,6 @@ export function playTutorialNarration(
       audio.onended = null;
       audio.onerror = null;
     }
-    if (utterance) {
-      utterance.onend = null;
-      utterance.onerror = null;
-      if (typeof window !== "undefined" && "speechSynthesis" in window) {
-        window.speechSynthesis.cancel();
-      }
-    }
+    cancelSpeech();
   };
 }
