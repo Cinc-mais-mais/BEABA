@@ -272,10 +272,17 @@ function Index() {
   }
 
   if (tutorialStage === "welcome-intro" || tutorialStage === "welcome-prompt" || tutorialStage === "welcome-ready") {
+    const welcomeReady = tutorialStage === "welcome-ready";
     return (
       <WelcomeTutorialScreen
         highlighted={tutorialStage === "welcome-prompt" || tutorialStage === "welcome-ready"}
+        ready={welcomeReady}
         onStart={() => {
+          if (welcomeReady) {
+            setTutorialStage("home-intro");
+            return;
+          }
+
           try {
             void unlockGoogleLiveAudio().catch((error: unknown) => {
               console.error("Unable to enable Google Live audio.", error);
@@ -283,7 +290,6 @@ function Index() {
           } catch (error) {
             console.error("Unable to enable Google Live audio.", error);
           }
-          setTutorialStage("home-intro");
         }}
       />
     );
@@ -404,7 +410,7 @@ function Index() {
   );
 }
 
-function WelcomeTutorialScreen({ highlighted, onStart }: { highlighted: boolean; onStart: () => void }) {
+function WelcomeTutorialScreen({ highlighted, ready, onStart }: { highlighted: boolean; ready: boolean; onStart: () => void }) {
   return (
     <main className="welcome-tutorial fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-between overflow-y-auto bg-[var(--home-header)] px-6 py-10 text-white sm:py-14">
       <div className="flex w-full flex-1 flex-col items-center justify-start gap-6 pt-[5dvh]">
@@ -418,7 +424,7 @@ function WelcomeTutorialScreen({ highlighted, onStart }: { highlighted: boolean;
           onClick={onStart}
           className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlighted ? "tutorial-focus-target" : ""}`}
         >
-          Iniciar
+          {ready ? "Iniciar" : "Ouvir instruções"}
         </button>
       </div>
     </main>
