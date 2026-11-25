@@ -276,8 +276,8 @@ function Index() {
     return <div className="fixed inset-0 bg-[var(--home-header)]" aria-label="Preparando o Beabá" />;
   }
 
-  if (tutorialStage === "welcome-intro" || tutorialStage === "welcome-ready") {
-    const welcomeReady = tutorialStage === "welcome-ready";
+  if (tutorialStage === "welcome-selection-first" || tutorialStage === "welcome-selection-second" || tutorialStage === "welcome-selection-ready") {
+    const highlightedTarget = tutorialStage === "welcome-selection-first" ? "listen" : tutorialStage === "welcome-selection-second" ? "start" : null;
     return (
       <WelcomeTutorialScreen
         highlightedTarget={highlightedTarget}
@@ -428,37 +428,12 @@ function Index() {
 }
 
 function WelcomeTutorialScreen({
-  highlighted,
+  highlightedTarget,
   onListen,
   onStart,
 }: {
-  highlighted: boolean;
+  highlightedTarget: "listen" | "start" | null;
   onListen: () => void;
   onStart: () => void;
 }) {
-  return (
-    <main className="welcome-tutorial fixed inset-0 z-[100] flex min-h-dvh flex-col items-center justify-between overflow-y-auto bg-[var(--home-header)] px-6 py-10 text-white sm:py-14">
-      <div className="flex w-full flex-1 flex-col items-center justify-start gap-6 pt-[5dvh]">
-        <img src={logo} alt="Ícone do aplicativo Beabá" className="max-h-[42dvh] w-[min(72vw,340px)] object-contain drop-shadow-[0_12px_24px_rgba(0,0,0,0.2)]" />
-        <h1 className="max-w-xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl">Olá! Você está no Beabá.</h1>
-      </div>
-      <div className="flex w-full max-w-sm flex-col gap-3 pb-4">
-        {highlightedTarget && <div className="tutorial-dim-layer fixed inset-0 z-0 bg-slate-950/20 pointer-events-none" aria-hidden="true" />}
-        <button
-          type="button"
-          onClick={onListen}
-          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl bg-white px-8 py-4 font-display text-2xl font-extrabold text-[var(--home-header)] shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlightedTarget === "listen" ? "tutorial-focus-target tutorial-focus-pulse" : ""}`}
-        >
-          Ouvir instruções
-        </button>
-        <button
-          type="button"
-          onClick={onStart}
-          className={`relative z-10 flex min-h-[68px] w-full items-center justify-center rounded-2xl border-2 border-white bg-transparent px-8 py-4 font-display text-2xl font-extrabold text-white shadow-[0_8px_20px_rgba(0,0,0,0.2)] transition active:scale-95 ${highlightedTarget === "start" ? "tutorial-focus-target tutorial-focus-pulse" : ""}`}
-        >
-          Iniciar
-        </button>
-      </div>
-    </main>
-  );
-}
+
