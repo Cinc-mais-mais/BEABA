@@ -1,9 +1,6 @@
 import { isSoundEnabled, speak } from "@/lib/app";
 
-/**
- * Configuração da primeira fase do tutorial.
- * A voz usa o Google Live API; audioSrc pode substituir uma fala por uma gravação.
- */
+/** Configuração da primeira fase do tutorial e caminhos dos áudios gravados. */
 export const TUTORIAL_PHASE_ONE = {
   storageKey: "beaba-tutorial-complete-v2",
   instructionsSeenStorageKey: "beaba-tutorial-instructions-seen",
@@ -11,9 +8,17 @@ export const TUTORIAL_PHASE_ONE = {
   questionIndex: 0,
   overviewDelayMs: 3000,
   narration: {
+    selectionLearn: {
+      text: "Você está no Beabá. Aperte aqui para aprender a usar o aplicativo.",
+      audioSrc: "/audio/tutorial/selection-learn.wav" as string | null,
+    },
+    selectionSkip: {
+      text: "Se você já sabe utilizar o app, aperte aqui para pular o tutorial.",
+      audioSrc: "/audio/tutorial/selection-skip.wav" as string | null,
+    },
     welcome: {
       text: "Olá, clique em Ouvir instruções caso precise de ajuda, ou clique em Iniciar caso queira pular as instruções.",
-      audioSrc: null as string |audioSrc: "/audio/tutorial/home-introduction.wav" as string |audioSrc: "/audio/tutorial/continue-activity.wav" as string |audioSrc: "/audio/tutorial/activity-introduction.wav" as string |audioSrc: "/audio/tutorial/picture-audio.wav" as string |audioSrc: "/audio/tutorial/choose-answer.wav" as string |audioSrc: "/audio/tutorial/next-word.wav" as string |audioSrc: "/audio/tutorial/trail-completed.wav" as string |audioSrc: "/audio/tutorial/large-text-guide.wav" as string | null,
+      audioSrc: null as string | null,
     },
     welcomeReturning: {
       text: "Olá, seja bem-vindo ao Beabá. Clique em Ouvir instruções ou Iniciar.",
@@ -21,15 +26,15 @@ export const TUTORIAL_PHASE_ONE = {
     },
     homeIntroduction: {
       text: "Aqui é a tela inicial, onde você fará as atividades.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/home-introduction.wav" as string | null,
     },
     continueActivity: {
       text: "Você pode apertar neste botão para começar a aprender sempre que quiser. Aperte nele agora para fazermos a sua primeira atividade.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/continue-activity.wav" as string | null,
     },
     activityIntroduction: {
       text: "Aqui na atividade, você vai ver um desenho e uma palavra incompleta desse desenho. Seu objetivo é completar a palavra com o que estiver faltando.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/activity-introduction.wav" as string | null,
     },
     missingPart: {
       text: "A palavra é \"{{word}}\".",
@@ -37,7 +42,7 @@ export const TUTORIAL_PHASE_ONE = {
     },
     pictureAudio: {
       text: "Você pode clicar no quadrado com o desenho para ouvir a palavra de novo.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/picture-audio.wav" as string | null,
     },
     pictureRepeat: {
       text: "{{word}}.",
@@ -45,7 +50,7 @@ export const TUTORIAL_PHASE_ONE = {
     },
     chooseAnswer: {
       text: "Sua vez. Aperte no que está faltando para completar a palavra.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/choose-answer.wav" as string | null,
     },
     correctAnswer: {
       text: "Parabéns! Você montou a palavra \"{{word}}\"! Vamos para a próxima palavra?",
@@ -53,20 +58,29 @@ export const TUTORIAL_PHASE_ONE = {
     },
     nextWord: {
       text: "Aperte aqui em prosseguir para ir para a próxima palavra!",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/next-word.wav" as string | null,
     },
     trailCompleted: {
       text: "Muito bem! Você concluiu a atividade Vogais. Veja: a primeira bolinha está completa e a próxima atividade foi desbloqueada.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/trail-completed.wav" as string | null,
     },
     largeTextGuide: {
       text: "Este é o botão para aumentar o tamanho do texto. Clique nele para ver as letras maiores. Para voltar ao tamanho normal, é só apertar novamente.",
-      audioSrc: null as string | null,
+      audioSrc: "/audio/tutorial/large-text-guide.wav" as string | null,
     },
   },
 } as const;
 
 export type TutorialNarrationKey = keyof typeof TUTORIAL_PHASE_ONE.narration;
+
+function resolveAudioSrc(key: TutorialNarrationKey, values: Record<string, string>, fallback: string | null) {
+  const word = values.word?.trim().toLocaleLowerCase("pt-BR");
+  if (word && ["missingPart", "pictureRepeat", "correctAnswer"].includes(key)) {
+    const fileKey = key.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase());
+    return `/audio/tutorial/${fileKey}-${word}.wav`;
+  }
+  return fallback;
+}
 
 export function playTutorialNarration(
   key: TutorialNarrationKey,
@@ -74,11 +88,7 @@ export function playTutorialNarration(
   onEnded?: () => void,
 ): () => void {
   const clip = TUTORIAL_PHASE_ONE.narration[key];
-  const word = values.word?.trim().toLocaleLowerCase("pt-BR");
-  const dynamicAudioSrc = word && ["missingPart", "pictureRepeat", "correctAnswer"].includes(key)
-    ? `/audio/tutorial/${key.replace(/[A-Z]/g, (letter) => "-" + letter.toLowerCase())}-${word}.wav`
-    : null;
-  const audioSrc = dynamicAudioSrc ?? clip.audioSrc;
+  const audioSrc = resolveAudioSrc(key, values, clip.audioSrc);
   const text = Object.entries(values).reduce<string>(
     (result, [name, value]) => result.replaceAll(`{{${name}}}`, value),
     clip.text,
@@ -103,8 +113,8 @@ export function playTutorialNarration(
     onEnded?.();
   } else if (!isSoundEnabled()) {
     fallbackTimer = window.setTimeout(finish, 0);
-  } else if (clip.audioSrc) {
-    audio = new Audio(clip.audioSrc);
+  } else if (audioSrc) {
+    audio = new Audio(audioSrc);
     audio.onended = finish;
     audio.onerror = startGoogleLiveSpeech;
     void audio.play().catch(startGoogleLiveSpeech);
