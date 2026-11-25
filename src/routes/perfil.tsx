@@ -2,7 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState, type ChangeEvent } from "react";
 import { Contrast, Camera, CheckCircle2, XCircle, Clock3, TrendingUp, ImagePlus, UserRound, Volume2, VolumeX, Moon, Sun, Pencil, Check, X } from "lucide-react";
 import { Shell } from "@/components/Shell";
-import { speak, isSoundEnabled, setSoundEnabled, useProgress, getProfileStats , LESSONS, type ProfileStats } from "@/lib/app";
+import { speak, isSoundEnabled, setSoundEnabled, useProgress, getProfileStats, LESSONS, type ProfileStats } from "@/lib/app";
 import { stopGoogleLiveSpeech } from "@/lib/google-live-speech";
 
 export const Route = createFileRoute("/perfil")({
