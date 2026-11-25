@@ -1,4 +1,5 @@
-import { isSoundEnabled, speak } from "@/lib/app";\nimport { playAudioFile, playAudioText } from "@/lib/audio";
+import { isSoundEnabled, speak } from "@/lib/app";
+import { playAudioFile, playAudioText } from "@/lib/audio";
 
 /** Configuração da primeira fase do tutorial e caminhos dos áudios gravados. */
 export const TUTORIAL_PHASE_ONE = {
