@@ -21,7 +21,7 @@ export GEMINI_API_KEY="SUA_CHAVE"
 bun run audio:generate
 ```
 
-O script faz chamadas ao modelo `gemini-2.5-flash-preview-tts`, transforma o PCM retornado em WAV (24 kHz, mono, 16-bit) e grava os arquivos em `public/audio/tutorial/`. Para respeitar a cota gratuita observada de 3 solicitações por minuto, ele espera pelo menos 22 segundos entre chamadas, interpreta o `retryDelay` de respostas 429 e tenta novamente automaticamente. Também ignora WAVs já existentes e válidos, permitindo interromper e executar o comando novamente sem regenerar os arquivos concluídos.
+O script faz chamadas ao modelo `gemini-2.5-flash-preview-tts`, transforma o PCM retornado em WAV (24 kHz, mono, 16-bit) e grava os arquivos em `public/audio/tutorial/`. Para respeitar a cota gratuita observada de 3 solicitações por minuto, ele espera pelo menos 22 segundos entre chamadas, interpreta o `retryDelay` de respostas 429 e tenta novamente automaticamente quando a espera é curta. Se o Google solicitar mais de 2 minutos, o script pausa a geração e informa quando tentar novamente, em vez de manter o terminal aguardando por horas. Também ignora WAVs já existentes e válidos, permitindo interromper e executar o comando novamente sem regenerar os arquivos concluídos.
 
 3. Ouça e revise os WAVs gerados.
 4. Adicione a pasta `public/audio/tutorial/` ao Git, commit e push para `main`. Os arquivos serão servidos como recursos estáticos pela Vercel.
