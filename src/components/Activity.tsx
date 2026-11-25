@@ -71,7 +71,7 @@ export function ExerciseNextButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="activity-next-button exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90"
+      className={`activity-next-button exercise-next-button pop flex min-h-[64px] w-full items-center justify-center gap-3 rounded-2xl bg-[#2877B8] px-6 py-3 text-xl font-extrabold text-white transition disabled:cursor-wait disabled:opacity-90 ${highlighted ? "tutorial-focus-target" : ""}`}
     >
       <span className="activity-next-content relative z-10 flex w-full items-center justify-between gap-3">{children}</span>
     </button>
