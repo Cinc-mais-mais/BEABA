@@ -323,7 +323,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
               <WordPictureButton
                 emoji={q.emoji}
                 text={q.word}
-                disabled={tutorialFirstQuestion && !tutorialReady && tutorialStep !== "picture-audio"}
+                disabled={tutorialFirstQuestion && tutorialStep !== "picture-audio" && tutorialStep !== "picture-repeat"}
                 highlighted={tutorialFirstQuestion && (tutorialStep === "picture-audio" || tutorialStep === "picture-repeat")}
                 onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : undefined}
               />
