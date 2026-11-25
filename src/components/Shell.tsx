@@ -87,9 +87,9 @@ export function Shell({ children, home = false, highlightLargeText = false, larg
       <main className="app-main relative z-10 mx-auto max-w-2xl px-4 py-6">{children}</main>
 
       <nav className="app-nav fixed inset-x-0 bottom-0 z-30 rounded-t-[2rem] bg-[var(--home-nav)] shadow-[0_-4px_16px_rgb(0_0_0/0.08)]">
-        <ul className="mx-auto flex max-w-2xl justify-evenly pb-3 pt-4">
+        <ul className="mx-auto flex w-full max-w-2xl items-stretch pb-3 pt-4">
           {tabs.map((t) => (
-            <li key={t.to} className="flex-1">
+            <li key={t.to} className="w-1/2 flex-none">
               {tutorialNavLock ? (
                 <button type="button" disabled={t.to !== "/"} onClick={() => {
                   if (t.to !== "/") return;
