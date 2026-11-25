@@ -6,16 +6,17 @@ import { isSoundEnabled, speak } from "@/lib/app";
  */
 export const TUTORIAL_PHASE_ONE = {
   storageKey: "beaba-tutorial-complete-v2",
+  instructionsSeenStorageKey: "beaba-tutorial-instructions-seen",
   lessonId: "vogais",
   questionIndex: 0,
   overviewDelayMs: 3000,
   narration: {
     welcome: {
-      text: "Olá, você está no Beabá.",
+      text: "Olá, clique em Ouvir instruções caso precise de ajuda, ou clique em Iniciar caso queira pular as instruções.",
       audioSrc: null as string | null,
     },
-    welcomePrompt: {
-      text: "Aperte neste botão para continuar.",
+    welcomeReturning: {
+      text: "Olá, seja bem-vindo ao Beabá. Clique em Ouvir instruções ou Iniciar.",
       audioSrc: null as string | null,
     },
     homeIntroduction: {
