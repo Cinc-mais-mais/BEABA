@@ -76,7 +76,7 @@ function Index() {
       }
       setTutorialStage("welcome-selection-first");
     } catch {
-      setTutorialStage("welcome-intro");
+      setTutorialStage("welcome-selection-first");
     }
   }, []);
 
