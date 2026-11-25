@@ -149,7 +149,7 @@ function SentenceActivity({ lesson, sentences, onClose, onDone }: Props & { sent
       setBuilt([]);
       setWrong(null);
       setFeedback("Escolha as palavras para montar a frase.");
-      window.setTimeout(() => { nextGuard.current = false; setInputLocked(false); }, 2000);
+      window.setTimeout(() => { nextGuard.current = false; setInputLocked(false); }, 1000);
     } else {
       setFinished(true);
       chime("win");
@@ -297,7 +297,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
       setPicked(null);
       setWrong(null);
       setFeedback("");
-      window.setTimeout(() => { nextGuard.current = false; setInputLocked(false); }, 2000);
+      window.setTimeout(() => { nextGuard.current = false; setInputLocked(false); }, 1000);
     } else {
       setFinished(true);
       chime("win");
@@ -325,7 +325,7 @@ function SyllableActivity({ lesson, onClose, onDone, tutorial = false }: Props) 
                 text={q.word}
                 disabled={tutorialFirstQuestion && tutorialStep !== "picture-audio" && tutorialStep !== "picture-repeat"}
                 highlighted={tutorialFirstQuestion && (tutorialStep === "picture-audio" || tutorialStep === "picture-repeat")}
-                onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : undefined}
+                onClick={tutorialFirstQuestion && tutorialStep === "picture-audio" ? () => setTutorialStep("picture-repeat") : tutorialFirstQuestion && tutorialStep === "picture-repeat" ? () => setTutorialStep("options-prompt") : undefined}
               />
               <p className="word-prompt exercise-cursive text-slate-950" aria-live="polite">
                 {q.before.toLocaleLowerCase("pt-BR")}<span className={`tutorial-missing-part exercise-cursive mx-1 inline-flex min-w-[2.2ch] items-center justify-center border-b-[5px] border-slate-900 text-center ${picked ? "text-emerald-700" : ""} ${tutorialFirstQuestion && tutorialStep === "missing-part" ? "tutorial-focus-target tutorial-focus-blank" : ""}`}>{picked?.toLocaleLowerCase("pt-BR") ?? "\u00A0"}</span>{q.after.toLocaleLowerCase("pt-BR")}
